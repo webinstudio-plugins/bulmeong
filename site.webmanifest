@@ -1,0 +1,23 @@
+{
+  "name": "불멍(火멍) : 재의 연금술 · 글로벌 실시간 화로 클리커 & 소각 게임",
+  "short_name": "불멍 재의연금술",
+  "description": "전 세계 사람들과 실시간으로 화로 온도를 10,000°C까지 올리고 사직서·주식계좌·번뇌와 20종 비밀 연금술 주문을 태우는 인터랙티브 불멍 웹게임",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050408",
+  "theme_color": "#050408",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

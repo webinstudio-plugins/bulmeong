@@ -2482,7 +2482,7 @@ const LANG_PACK = {
     caption: '글로벌 실시간 연금술 화로',
     goldBtn: '👑 황금 소원부적 전환',
     goldActiveBtn: '👑 황금 소원부적 ON',
-    price: '₩1,000 / $0.99 (자동결제)',
+    price: '$0.99 (PayPal 자동결제)',
     goldOracle: '황금 부적에 담은 간절한 소원이 불꽃을 타고 하늘로 피어올랐습니다. 반드시 이루어질 것입니다.'
   },
   en: {
@@ -2592,11 +2592,8 @@ document.getElementById('btn-gold-talisman').addEventListener('click', () => {
   }
 });
 
-// ── Automated PG Payment Verification (PayApp Korean Integrated PG + TossPayments V2 SDK + PayPal Auto Return + Server IP Binding) ──
-const PAYAPP_USER_ID = 'webinstudio';
+// ── Automated PG Payment Verification (PayPal Global Auto Return + Server IP Binding) ──
 const PAYPAL_MERCHANT_EMAIL = 'thenthenthen@naver.com';
-// User's TossPayments Client Key from TossPayments Developer Center
-const TOSS_CLIENT_KEY = 'test_ck_ma60RZblrq707WRWEjD53wzYWBn1';
 
 let userIpHash = saved.userIpHash || ('dev_' + Math.random().toString(36).slice(2, 10));
 let userIpMasked = '연결됨';
@@ -2625,56 +2622,6 @@ async function detectUserIpAndSyncVip() {
 }
 detectUserIpAndSyncVip();
 
-function openPayAppCheckout() {
-  const returnUrl = new URL(window.location.href);
-  returnUrl.searchParams.set('payapp_paid', '1');
-  returnUrl.searchParams.set('orderId', 'pa_' + Date.now());
-  try {
-    if (typeof window.PayApp !== 'undefined' && typeof window.PayApp.call === 'function') {
-      window.PayApp.setDefault('userid', PAYAPP_USER_ID);
-      window.PayApp.setDefault('shopname', '불멍 재의 연금술 (웹인스튜디오)');
-      window.PayApp.setParam('goodname', '불멍 황금 소원부적 & 도감 비전서 영구 해금');
-      window.PayApp.setParam('price', '1000');
-      window.PayApp.setParam('recvphone', '01027891093');
-      window.PayApp.setParam('memo', `IP:${userIpHash}`);
-      window.PayApp.setParam('returnurl', returnUrl.toString());
-      window.PayApp.setParam('openpaytype', 'card,phone,kakaopay,naverpay,tosspay,smilepay,applepay');
-      window.PayApp.setParam('smsuse', 'n');
-      window.PayApp.call();
-      return;
-    }
-  } catch {}
-  showOracle('페이앱(PayApp) 판매자 ID(webinstudio) 결제창을 호출합니다.', '🇰🇷 페이앱 한국 통합결제');
-}
-
-async function openTossPaymentsSdkCheckout() {
-  try {
-    if (typeof window.TossPayments !== 'function') {
-      throw new Error('TossPayments SDK 로드 확인 중');
-    }
-    const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
-    const payment = tossPayments.payment({ customerKey: userIpHash });
-    const successUrl = new URL(window.location.href);
-    successUrl.searchParams.set('toss_paid', '1');
-    const failUrl = new URL(window.location.href);
-    await payment.requestPayment({
-      method: 'CARD',
-      amount: { currency: 'KRW', value: 1000 },
-      orderId: 'bulmeong_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-      orderName: '불멍 황금 소원부적 & 도감 비전서 영구 해금',
-      customerName: state.discovererName || state.myfireOwner || '익명 연금술사',
-      successUrl: successUrl.toString(),
-      failUrl: failUrl.toString()
-    });
-  } catch (err) {
-    if (err && err.code === 'USER_CANCEL') {
-      showOracle('결제창을 닫으셨습니다. 언제든 다시 시도하실 수 있습니다.', '결제 취소');
-    } else {
-      showOracle(`토스페이먼츠 결제창 안내: ${err?.message || '결제 모듈 호출'}`, '결제 안내');
-    }
-  }
-}
-
 function openPayPalCheckout() {
   const returnUrl = new URL(window.location.href);
   returnUrl.searchParams.set('paypal_paid', '1');
@@ -2692,7 +2639,7 @@ function openPayPalCheckout() {
   window.location.href = ppUrl.toString();
 }
 
-function completeWebCheckout(methodName = '페이앱/토스 자동 승인') {
+function completeWebCheckout(methodName = 'PayPal 글로벌 자동결제 승인') {
   state.goldUnlocked = true;
   state.goldMode = true;
   state.paletteIndex = 3; // Golden temple flame
@@ -2706,22 +2653,15 @@ function completeWebCheckout(methodName = '페이앱/토스 자동 승인') {
   showOracle(`${methodName} 완료! 현재 접속 IP(${userIpMasked}) 및 기기에 「👑 황금 소원부적」이 영구 귀속되었습니다!`, '👑 자동 결제 검증 & 서버 등록 완료');
 }
 
-document.getElementById('btn-pay-payapp')?.addEventListener('click', openPayAppCheckout);
-document.getElementById('btn-pay-tosspayments')?.addEventListener('click', openTossPaymentsSdkCheckout);
 document.getElementById('btn-pay-paypal')?.addEventListener('click', openPayPalCheckout);
 
-// Check URL callback from PayApp (?payapp_paid=1), TossPayments (?paymentKey=...&orderId=...&amount=1000) or PayPal (?paypal_paid=1)
-if (urlParams.get('payapp_paid') === '1' || urlParams.get('paymentKey') || urlParams.get('toss_paid') === '1' || urlParams.get('paypal_paid') === '1') {
-  const methodLabel = urlParams.get('payapp_paid') === '1'
-    ? '페이앱(PayApp) 한국 통합결제 자동 승인'
-    : urlParams.get('paymentKey')
-      ? `토스페이먼츠 자동결제 승인 (${urlParams.get('orderId')?.slice(0, 14) || 'OK'})`
-      : 'PayPal 글로벌 자동결제 승인';
+// Check URL callback from PayPal (?paypal_paid=1)
+if (urlParams.get('paypal_paid') === '1') {
   setTimeout(() => {
     document.getElementById('title-screen')?.classList.add('hidden');
-    completeWebCheckout(methodLabel);
+    completeWebCheckout('PayPal 글로벌 자동결제 승인');
     const cleanUrl = new URL(window.location.href);
-    ['payapp_paid', 'paymentKey', 'orderId', 'amount', 'paymentType', 'toss_paid', 'paypal_paid'].forEach(k => cleanUrl.searchParams.delete(k));
+    ['orderId', 'paypal_paid'].forEach(k => cleanUrl.searchParams.delete(k));
     window.history.replaceState({}, '', cleanUrl.toString());
   }, 450);
 }
