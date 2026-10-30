@@ -1025,7 +1025,7 @@ function triggerSecretSpell(egg, rawText) {
     const labels = egg.id === 'egg_satoshi'
       ? ['₿ GENESIS 2009', '0x00000000', 'SATOSHI', '+10,000%']
       : ['+30% 상한가', '🚀 떡상', '₿ +100%'];
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 14; i++) {
       spellEffects.bullCandles.push({
         x: fireX + (Math.random() - 0.5) * (W * 0.72),
         y: fireY + 10 + Math.random() * 40,
@@ -1033,21 +1033,21 @@ function triggerSecretSpell(egg, rawText) {
         h: 30 + Math.random() * 36,
         label: labels[i % labels.length],
         life: 0,
-        maxLife: 135 + Math.random() * 45
+        maxLife: 110 + Math.random() * 35
       });
     }
   }
 
   if (egg.id === 'egg_fireworks' || egg.id === 'egg_konami' || egg.tier === 'mythic') {
     const colors = ['255, 215, 80', '255, 95, 185', '70, 240, 255', '170, 110, 255', '110, 255, 150'];
-    const bursts = egg.tier === 'mythic' ? 8 : 5;
+    const bursts = egg.tier === 'mythic' ? 5 : 4;
     for (let b = 0; b < bursts; b++) {
-      const cx = W * (0.15 + (b / Math.max(1, bursts - 1)) * 0.7);
+      const cx = W * (0.18 + (b / Math.max(1, bursts - 1)) * 0.64);
       const cy = H * (0.18 + (b % 3) * 0.08);
       const col = colors[b % colors.length];
-      for (let i = 0; i < 32; i++) {
-        const ang = (i / 32) * Math.PI * 2;
-        const spd = 1.8 + Math.random() * 3.8;
+      for (let i = 0; i < 20; i++) {
+        const ang = (i / 20) * Math.PI * 2;
+        const spd = 1.8 + Math.random() * 3.6;
         spellEffects.skyFireworks.push({
           x: cx,
           y: cy,
@@ -1055,7 +1055,7 @@ function triggerSecretSpell(egg, rawText) {
           vy: Math.sin(ang) * spd,
           col,
           life: 0,
-          maxLife: 95 + Math.random() * 40
+          maxLife: 80 + Math.random() * 30
         });
       }
     }
@@ -1247,43 +1247,53 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
   sg.font = '600 13.5px Pretendard, sans-serif';
   sg.fillText(`최초 박제 시각: ${firstTime}  |  발동 주문: 「${(triggerText || egg.sampleTrigger).slice(0, 20)}」`, 24, Sh - 22);
 
-  const dataUrl = snapCanvas.toDataURL('image/jpeg', 0.86);
+      // Non-blocking async JPEG encoding (prevents 80ms synchronous CPU frame hitch on toDataURL!)
+      snapCanvas.toBlob(blob => {
+        if (!blob) return;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result;
+          const existing = state.eggAlbum[egg.id];
+          const firstDiscoverer = existing?.firstDiscoverer || state.discovererName || state.myfireOwner || '익명 불멍러';
+          const firstTime = existing?.firstTime || nowStr;
+          const count = (existing?.count || 0) + 1;
 
-  state.eggAlbum[egg.id] = {
-    id: egg.id,
-    firstDiscoverer,
-    firstTime,
-    lastImage: dataUrl,
-    imageKey: existing?.imageKey || '',
-    triggerText: (triggerText || egg.sampleTrigger).slice(0, 24),
-    count
-  };
-  saveState();
-  updateAlbumBadgeUI();
-  if (document.getElementById('modal-album')?.classList.contains('open')) {
-    renderAlbumModal();
-  }
+          state.eggAlbum[egg.id] = {
+            id: egg.id,
+            firstDiscoverer,
+            firstTime,
+            lastImage: dataUrl,
+            imageKey: existing?.imageKey || '',
+            triggerText: (triggerText || egg.sampleTrigger).slice(0, 24),
+            count
+          };
+          saveState();
+          updateAlbumBadgeUI();
+          if (document.getElementById('modal-album')?.classList.contains('open')) {
+            renderAlbumModal();
+          }
 
-  // Broadcast discovery to Global Multiplayer Server so all connected users' albums update in real time!
-  if (typeof window.__broadcastEggUnlock === 'function') {
-    window.__broadcastEggUnlock(egg, state.eggAlbum[egg.id], dataUrl);
-  }
+          if (typeof window.__broadcastEggUnlock === 'function') {
+            window.__broadcastEggUnlock(egg, state.eggAlbum[egg.id], dataUrl);
+          }
 
-  // 3. Show Floating Polaroid Toast
-  const toast = document.getElementById('capture-toast');
-  const toastImg = document.getElementById('capture-toast-img');
-  const toastTag = document.getElementById('capture-toast-tag');
-  const toastTitle = document.getElementById('capture-toast-title');
-  const toastSub = document.getElementById('capture-toast-sub');
-  if (toast && toastImg) {
-    toastImg.src = dataUrl;
-    toastTag.textContent = count === 1 ? '📸 전 세계 최초 발견! 서버 영구 박제 완료!' : `📸 불꽃 재점화 캡처 완료 (${count}회차)`;
-    toastTitle.textContent = egg.title;
-    toastSub.textContent = `👑 최초 박제: ${firstDiscoverer} · 탭하여 박물관 열기`;
-    toast.classList.add('show');
-    clearTimeout(toastHideTimer);
-    toastHideTimer = setTimeout(() => toast.classList.remove('show'), 6500);
-  }
+          const toast = document.getElementById('capture-toast');
+          const toastImg = document.getElementById('capture-toast-img');
+          const toastTag = document.getElementById('capture-toast-tag');
+          const toastTitle = document.getElementById('capture-toast-title');
+          const toastSub = document.getElementById('capture-toast-sub');
+          if (toast && toastImg) {
+            toastImg.src = dataUrl;
+            toastTag.textContent = count === 1 ? '📸 전 세계 최초 발견! 서버 영구 박제 완료!' : `📸 불꽃 재점화 캡처 완료 (${count}회차)`;
+            toastTitle.textContent = egg.title;
+            toastSub.textContent = `👑 최초 박제: ${firstDiscoverer} · 탭하여 박물관 열기`;
+            toast.classList.add('show');
+            clearTimeout(toastHideTimer);
+            toastHideTimer = setTimeout(() => toast.classList.remove('show'), 6500);
+          }
+        };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.82);
 }
 
 function updateAlbumBadgeUI() {
@@ -1357,11 +1367,12 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
   }
 }
 
-function stokeFire(burstCount = 32) {
+function stokeFire(burstCount = 24) {
   state.stoking = Math.min(1.4, state.stoking + 0.45);
   state.heat = Math.min(48.0, +(state.heat + 0.8).toFixed(1));
-  for (let i = 0; i < burstCount; i++) spawnSpark(fireX, fireY - 14, true);
-  for (let i = 0; i < 6; i++) spawnFlameParticle(1.25);
+  const capped = Math.min(36, burstCount);
+  for (let i = 0; i < capped && sparks.length < 180; i++) spawnSpark(fireX, fireY - 14, true);
+  for (let i = 0; i < 4 && flames.length < 110; i++) spawnFlameParticle(1.25);
   audio.triggerCrackle();
   updateStatsUI();
 }
@@ -2001,8 +2012,6 @@ function drawScene() {
     ctx.save();
     ctx.font = '700 12px monospace';
     ctx.fillStyle = `rgba(46, 255, 148, ${a * 0.9})`;
-    ctx.shadowColor = '#1aff8c';
-    ctx.shadowBlur = 8;
     ctx.fillText(md.token, md.x, md.y);
     ctx.restore();
     if (md.life >= md.maxLife || md.y > fireY + 60) spellEffects.matrixDrops.splice(i, 1);
@@ -2015,7 +2024,7 @@ function drawScene() {
     const a = Math.max(0, 1 - bc.life / bc.maxLife);
     ctx.save();
     ctx.translate(bc.x, bc.y);
-    // Red Bullish Candle Wick & Body
+    // Red Bullish Candle Wick & Body (Zero shadowBlur for 60FPS smooth rendering!)
     ctx.strokeStyle = `rgba(255, 82, 82, ${a})`;
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -2023,8 +2032,6 @@ function drawScene() {
     ctx.lineTo(0, bc.h * 0.7);
     ctx.stroke();
     ctx.fillStyle = `rgba(255, 56, 56, ${a * 0.92})`;
-    ctx.shadowColor = '#ff2e2e';
-    ctx.shadowBlur = 12;
     ctx.fillRect(-7, -bc.h * 0.45, 14, bc.h * 0.9);
     ctx.font = '800 10.5px Pretendard, sans-serif';
     ctx.fillStyle = `rgba(255, 232, 165, ${a})`;
@@ -2075,8 +2082,6 @@ function drawScene() {
     ctx.save();
     ctx.strokeStyle = `rgba(${cr.col}, ${a})`;
     ctx.lineWidth = 2.6 * (1 - ratio * 0.5);
-    ctx.shadowColor = `rgba(${cr.col}, 0.9)`;
-    ctx.shadowBlur = 16;
     ctx.beginPath();
     ctx.ellipse(cr.x, cr.y, rad, rad * 0.42, 0, 0, Math.PI * 2);
     ctx.stroke();
@@ -2094,8 +2099,6 @@ function drawScene() {
     ctx.font = '800 13px Pretendard, monospace';
     ctx.textAlign = 'center';
     ctx.fillStyle = `rgba(${fr.col}, ${a})`;
-    ctx.shadowColor = `rgba(${fr.col}, 0.95)`;
-    ctx.shadowBlur = 12;
     ctx.fillText(fr.text, fr.x, fr.y);
     ctx.restore();
     if (fr.life >= fr.maxLife) spellEffects.floatingRunes.splice(i, 1);
@@ -2177,8 +2180,6 @@ function drawScene() {
     ctx.save();
     ctx.font = rt.isGold ? '800 13px Pretendard, sans-serif' : '600 11.5px Pretendard, sans-serif';
     ctx.textAlign = 'center';
-    ctx.shadowColor = rt.isGold ? 'rgba(255, 200, 50, 0.9)' : 'rgba(255, 120, 35, 0.85)';
-    ctx.shadowBlur = 10;
     ctx.fillStyle = rt.isGold
       ? `rgba(255, 232, 135, ${alpha})`
       : `rgba(255, 224, 185, ${alpha * 0.92})`;
@@ -2204,8 +2205,6 @@ function drawScene() {
     ctx.strokeStyle = `rgba(16, 7, 3, ${alpha * 0.88})`;
     ctx.lineWidth = 3.5;
     ctx.strokeText(cp.text, 0, 0);
-    ctx.shadowColor = 'rgba(255, 95, 20, 0.95)';
-    ctx.shadowBlur = 10;
     ctx.fillStyle = `rgba(255, 236, 155, ${alpha})`;
     ctx.fillText(cp.text, 0, 0);
     ctx.restore();
@@ -2928,8 +2927,8 @@ document.getElementById('btn-world-toggle')?.addEventListener('click', () => {
 
 // ── Tactile Physical Item Inventory Cards (Tap or Drag-and-Throw into Fire!) ──
 const PHYSICAL_ITEMS = {
-  resignation: { icon: '✉️', label: '사직서 투척', text: '가슴속 미제출 사직서 봉투 완전 소각', itemType: 'resignation' },
-  stock: { icon: '📉', label: '파란계좌 소각', text: '파란불 -74% 마이너스 계좌 잔고 소각 (상한가 기원)', itemType: 'stock' },
+  resignation: { icon: '✉️', label: '사직서 투척', text: '가슴속에 품고 있던 봉투 한 장 조용히 태우기', itemType: 'resignation' },
+  stock: { icon: '📉', label: '파란계좌 소각', text: '파란불 -74% 마이너스 계좌 잔고 소각 (내일은 빨간불 기원)', itemType: 'stock' },
   clock: { icon: '⏰', label: '월요병 시계 폭파', text: '월요일 아침 6시 30분 출근 알람시계 폭파', itemType: 'clock' },
   wood: { icon: '🪵', label: '참나무 장작 투입', text: '마른 참나무 장작 투입', itemType: 'wood' }
 };
