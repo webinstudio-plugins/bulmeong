@@ -1717,23 +1717,11 @@ function drawScene() {
   const pulse = Math.sin(tick * 0.07) * 8 + Math.cos(tick * 0.13) * 5;
   const glowRadius = Math.min(W, H) * (0.22 + fScaleGlow * 0.34 + state.stoking * 0.14) + pulse;
   const ambGrad = ctx.createRadialGradient(fireX, fireY - 10, 8, fireX, fireY, glowRadius);
-  ambGrad.addColorStop(0, `rgba(${pal.glow}, ${Math.min(0.68, 0.14 + fScaleGlow * 0.17 + state.stoking * 0.12)})`);
-  ambGrad.addColorStop(0.45, `rgba(${pal.glow}, ${Math.min(0.32, 0.04 + fScaleGlow * 0.05)})`);
+  ambGrad.addColorStop(0, `rgba(${pal.glow}, ${Math.min(0.62, 0.12 + fScaleGlow * 0.15 + state.stoking * 0.10)})`);
+  ambGrad.addColorStop(0.45, `rgba(${pal.glow}, ${Math.min(0.28, 0.04 + fScaleGlow * 0.04)})`);
   ambGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = ambGrad;
   ctx.fillRect(0, 0, W, H);
-
-  if (sp === 'snow') {
-    // Subtle snow-ground frost reflection around the hearth
-    const snowGrad = ctx.createRadialGradient(fireX, fireY + 28, 12, fireX, fireY + 42, Math.max(W, 380) * 0.6);
-    snowGrad.addColorStop(0, `rgba(${pal.glow}, 0.22)`);
-    snowGrad.addColorStop(0.5, 'rgba(180, 215, 250, 0.18)');
-    snowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = snowGrad;
-    ctx.beginPath();
-    ctx.ellipse(fireX, fireY + 38, W * 0.68, 115, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
 
   // Temple Wind Chime Ambient Audio (`bg-temple.jpg` already has the hand-painted temple eave & brass fish chime)
   if (sp === 'temple' && tick % 210 === 0 && state.audioEnabled) {
@@ -1842,13 +1830,15 @@ function drawScene() {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   const bedW = 88 + fScale * 44;
-  const bedGrad = ctx.createRadialGradient(fireX, fireY + 8, 4, fireX, fireY + 12, bedW);
-  bedGrad.addColorStop(0, `rgba(255, 245, 190, ${Math.min(0.88, 0.28 + fScale * 0.28 + state.stoking * 0.22)})`);
-  bedGrad.addColorStop(0.45, `rgba(${pal.glow}, ${Math.min(0.72, 0.18 + fScale * 0.22)})`);
+  ctx.translate(fireX, fireY + 10);
+  ctx.scale(1, 0.34);
+  const bedGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, bedW);
+  bedGrad.addColorStop(0, `rgba(255, 245, 190, ${Math.min(0.76, 0.24 + fScale * 0.22 + state.stoking * 0.18)})`);
+  bedGrad.addColorStop(0.45, `rgba(${pal.glow}, ${Math.min(0.54, 0.14 + fScale * 0.16)})`);
   bedGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = bedGrad;
   ctx.beginPath();
-  ctx.ellipse(fireX, fireY + 10, bedW, 28 + fScale * 8, 0, 0, Math.PI * 2);
+  ctx.arc(0, 0, bedW, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 
