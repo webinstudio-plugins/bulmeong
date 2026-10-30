@@ -160,10 +160,10 @@ function saveState() {
 }
 
 const SPACES = {
-  camp: { id: 'camp', name: '🌧️ 밤공터', desc: '깊은 밤 공터 · 빗소리와 모닥불' },
-  temple: { id: 'temple', name: '🎐 산사 처마', desc: '산사 처마 밑 · 낙숫물과 물고기 풍경 소리' },
-  snow: { id: 'snow', name: '❄️ 설산 오두막', desc: '설산 오두막 앞 · 눈보라와 따뜻한 화로' },
-  cosmos: { id: 'cosmos', name: '🌌 성운의 끝', desc: '우주 성운의 끝 · 무중력 별먼지 모닥불' }
+  camp: { id: 'camp', name: '밤공터', desc: '깊은 밤 소나무 숲 공터 · 빗소리와 강돌 화로' },
+  temple: { id: 'temple', name: '산사 처마', desc: '산사 처마 밑 · 낙숫물과 물고기 풍경 소리' },
+  snow: { id: 'snow', name: '설산 오두막', desc: '설산 오두막 처마 · 눈보라와 무쇠 화로' },
+  cosmos: { id: 'cosmos', name: '성운의 끝', desc: '우주 성운의 끝 · 흑요석 제단과 별먼지 화로' }
 };
 
 const PALETTES = [
@@ -362,11 +362,20 @@ const risingClickPopups = [];
 let activeNote = null;
 let activeGiftLog = null;
 
-// ── Hand-Painted Indie Game Art Assets (PNG / JPG) ───────────────────────────
-const bgSanctuaryImg = new Image();
-bgSanctuaryImg.src = './bg-sanctuary.jpg';
-const hearthLogsImg = new Image();
-hearthLogsImg.src = './hearth-logs.png';
+// ── Hand-Painted Indie Game Art Assets (4 Bespoke Space Illustrations) ──────
+const spaceBgImgs = {
+  camp: new Image(),
+  temple: new Image(),
+  snow: new Image(),
+  cosmos: new Image()
+};
+spaceBgImgs.camp.src = './bg-camp.jpg';
+spaceBgImgs.temple.src = './bg-temple.jpg';
+spaceBgImgs.snow.src = './bg-snow.jpg';
+spaceBgImgs.cosmos.src = './bg-cosmos.jpg';
+
+let prevSpaceKey = state.space;
+let spaceFadeAlpha = 1;
 
 state.globalBurnTotal = Number(saved.globalBurnTotal) || 1482914;
 state.tempC = Number(saved.tempC) || 440;
@@ -428,8 +437,8 @@ function updateFireStageUI() {
   const dyingAlert = document.getElementById('dying-fire-alert');
   if (badge) {
     badge.textContent = stage.lv === 0
-      ? `🕯️ ${stage.name} (${Math.round(state.tempC)}°C)`
-      : `🔥 ${stage.name} · 화력 ${Math.min(999, Math.round((state.tempC / 2000) * 100))}%`;
+      ? `${stage.name} (${Math.round(state.tempC)}°C)`
+      : `${stage.name} · 화력 ${Math.min(999, Math.round((state.tempC / 2000) * 100))}%`;
   }
   const barPct = Math.min(100, Math.max(4, ((state.tempC - 80) / 2120) * 100));
   if (bar) bar.style.width = `${barPct.toFixed(1)}%`;
@@ -461,14 +470,14 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
 
   const nextStage = getFireStage();
   if (nextStage.lv > prevLv && prevLv > 0) {
-    showOracle(nextStage.desc, `🔥 화력 단계 상승 · ${nextStage.name}`);
+    showOracle(nextStage.desc, `화력 단계 상승 · ${nextStage.name}`);
   } else if (prevLv === 0 && nextStage.lv >= 1) {
-    showOracle('당신이 불어넣은 온기 덕분에 꺼져가던 잿더미에서 다시 불꽃이 살아났습니다!', '🔥 불씨 심폐소생 성공');
+    showOracle('당신이 불어넣은 온기 덕분에 꺼져가던 잿더미에서 다시 불꽃이 살아났습니다.', '불씨 소생 완료');
   }
 
   if (showPopup) {
     risingClickPopups.push({
-      text: state.clickCombo >= 3 ? `+${actualDelta}°C 🔥 ${state.clickCombo}x` : `+${actualDelta}°C 🔥`,
+      text: state.clickCombo >= 3 ? `+${actualDelta}°C · ${state.clickCombo}連` : `+${actualDelta}°C`,
       x: popupX + (Math.random() - 0.5) * 34,
       y: popupY + (Math.random() - 0.5) * 14,
       vy: -1.55 - Math.min(1.0, state.clickCombo * 0.04),
@@ -480,7 +489,7 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
     const comboEl = document.getElementById('combo-pill');
     if (comboEl) {
       if (state.clickCombo >= 2) {
-        comboEl.textContent = `⚡ ${state.clickCombo}x COMBO`;
+        comboEl.textContent = `${state.clickCombo}連 點火`;
         comboEl.classList.add('show');
       } else {
         comboEl.classList.remove('show');
@@ -1601,6 +1610,29 @@ function drawGiftLog(log) {
   ctx.restore();
 }
 
+function drawSpaceCoverImage(img, alpha = 1) {
+  if (!img || !img.complete || img.naturalWidth <= 0 || alpha <= 0.005) return false;
+  const imgRatio = img.naturalWidth / img.naturalHeight;
+  const viewRatio = W / H;
+  let dw = W, dh = H, dx = 0, dy = 0;
+  if (viewRatio > imgRatio) {
+    dh = W / imgRatio;
+    dy = (H - dh) * 0.58;
+  } else {
+    dw = H * imgRatio;
+    dx = (W - dw) * 0.5;
+  }
+  if (alpha < 0.999) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.restore();
+  } else {
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
+  return true;
+}
+
 function drawScene() {
   tick += 1;
   state.stoking = Math.max(0.18, state.stoking * 0.985);
@@ -1608,35 +1640,22 @@ function drawScene() {
   const sp = state.space;
   const fScale = getDynamicFireScale();
 
-  // 1. Hand-Painted Sanctuary Art Asset Backdrop + Space-Specific Atmosphere
-  if (bgSanctuaryImg.complete && bgSanctuaryImg.naturalWidth > 0) {
-    const imgRatio = bgSanctuaryImg.naturalWidth / bgSanctuaryImg.naturalHeight;
-    const viewRatio = W / H;
-    let dw = W, dh = H, dx = 0, dy = 0;
-    if (viewRatio > imgRatio) {
-      dh = W / imgRatio;
-      dy = (H - dh) * 0.58;
-    } else {
-      dw = H * imgRatio;
-      dx = (W - dw) * 0.5;
-    }
-    ctx.drawImage(bgSanctuaryImg, dx, dy, dw, dh);
+  // 1. Bespoke 4-Space Hand-Painted Backdrop with Smooth Cross-Fade
+  if (spaceFadeAlpha < 1) {
+    spaceFadeAlpha = Math.min(1, spaceFadeAlpha + 0.035);
+  }
+  const curImg = spaceBgImgs[sp] || spaceBgImgs.camp;
+  const prevImg = spaceBgImgs[prevSpaceKey] || curImg;
 
-    // Space-specific mood tint overlay over the hand-painted sanctuary
-    if (sp === 'snow') {
-      ctx.fillStyle = 'rgba(8, 22, 44, 0.42)';
-      ctx.fillRect(0, 0, W, H);
-    } else if (sp === 'cosmos') {
-      ctx.fillStyle = 'rgba(14, 4, 34, 0.56)';
-      ctx.fillRect(0, 0, W, H);
-    } else if (sp === 'temple') {
-      ctx.fillStyle = 'rgba(18, 12, 22, 0.32)';
-      ctx.fillRect(0, 0, W, H);
-    } else {
-      ctx.fillStyle = 'rgba(5, 6, 12, 0.25)';
-      ctx.fillRect(0, 0, W, H);
-    }
+  let drewBg = false;
+  if (spaceFadeAlpha < 1 && prevImg !== curImg && prevImg.complete && prevImg.naturalWidth > 0) {
+    drawSpaceCoverImage(prevImg, 1);
+    drewBg = drawSpaceCoverImage(curImg, spaceFadeAlpha) || true;
   } else {
+    drewBg = drawSpaceCoverImage(curImg, 1);
+  }
+
+  if (!drewBg) {
     const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
     if (sp === 'snow') {
       skyGrad.addColorStop(0, '#040914');
@@ -1716,10 +1735,9 @@ function drawScene() {
     ctx.fill();
   }
 
-  // Temple Eave & Swaying Fish Wind Chime
-  if (sp === 'temple') {
-    drawTempleEave(pal);
-    if (tick % 210 === 0 && state.audioEnabled) audio.playWindChime();
+  // Temple Wind Chime Ambient Audio (`bg-temple.jpg` already has the hand-painted temple eave & brass fish chime)
+  if (sp === 'temple' && tick % 210 === 0 && state.audioEnabled) {
+    audio.playWindChime();
   }
 
   // 2. Weather Particles (Rain / Snow / Cosmic Stardust)
@@ -2386,14 +2404,19 @@ function renderSpaceUI() {
 document.querySelectorAll('.space-chip').forEach(btn => {
   btn.addEventListener('click', () => {
     if (!state.audioEnabled) toggleAudio(true);
-    state.space = btn.dataset.space;
+    const nextSp = btn.dataset.space;
+    if (nextSp !== state.space) {
+      prevSpaceKey = state.space;
+      spaceFadeAlpha = 0;
+      state.space = nextSp;
+    }
     saveState();
     renderSpaceUI();
     const sp = SPACES[state.space] || SPACES.camp;
     if (state.space === 'temple') audio.playWindChime();
     else audio.playWhooshAndBowl();
     stokeFire(24);
-    showOracle(sp.desc, `공간 테마 전환 · ${sp.name}`);
+    showOracle(sp.desc, `공간 전환 · ${sp.name}`);
   });
 });
 
@@ -2473,63 +2496,63 @@ function throwGuestWood() {
 // ── Global 5-Language Localization (KO / EN / JA / ZH / ES) & Automated Checkout ──
 const LANG_PACK = {
   ko: {
-    rooms: { work: '🏢 직장인', stock: '📉 주식·코인', relation: '💔 흑역사', zen: '🌙 무념무상' },
-    spaces: { camp: '🌧️ 밤공터', temple: '🎐 산사 처마', snow: '❄️ 설산 오두막', cosmos: '🌌 성운의 끝' },
-    writeCta: '주문·번뇌 적기',
-    topBadge: '🔥 실시간 1위',
+    rooms: { work: '직장 번뇌', stock: '주식·코인', relation: '인연·흑역사', zen: '새벽 무념' },
+    spaces: { camp: '밤공터', temple: '산사 처마', snow: '설산 오두막', cosmos: '성운의 끝' },
+    writeCta: '소원·비밀부적',
+    topBadge: '실시간 1위',
     topWord: '월요일 아침 출근',
-    caption: '글로벌 실시간 연금술 화로',
-    goldBtn: '👑 황금 소원부적 전환',
-    goldActiveBtn: '👑 황금 소원부적 ON',
+    caption: '재의 성소 · 실시간 화로',
+    goldBtn: '황금 소원부적 전환',
+    goldActiveBtn: '황금 소원부적 점화중',
     price: '$0.99 (PayPal 자동결제)',
     goldOracle: '황금 부적에 담은 간절한 소원이 불꽃을 타고 하늘로 피어올랐습니다. 반드시 이루어질 것입니다.'
   },
   en: {
-    rooms: { work: '🏢 Work', stock: '📉 Crypto', relation: '💔 Regrets', zen: '🌙 Pure Zen' },
-    spaces: { camp: '🌧️ Night Camp', temple: '🎐 Zen Temple', snow: '❄️ Alpine', cosmos: '🌌 Nebula' },
-    writeCta: 'Write Spell',
-    topBadge: '🔥 #1',
+    rooms: { work: 'Work', stock: 'Markets', relation: 'Regrets', zen: 'Pure Zen' },
+    spaces: { camp: 'Night Clearing', temple: 'Temple Eave', snow: 'Alpine Cabin', cosmos: 'Nebula Edge' },
+    writeCta: 'Inscribe Talisman',
+    topBadge: 'Top Burned',
     topWord: 'Monday 9AM meeting dread',
-    caption: 'Global Live Alchemy Hearth',
-    goldBtn: '👑 Golden Talisman',
-    goldActiveBtn: '👑 Golden Active',
+    caption: 'Sanctuary of Ash · Live Hearth',
+    goldBtn: 'Golden Talisman',
+    goldActiveBtn: 'Golden Active',
     price: '$0.99 (Auto Verify)',
     goldOracle: 'Your Golden Wish has ascended with the embers into the night sky. May it come to pass.'
   },
   ja: {
-    rooms: { work: '🏢 社畜', stock: '📉 株・コイン', relation: '💔 黒歴史', zen: '🌙 無念無想' },
-    spaces: { camp: '🌧️ 夜雨', temple: '🎐 山寺', snow: '❄️ 雪山', cosmos: '🌌 星雲' },
-    writeCta: '呪文・悩みを書く',
-    topBadge: '🔥 1位',
+    rooms: { work: '職場', stock: '株・コイン', relation: '黒歴史', zen: '無念無想' },
+    spaces: { camp: '夜の森', temple: '山寺の軒', snow: '雪山小屋', cosmos: '星雲の果て' },
+    writeCta: '護符を書く',
+    topBadge: '1位',
     topWord: '月曜日の満員電車と出社',
-    caption: '世界同時・錬金術の炉',
-    goldBtn: '👑 黄金の祈願札',
-    goldActiveBtn: '👑 黄金の祈願札 ON',
-    price: '¥150 (自動認証)',
+    caption: '灰の聖所・リアルタイム炉',
+    goldBtn: '黄金の祈願札',
+    goldActiveBtn: '黄金の祈願札 ON',
+    price: '$0.99 (PayPal)',
     goldOracle: '黄金の護符に込めた願いが炎となって夜空へ昇りました。きっと叶います。'
   },
   zh: {
-    rooms: { work: '🏢 社畜', stock: '📉 股市币圈', relation: '💔 黑历史', zen: '🌙 放空冥想' },
-    spaces: { camp: '🌧️ 夜雨营地', temple: '🎐 古寺', snow: '❄️ 雪山', cosmos: '🌌 星云' },
-    writeCta: '写下咒语与烦恼',
-    topBadge: '🔥 榜首',
+    rooms: { work: '职场', stock: '股市币圈', relation: '黑历史', zen: '放空冥想' },
+    spaces: { camp: '夜雨林地', temple: '古寺屋檐', snow: '雪山木屋', cosmos: '星云尽头' },
+    writeCta: '书写符箓',
+    topBadge: '榜首',
     topWord: '周一早上的无尽会议',
-    caption: '全球实时炼金火炉',
-    goldBtn: '👑 黄金祈愿符',
-    goldActiveBtn: '👑 黄金祈愿符 ON',
-    price: '$0.99 (自动核验)',
+    caption: '灰之圣所 · 实时火炉',
+    goldBtn: '黄金祈愿符',
+    goldActiveBtn: '黄金祈愿符 ON',
+    price: '$0.99 (PayPal)',
     goldOracle: '写在黄金祈愿符上的心愿已随金焰升入夜空，万事顺遂，所愿皆成。'
   },
   es: {
-    rooms: { work: '🏢 Trabajo', stock: '📉 Cripto', relation: '💔 Pasado', zen: '🌙 Paz Zen' },
-    spaces: { camp: '🌧️ Lluvia', temple: '🎐 Templo', snow: '❄️ Alpes', cosmos: '🌌 Nebulosa' },
-    writeCta: 'Escribir Conjuro',
-    topBadge: '🔥 #1',
+    rooms: { work: 'Trabajo', stock: 'Mercados', relation: 'Pasado', zen: 'Paz Zen' },
+    spaces: { camp: 'Bosque', temple: 'Templo', snow: 'Cabaña', cosmos: 'Nebulosa' },
+    writeCta: 'Escribir Talismán',
+    topBadge: 'N.º 1',
     topWord: 'Madrugar el lunes para trabajar',
-    caption: 'Hogar de Alquimia Global',
-    goldBtn: '👑 Talismán Dorado',
-    goldActiveBtn: '👑 Talismán Activo',
-    price: '$0.99 (Pago Auto)',
+    caption: 'Santuario de Ceniza',
+    goldBtn: 'Talismán Dorado',
+    goldActiveBtn: 'Talismán Activo',
+    price: '$0.99 (PayPal)',
     goldOracle: 'Tu deseo en el Talismán Dorado se ha elevado con las chispas hacia el cielo nocturno.'
   }
 };
@@ -2927,10 +2950,10 @@ document.getElementById('btn-world-toggle')?.addEventListener('click', () => {
 
 // ── Tactile Physical Item Inventory Cards (Tap or Drag-and-Throw into Fire!) ──
 const PHYSICAL_ITEMS = {
-  resignation: { icon: '✉️', label: '사직서 투척', text: '가슴속에 품고 있던 봉투 한 장 조용히 태우기', itemType: 'resignation' },
-  stock: { icon: '📉', label: '파란계좌 소각', text: '파란불 -74% 마이너스 계좌 잔고 소각 (내일은 빨간불 기원)', itemType: 'stock' },
-  clock: { icon: '⏰', label: '월요병 시계 폭파', text: '월요일 아침 6시 30분 출근 알람시계 폭파', itemType: 'clock' },
-  wood: { icon: '🪵', label: '참나무 장작 투입', text: '마른 참나무 장작 투입', itemType: 'wood' }
+  resignation: { icon: '辭', label: '미제출 사직서 투척', text: '가슴속에 품고 있던 봉투 한 장 조용히 태우기', itemType: 'resignation' },
+  stock: { icon: '損', label: '물린 파란계좌 소각', text: '파란불 -74% 마이너스 계좌 잔고 소각 (내일은 빨간불 기원)', itemType: 'stock' },
+  clock: { icon: '時', label: '월요일 출근알람 파쇄', text: '월요일 아침 6시 30분 출근 알람시계 폭파', itemType: 'clock' },
+  wood: { icon: '柴', label: '마른 참나무 장작 투입', text: '마른 참나무 장작 투입', itemType: 'wood' }
 };
 
 const dragGhost = document.getElementById('drag-ghost');
@@ -3269,12 +3292,17 @@ document.getElementById('btn-warmth').addEventListener('click', () => {
 function toggleAudio(forceState) {
   state.audioEnabled = forceState !== undefined ? forceState : !state.audioEnabled;
   audio.setRunning(state.audioEnabled);
-  document.getElementById('audio-icon').textContent = state.audioEnabled ? '🔊' : '🔇';
-  document.getElementById('audio-label').textContent = state.audioEnabled ? 'ASMR' : '음소거';
-  document.getElementById('btn-audio').classList.toggle('active', state.audioEnabled);
-  document.getElementById('btn-toggle-mute').textContent = state.audioEnabled
-    ? '🔊 사운드 켜짐 (탭하여 음소거)'
-    : '🔇 음소거 상태 (탭하여 사운드 켜기)';
+  const audioIcon = document.getElementById('audio-icon');
+  if (audioIcon) audioIcon.style.opacity = state.audioEnabled ? '1' : '0.45';
+  const audioLabel = document.getElementById('audio-label');
+  if (audioLabel) audioLabel.textContent = state.audioEnabled ? '소리' : '묵음';
+  document.getElementById('btn-audio')?.classList.toggle('active', state.audioEnabled);
+  const muteBtn = document.getElementById('btn-toggle-mute');
+  if (muteBtn) {
+    muteBtn.textContent = state.audioEnabled
+      ? '장작·빗소리 켜짐 (탭하여 묵음 전환)'
+      : '묵음 상태 (탭하여 소리 켜기)';
+  }
 }
 
 document.getElementById('btn-audio').addEventListener('click', () => {

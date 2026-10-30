@@ -48,7 +48,7 @@
   <!-- Twitter / X Large Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="불멍(火멍) : 재의 연금술 · 글로벌 실시간 화로 클리커 & 소각 게임">
-  <meta name="twitter:description" content="전 세계 사람들과 함께 화로 온도를 올리고 20종 비밀 연금술 주문을 찾아 불꽃 박물관 최초 발견자로 이름을 남기세요 🔥">
+  <meta name="twitter:description" content="전 세계 사람들과 함께 화로 온도를 올리고 20종 비밀 연금술 주문을 찾아 불꽃 박물관 최초 발견자로 이름을 남기세요.">
   <meta name="twitter:image" content="https://bulmeong.netlify.app/bg-sanctuary.jpg">
 
   <!-- Schema.org Structured Data (VideoGame + WebApplication + FAQPage) -->
@@ -88,7 +88,7 @@
             "name": "불멍 : 재의 연금술은 어떤 게임인가요?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "1인칭 시점의 산사 돌화로를 터치·연타해 온도를 10,000°C까지 올리고, 사직서·파란불 주식계좌·알람시계·한지 부적을 드래그해 불에 태우며 장작 타는 ASMR과 빗소리를 즐기는 실시간 글로벌 멀티플레이 웹게임입니다."
+              "text": "1인칭 시점의 4대 성소(밤공터·산사 처마·설산 오두막·성운의 끝) 돌화로를 터치·연타해 온도를 10,000°C까지 올리고, 사직서·파란불 주식계좌·알람시계·한지 부적을 드래그해 불에 태우며 장작 타는 ASMR과 빗소리를 즐기는 실시간 글로벌 멀티플레이 웹게임입니다."
             }
           },
           {
@@ -106,16 +106,17 @@
   </script>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Gaegu:wght@700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@700;800&family=Song+Myung&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Gaegu:wght@700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@600;800&family=Song+Myung&display=swap');
 
     :root {
       --bg-abyss: #050408;
-      --wood-panel: linear-gradient(165deg, rgba(28, 19, 15, 0.92), rgba(12, 9, 8, 0.96));
-      --brass-border: rgba(255, 198, 115, 0.36);
-      --brass-bright: #ffd88a;
-      --ember-orange: #ff7b29;
-      --text-cream: #fbf3e8;
-      --text-muted: rgba(251, 243, 232, 0.62);
+      --lacquer-dark: rgba(11, 9, 8, 0.88);
+      --brass-line: rgba(218, 178, 114, 0.34);
+      --brass-bright: #e6c687;
+      --cinnabar: #b5331d;
+      --ember-gold: #f09c42;
+      --text-parchment: #f4eadc;
+      --text-muted: rgba(244, 234, 220, 0.58);
       --font-title: 'Song Myung', 'Gowun Batang', serif;
       --font-serif: 'Gowun Batang', serif;
       --font-hand: 'Gaegu', 'Gowun Batang', cursive;
@@ -127,16 +128,14 @@
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%;
       overflow: hidden; background: var(--bg-abyss);
-      color: var(--text-cream);
-      font-family: var(--font-ui);
+      color: var(--text-parchment);
+      font-family: var(--font-serif);
       user-select: none;
     }
 
-    /* Custom visible scrollbars for all scrollable panels */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.25); border-radius: 999px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 185, 100, 0.45); border-radius: 999px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 205, 120, 0.75); }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(218, 178, 114, 0.4); border-radius: 2px; }
 
     /* ── Interactive Game Canvas Stage ─────────────────────────────────── */
     #stage {
@@ -144,269 +143,280 @@
       display: block; z-index: 1; cursor: pointer;
     }
 
-    /* Floating Drag-and-Drop Ghost Item */
+    /* Floating Drag-and-Drop Talisman Ghost */
     .drag-ghost {
       position: fixed; left: 0; top: 0; z-index: 80;
       pointer-events: none; display: none;
-      transform: translate(-50%, -50%);
-      padding: 10px 14px; border-radius: 16px;
-      background: rgba(28, 18, 12, 0.94);
-      border: 2px solid #ffd88a;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 28px rgba(255, 140, 40, 0.65);
-      color: #fff; font-family: var(--font-serif); font-weight: 700; font-size: 13px;
+      transform: translate(-50%, -50%) rotate(-3deg);
+      padding: 8px 14px; border-radius: 3px;
+      background: #f2e5ce;
+      border: 1px solid #9e3b1c;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.9), 0 0 24px rgba(240, 130, 40, 0.5);
+      color: #24160d; font-family: var(--font-title); font-size: 13px;
       align-items: center; gap: 8px; white-space: nowrap;
     }
     .drag-ghost.active { display: inline-flex; }
+    .drag-ghost-seal {
+      display: inline-block; padding: 1px 5px;
+      border: 1px solid #9e3b1c; color: #9e3b1c;
+      font-size: 10px; letter-spacing: 1px;
+    }
 
-    /* ── Cinematic Game Title & Ignition Intro Screen (#title-screen) ───── */
+    /* ── 1. Handcrafted Indie Game Title Screen (#title-screen) ────────── */
     .title-screen {
       position: fixed; inset: 0; z-index: 50;
       background:
-        radial-gradient(circle at 50% 62%, rgba(42, 18, 8, 0.52) 0%, rgba(5, 4, 9, 0.92) 72%),
-        url('./bg-sanctuary.jpg') center/cover no-repeat;
-      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        radial-gradient(circle at 50% 64%, rgba(28, 12, 6, 0.35) 0%, rgba(4, 4, 8, 0.92) 78%),
+        url('./bg-camp.jpg') center/cover no-repeat;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px 20px; text-align: center;
-      overflow-y: auto;
-      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1), transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+      padding: 28px 20px; text-align: center;
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .title-screen.hidden {
-      opacity: 0; pointer-events: none; transform: scale(1.05);
+      opacity: 0; pointer-events: none; transform: scale(1.04);
     }
-    .title-crest {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 14px; border-radius: 999px;
-      background: rgba(20, 12, 8, 0.82);
-      border: 1px solid rgba(255, 195, 110, 0.45);
-      color: var(--brass-bright); font-family: 'Cinzel', serif; font-size: 11px; font-weight: 900;
-      letter-spacing: 2px;
-      margin-bottom: 14px;
-      box-shadow: 0 0 24px rgba(255, 120, 30, 0.3);
+    .title-seal-mark {
+      width: 34px; height: 34px;
+      border: 1.5px solid rgba(196, 62, 36, 0.85);
+      color: #e05336;
+      font-family: var(--font-title); font-size: 17px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+      box-shadow: inset 0 0 0 2px rgba(15, 8, 6, 0.9);
+      background: rgba(24, 10, 8, 0.72);
     }
     .title-main {
       font-family: var(--font-title);
-      font-size: clamp(34px, 7.5vw, 52px);
-      font-weight: 400; letter-spacing: 5px;
-      color: #fff8ee; margin: 0 0 6px;
-      text-shadow: 0 4px 24px rgba(0,0,0,0.95), 0 0 42px rgba(255, 115, 25, 0.75);
+      font-size: clamp(32px, 7vw, 48px);
+      font-weight: 400; letter-spacing: 8px;
+      color: #f7efe2; margin: 0 0 8px;
+      text-shadow: 0 4px 28px rgba(0,0,0,0.96), 0 0 36px rgba(240, 110, 30, 0.45);
     }
     .title-en {
       font-family: 'Cinzel', serif;
-      font-size: 12px; font-weight: 700; letter-spacing: 4.5px;
-      color: rgba(255, 218, 155, 0.82);
-      margin-bottom: 16px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      font-size: 11px; font-weight: 600; letter-spacing: 6px;
+      color: rgba(230, 198, 135, 0.72);
+      margin-bottom: 24px;
+    }
+    .title-divider {
+      width: 120px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--brass-bright), transparent);
+      margin-bottom: 22px; opacity: 0.55;
     }
     .title-desc {
-      max-width: 400px; font-family: var(--font-serif); font-size: 14px; line-height: 1.65;
-      color: rgba(255, 242, 222, 0.9); margin: 0 0 20px;
+      max-width: 380px; font-family: var(--font-serif); font-size: 13.5px; line-height: 1.8;
+      color: rgba(244, 234, 220, 0.84); margin: 0 0 28px;
       text-shadow: 0 2px 12px rgba(0,0,0,0.95);
       word-break: keep-all;
     }
+    .title-desc b { color: var(--brass-bright); font-weight: 700; }
+
     .title-nick-box {
-      width: min(100%, 330px);
-      background: rgba(14, 10, 9, 0.88);
-      border: 1.5px solid var(--brass-border);
-      border-radius: 16px; padding: 10px 14px;
-      margin-bottom: 18px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.75), inset 0 2px 8px rgba(0,0,0,0.6);
+      width: min(100%, 290px);
+      border-bottom: 1px solid rgba(230, 198, 135, 0.55);
+      padding: 6px 4px 8px;
+      margin-bottom: 26px;
+      background: linear-gradient(180deg, transparent, rgba(16, 11, 9, 0.55));
     }
     .title-nick-box label {
-      display: block; font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
-      color: var(--brass-bright); margin-bottom: 6px; text-align: left;
+      display: block; font-family: var(--font-serif); font-size: 11px;
+      color: rgba(230, 198, 135, 0.78); margin-bottom: 6px; letter-spacing: 1.5px;
     }
     .title-nick-input {
       width: 100%; border: 0; background: transparent;
-      color: #fff; font-family: var(--font-title); font-size: 17px;
+      color: #fff8ee; font-family: var(--font-title); font-size: 18px;
+      text-align: center; letter-spacing: 2px;
       outline: none;
     }
-    .title-nick-input::placeholder { color: rgba(255, 225, 190, 0.35); }
+    .title-nick-input::placeholder { color: rgba(244, 234, 220, 0.3); }
 
     .ignite-ember-btn {
-      width: min(100%, 330px); height: 58px;
-      border-radius: 999px;
-      border: 1.5px solid #ffe094;
-      background: radial-gradient(circle at 50% 20%, #ffad42 0%, #e04819 60%, #8f1d08 100%);
-      color: #fffaf2; font-family: var(--font-title); font-size: 18px;
-      letter-spacing: 1px; cursor: pointer;
-      box-shadow:
-        0 12px 36px rgba(235, 75, 20, 0.6),
-        0 0 50px rgba(255, 145, 45, 0.5),
-        inset 0 2px 4px rgba(255, 255, 255, 0.45);
+      position: relative;
+      min-width: 240px; height: 50px;
+      padding: 0 28px;
+      background: linear-gradient(180deg, #982916 0%, #63170b 100%);
+      border: 1px solid #e2a86b;
+      outline: 1px solid rgba(152, 41, 22, 0.5);
+      outline-offset: 3px;
+      color: #fbf2e3; font-family: var(--font-title); font-size: 16px;
+      letter-spacing: 4px; cursor: pointer;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.85), 0 0 32px rgba(215, 75, 25, 0.35);
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s;
-      animation: ignitePulse 2.2s infinite ease-in-out;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
     .ignite-ember-btn:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 16px 44px rgba(255, 95, 25, 0.8), 0 0 70px rgba(255, 180, 70, 0.7);
+      transform: translateY(-2px);
+      background: linear-gradient(180deg, #b3321b 0%, #781c0d 100%);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.9), 0 0 46px rgba(240, 105, 35, 0.55);
     }
-    .ignite-ember-btn:active { transform: scale(0.96); }
-    @keyframes ignitePulse {
-      0%, 100% { box-shadow: 0 12px 36px rgba(235, 75, 20, 0.5), 0 0 40px rgba(255, 145, 45, 0.35); }
-      50% { box-shadow: 0 14px 48px rgba(255, 105, 30, 0.85), 0 0 75px rgba(255, 185, 75, 0.7); }
-    }
+    .ignite-ember-btn:active { transform: scale(0.97); }
 
     .title-server-pill {
-      margin-top: 16px;
-      display: inline-flex; align-items: center; gap: 7px;
-      font-family: var(--font-serif); font-size: 12px; color: rgba(255, 236, 208, 0.85);
-      text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+      margin-top: 22px;
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-serif); font-size: 11.5px; color: rgba(244, 234, 220, 0.65);
+      letter-spacing: 0.5px;
     }
     .server-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #38ef7d; box-shadow: 0 0 10px #38ef7d;
-      animation: pulse 1.8s infinite;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #d9822b; box-shadow: 0 0 8px #ff9f43;
+      animation: pulse 2.2s infinite;
     }
     @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.35); opacity: 0.55; }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
     }
 
-    /* ── Sleek Diegetic Game HUD Shell ──────────────────────────────────── */
+    /* ── 2. Diegetic Minimalist HUD Shell (No AI Rounded Dashboard Boxes!) ── */
     .ui-shell {
       position: fixed; inset: 0; z-index: 10;
       pointer-events: none;
       display: flex; flex-direction: column; justify-content: space-between;
-      padding: max(10px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
-      max-width: 540px; margin: 0 auto;
+      padding: max(12px, env(safe-area-inset-top)) 16px max(10px, env(safe-area-inset-bottom));
+      max-width: 600px; margin: 0 auto;
     }
     .ui-shell > * { pointer-events: auto; }
 
     .top-hud-cluster {
-      display: flex; flex-direction: column; gap: 6px;
-      max-height: 76vh;
+      display: flex; flex-direction: column; gap: 8px;
     }
 
-    /* Top Diegetic Game Bar */
+    /* Top Bar: Left Calligraphic Thermometer + Right Brass Sigil Seals */
     .game-top-hud {
-      display: flex; align-items: stretch; justify-content: space-between; gap: 7px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
     }
 
-    /* Left: Hearth Level, Live Continuous Temperature & Combo Plaque */
     .hearth-plaque {
       flex: 1; min-width: 0;
-      background: var(--wood-panel);
-      border: 1.5px solid var(--brass-border);
-      border-radius: 16px; padding: 8px 11px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,230,180,0.2);
-      transition: border-color 0.2s;
+      padding: 4px 2px;
+      background: linear-gradient(90deg, rgba(8, 6, 6, 0.68) 0%, rgba(8, 6, 6, 0.25) 85%, transparent 100%);
+      border-left: 2px solid var(--brass-bright);
+      padding-left: 10px;
+      cursor: pointer;
     }
     .plaque-top-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 6px;
-      margin-bottom: 5px;
-    }
-    .fire-stage-badge {
-      font-family: var(--font-title);
-      font-size: 13px; color: var(--brass-bright);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .temp-cluster {
-      display: flex; align-items: center; gap: 5px; flex: none;
-    }
-    .combo-pill {
-      padding: 1.5px 6px; border-radius: 999px;
-      background: linear-gradient(135deg, #ff922b, #e03131);
-      color: #fff; font-family: var(--font-num); font-size: 10px; font-weight: 800;
-      opacity: 0; transform: scale(0.85);
-      transition: opacity 0.18s, transform 0.18s;
-    }
-    .combo-pill.active {
-      opacity: 1; transform: scale(1);
+      display: flex; align-items: baseline; gap: 10px;
+      margin-bottom: 4px;
     }
     .plaque-temp {
-      font-family: var(--font-num);
-      font-size: 14px; font-weight: 800; color: #ff9f43;
-      font-variant-numeric: tabular-nums;
-      text-shadow: 0 0 12px rgba(255, 130, 40, 0.55);
+      font-family: var(--font-title);
+      font-size: 24px; color: #fff4e0;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.95), 0 0 18px rgba(255, 125, 35, 0.65);
     }
+    .fire-stage-badge {
+      font-family: var(--font-serif);
+      font-size: 12px; font-weight: 700; color: var(--brass-bright);
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.95);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .combo-pill {
+      padding: 1px 6px; border: 1px solid #ff922b;
+      background: rgba(180, 40, 15, 0.85);
+      color: #ffe8cc; font-family: var(--font-num); font-size: 10px; font-weight: 800;
+      opacity: 0; transform: translateY(2px);
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .combo-pill.show, .combo-pill.active {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* Ultra-Thin Hairline Brass Mercury Gauge */
     .fatigue-bar-wrap {
-      width: 100%; height: 7px; border-radius: 999px;
-      background: rgba(0, 0, 0, 0.65);
-      border: 1px solid rgba(255, 200, 130, 0.2);
+      width: min(100%, 260px); height: 2px;
+      background: rgba(255, 225, 180, 0.18);
       overflow: hidden; margin-bottom: 5px;
     }
     .fatigue-bar-fill {
       height: 100%; width: 35%;
-      background: linear-gradient(90deg, #ff9a3c, #ff4b1f, #ffd86b);
-      box-shadow: 0 0 10px #ff6a2b;
+      background: linear-gradient(90deg, #c86428, #ff9f43, #fff0c2);
       transition: width 0.15s linear;
     }
     .plaque-sub-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 4px;
-      font-size: 10.5px; color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-serif); font-size: 11px; color: rgba(244, 234, 220, 0.72);
+      text-shadow: 0 1px 6px rgba(0,0,0,0.95);
     }
-    .plaque-sub-row strong { color: #ffe5b8; font-family: var(--font-num); font-weight: 700; }
+    .plaque-sub-row strong { color: #f6dcb3; font-family: var(--font-num); font-weight: 600; }
     .lv0-test-btn {
-      padding: 1px 6px; border-radius: 6px;
-      border: 1px solid rgba(255, 190, 110, 0.35);
-      background: rgba(255, 140, 50, 0.14);
-      color: #ffd89b; font-size: 9.5px; font-weight: 700;
+      padding: 1px 6px;
+      border: 1px solid rgba(218, 178, 114, 0.38);
+      background: rgba(15, 11, 9, 0.7);
+      color: rgba(230, 198, 135, 0.88);
+      font-family: var(--font-serif); font-size: 10px;
       cursor: pointer;
     }
-    .lv0-test-btn:hover { background: rgba(255, 140, 50, 0.32); }
+    .lv0-test-btn:hover { border-color: var(--brass-bright); color: #fff; }
 
-    /* Right: 3 Clean Game Medallions */
+    /* Right: 3 Engraved Brass Seal Buttons (Zero Emoji!) */
     .hud-medallions {
-      display: flex; gap: 5px; flex: none;
+      display: flex; gap: 8px; flex: none;
     }
     .medallion-btn {
-      min-width: 52px; padding: 0 9px;
-      border-radius: 15px;
-      background: var(--wood-panel);
-      border: 1.5px solid var(--brass-border);
-      color: var(--text-cream);
+      width: 44px; height: 48px;
+      background: rgba(12, 9, 8, 0.78);
+      border: 1px solid rgba(218, 178, 114, 0.42);
+      color: var(--text-parchment);
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
       cursor: pointer;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,230,180,0.2);
-      transition: transform 0.15s, border-color 0.2s;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.75);
+      transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+      padding: 0;
     }
     .medallion-btn:hover {
       transform: translateY(-2px);
-      border-color: rgba(255, 215, 130, 0.75);
+      border-color: var(--brass-bright);
+      background: rgba(28, 19, 14, 0.9);
     }
-    .medallion-btn:active { transform: scale(0.94); }
     .medallion-btn.gold-glow {
-      border-color: rgba(255, 215, 105, 0.75);
-      background: linear-gradient(160deg, rgba(68, 44, 16, 0.94), rgba(24, 15, 9, 0.97));
+      border-color: rgba(230, 198, 135, 0.72);
     }
-    .medallion-icon { font-size: 18px; line-height: 1; }
+    .sigil-svg {
+      width: 17px; height: 17px;
+      stroke: var(--brass-bright); fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
     .medallion-label {
       font-family: var(--font-serif);
-      font-size: 10px; font-weight: 700; color: var(--brass-bright);
-      white-space: nowrap;
+      font-size: 9.5px; font-weight: 700; color: rgba(244, 234, 220, 0.85);
+      letter-spacing: 0.5px;
     }
 
-    /* Always-Accessible 4-Column Space Switcher Strip (No Horizontal Scroll Needed!) */
+    /* 4-Space Book-Tab Strip (Clean Calligraphic Underline Tabs, No Box!) */
     .quick-space-bar {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
-      background: rgba(14, 10, 9, 0.78);
-      border: 1px solid rgba(255, 200, 125, 0.24);
-      border-radius: 12px; padding: 4px;
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(218, 178, 114, 0.22);
+      background: linear-gradient(180deg, rgba(8, 6, 6, 0.58), rgba(8, 6, 6, 0.25));
+      padding: 0 4px;
     }
     .space-chip {
-      height: 28px; padding: 0 4px; border-radius: 8px; border: 0;
-      background: transparent; color: rgba(255, 235, 205, 0.68);
-      font-family: var(--font-serif); font-size: 11px; font-weight: 700;
-      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      transition: all 0.18s;
+      flex: 1; height: 32px; border: 0;
+      background: transparent;
+      color: rgba(244, 234, 220, 0.56);
+      font-family: var(--font-serif); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer; position: relative;
+      transition: color 0.2s ease;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.95);
     }
+    .space-chip:hover { color: rgba(244, 234, 220, 0.88); }
     .space-chip.active {
-      background: linear-gradient(135deg, rgba(255, 142, 55, 0.36), rgba(205, 58, 18, 0.3));
-      color: #fff8ec;
-      box-shadow: inset 0 0 0 1px rgba(255, 205, 125, 0.55);
+      color: var(--brass-bright);
+    }
+    .space-chip.active::after {
+      content: ''; position: absolute; left: 18%; right: 18%; bottom: -1px;
+      height: 2px; background: var(--brass-bright);
+      box-shadow: 0 0 8px rgba(240, 156, 66, 0.8);
     }
 
-    /* Scrollable Expandable World / Channel / Ranking Drawer */
+    /* Expandable World / Channel / Ranking Drawer */
     .world-drawer {
-      background: var(--wood-panel);
-      border: 1.5px solid rgba(255, 205, 130, 0.42);
-      border-radius: 18px;
-      padding: 12px;
-      box-shadow: 0 18px 48px rgba(0,0,0,0.9);
-      display: none; flex-direction: column; gap: 10px;
+      background: rgba(12, 9, 8, 0.94);
+      border: 1px solid var(--brass-line);
+      padding: 14px;
+      box-shadow: 0 22px 54px rgba(0,0,0,0.95);
+      display: none; flex-direction: column; gap: 12px;
       max-height: 54vh;
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -417,215 +427,252 @@
     .drawer-section-label {
       font-family: var(--font-serif);
       font-size: 11px; font-weight: 700; color: var(--brass-bright);
-      margin-bottom: 5px; display: flex; justify-content: space-between;
+      margin-bottom: 6px; display: flex; justify-content: space-between;
+      letter-spacing: 0.5px;
     }
-
-    .room-bar {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
-    }
-    .lang-bar {
-      display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px;
-    }
+    .room-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .lang-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 
     .room-tab, .lang-btn {
-      height: 32px; padding: 0 6px; border-radius: 9px;
-      border: 1px solid rgba(255, 210, 150, 0.18);
-      background: rgba(255, 255, 255, 0.045);
+      height: 32px; padding: 0 6px;
+      border: 1px solid rgba(218, 178, 114, 0.22);
+      background: rgba(255, 255, 255, 0.03);
       color: var(--text-muted);
       font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
-      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      transition: all 0.18s;
+      cursor: pointer; transition: all 0.18s;
     }
     .room-tab.active, .lang-btn.active {
-      background: linear-gradient(135deg, rgba(255, 140, 50, 0.36), rgba(210, 60, 20, 0.3));
-      border-color: rgba(255, 205, 125, 0.68);
+      background: rgba(181, 51, 29, 0.32);
+      border-color: var(--brass-bright);
       color: #fff8ee;
     }
 
-    /* Real-Time TOP 5 Ranking List inside Drawer */
     .rank-strip {
-      width: 100%; height: 34px; padding: 0 11px; border-radius: 10px;
-      background: rgba(255, 140, 55, 0.12);
-      border: 1px solid rgba(255, 195, 120, 0.28);
+      width: 100%; height: 34px; padding: 0 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(218, 178, 114, 0.25);
       display: flex; align-items: center; gap: 8px;
       font-size: 11.5px; color: #f6e7d3; cursor: pointer;
     }
     .rank-badge {
-      padding: 2px 7px; border-radius: 6px;
-      background: rgba(255, 133, 51, 0.28);
-      color: var(--brass-bright); font-size: 10px; font-weight: 800;
+      padding: 1px 6px;
+      border: 1px solid rgba(218, 178, 114, 0.45);
+      color: var(--brass-bright); font-family: var(--font-serif); font-size: 10px; font-weight: 700;
     }
     .rank-word { flex: 1; text-align: left; font-family: var(--font-serif); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .rank-count { font-family: var(--font-num); font-size: 11px; color: var(--text-muted); }
 
-    .rank-drawer {
-      display: flex; flex-direction: column; gap: 5px;
-      padding-top: 6px;
-    }
-    .rank-list { display: grid; gap: 5px; }
+    .rank-drawer { display: flex; flex-direction: column; gap: 5px; padding-top: 6px; }
+    .rank-list { display: grid; gap: 4px; }
     .rank-item {
       display: grid; grid-template-columns: 32px 1fr auto auto; align-items: center; gap: 8px;
-      padding: 7px 10px; border-radius: 9px;
-      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 10px;
+      border-bottom: 1px solid rgba(218, 178, 114, 0.12);
       font-size: 12px; cursor: pointer;
     }
-    .rank-item:hover { background: rgba(255, 145, 70, 0.22); }
-    .rank-no { font-family: var(--font-num); font-weight: 800; color: var(--brass-bright); font-size: 11px; }
-    .rank-item-word { font-family: var(--font-serif); font-weight: 700; color: #fff6ea; }
-    .rank-item-fires { font-family: var(--font-num); font-size: 11px; color: rgba(255, 200, 140, 0.82); }
+    .rank-item:hover { background: rgba(218, 178, 114, 0.1); }
+    .rank-no { font-family: var(--font-num); font-weight: 700; color: var(--brass-bright); font-size: 11px; }
+    .rank-item-word { font-family: var(--font-serif); color: #fff6ea; }
+    .rank-item-fires { font-family: var(--font-num); font-size: 11px; color: var(--text-muted); }
     .rank-item-burn-btn {
-      padding: 3px 8px; border-radius: 6px;
-      background: rgba(255, 133, 51, 0.28); color: #ffca99;
-      font-size: 10px; font-weight: 800;
+      padding: 2px 7px; border: 1px solid rgba(181, 51, 29, 0.6);
+      color: #f4b898; font-size: 10px;
     }
 
     .sr-stats { display: none; }
 
     /* ── Poetic Oracle & Dying Fire Crisis Banner ───────────────────────── */
     .ash-oracle {
-      position: fixed; left: 50%; top: 27%; transform: translate(-50%, -50%);
-      width: min(90vw, 410px); text-align: center;
+      position: fixed; left: 50%; top: 26%; transform: translate(-50%, -50%);
+      width: min(90vw, 400px); text-align: center;
       pointer-events: none; z-index: 25;
       opacity: 0; transition: opacity 0.45s ease, transform 0.45s ease;
     }
-    .ash-oracle.show {
-      opacity: 1; transform: translate(-50%, -42%);
-    }
+    .ash-oracle.show { opacity: 1; transform: translate(-50%, -42%); }
     .ash-oracle-tag {
-      display: inline-block; padding: 4px 12px; border-radius: 999px;
-      font-family: var(--font-title); font-size: 11.5px; color: var(--brass-bright);
-      background: rgba(18, 13, 11, 0.92);
-      border: 1px solid rgba(255, 205, 120, 0.5);
-      margin-bottom: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.65);
+      display: inline-block; padding: 2px 10px;
+      font-family: var(--font-title); font-size: 11px; color: var(--brass-bright);
+      background: rgba(12, 9, 8, 0.92);
+      border: 1px solid var(--brass-line);
+      margin-bottom: 6px; letter-spacing: 1px;
     }
     .ash-oracle-text {
       font-family: var(--font-serif);
-      font-size: 15px; font-weight: 700; line-height: 1.6;
+      font-size: 14.5px; font-weight: 700; line-height: 1.65;
       color: #fffaf2;
-      background: rgba(14, 10, 9, 0.88);
-      border: 1px solid rgba(255, 190, 110, 0.32);
-      border-radius: 16px; padding: 11px 16px;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.95);
-      box-shadow: 0 14px 36px rgba(0,0,0,0.8);
+      background: rgba(10, 8, 7, 0.9);
+      border-top: 1px solid var(--brass-bright);
+      border-bottom: 1px solid var(--brass-bright);
+      padding: 12px 18px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+      box-shadow: 0 18px 44px rgba(0,0,0,0.88);
       word-break: keep-all;
     }
 
     .dying-alert {
-      position: fixed; left: 50%; top: 45%; transform: translate(-50%, -50%);
-      width: min(88vw, 350px); padding: 10px 16px; border-radius: 14px;
-      background: rgba(34, 12, 10, 0.92);
-      border: 1.5px solid rgba(255, 95, 65, 0.72);
-      color: #ffcab8; font-family: var(--font-serif); font-size: 12.5px; font-weight: 700; line-height: 1.5;
+      position: fixed; left: 50%; top: 44%; transform: translate(-50%, -50%);
+      width: min(88vw, 340px); padding: 10px 16px;
+      background: rgba(24, 9, 8, 0.92);
+      border: 1px solid rgba(205, 75, 50, 0.65);
+      color: #f4c6b8; font-family: var(--font-serif); font-size: 12px; line-height: 1.55;
       text-align: center; word-break: keep-all;
-      box-shadow: 0 0 32px rgba(255, 60, 30, 0.45);
       pointer-events: none; z-index: 14;
       opacity: 0; transition: opacity 0.4s ease;
     }
-    .dying-alert.show {
-      opacity: 1; animation: emberPulse 1.4s infinite ease-in-out;
-    }
-    @keyframes emberPulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); }
-      50% { transform: translate(-50%, -50%) scale(1.04); }
-    }
+    .dying-alert.show { opacity: 1; }
 
-    /* ── Bottom Tactile Game Inventory Dock (Little Inferno Style!) ─────── */
+    /* ── 3. Bottom Tactile Paper Talisman Hand (Inscryption / Little Inferno Physical Slips!) ── */
     .bottom-game-dock {
       display: flex; flex-direction: column; align-items: center; gap: 6px;
     }
 
     .live-whisper-bar {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 4px 13px; border-radius: 999px;
-      background: rgba(12, 9, 8, 0.82);
-      border: 1px solid rgba(255, 200, 130, 0.26);
-      font-family: var(--font-serif); font-size: 11.5px; color: rgba(255, 236, 210, 0.9);
-      max-width: 98%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      backdrop-filter: blur(8px);
+      font-family: var(--font-serif); font-size: 11.5px;
+      color: rgba(244, 234, 220, 0.82);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.98);
+      letter-spacing: 0.3px;
+      max-width: 96%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      padding: 2px 10px;
     }
 
-    .inventory-tray {
+    /* Fanned Physical Paper Slips Rising from Bottom Edge (No Outer Container Box!) */
+    .talisman-hand {
+      display: flex; align-items: flex-end; justify-content: center;
       width: 100%;
-      background: var(--wood-panel);
-      border: 1.5px solid var(--brass-border);
-      border-radius: 20px;
-      padding: 8px 10px;
-      box-shadow:
-        0 18px 48px rgba(0, 0, 0, 0.9),
-        0 0 28px rgba(255, 120, 30, 0.16),
-        inset 0 1px 0 rgba(255, 230, 180, 0.24);
-      display: flex; flex-direction: column; gap: 7px;
-    }
-
-    .tray-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 4px; font-family: var(--font-serif); font-size: 11px; color: var(--text-muted); font-weight: 700;
-    }
-    .tray-header span b { color: var(--brass-bright); font-family: var(--font-num); }
-
-    .item-slots {
-      display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+      gap: 5px;
+      padding: 4px 2px 2px;
+      perspective: 700px;
     }
 
     .game-item-card {
-      height: 64px; border-radius: 13px;
-      background: linear-gradient(160deg, rgba(48, 33, 24, 0.94), rgba(20, 14, 11, 0.98));
-      border: 1px solid rgba(255, 200, 125, 0.32);
-      color: var(--text-cream);
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      flex: 1; max-width: 104px;
+      height: 82px;
+      border-radius: 3px 3px 2px 2px;
+      padding: 7px 5px 6px;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
       cursor: grab; position: relative;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
-      transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.85);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
       touch-action: none;
     }
+    /* Subtle hand-fanned angles */
+    .game-item-card:nth-child(1) { transform: rotate(-4deg) translateY(4px); }
+    .game-item-card:nth-child(2) { transform: rotate(-2deg) translateY(1px); }
+    .game-item-card:nth-child(3) { transform: rotate(0deg) translateY(-2px); z-index: 2; }
+    .game-item-card:nth-child(4) { transform: rotate(2deg) translateY(1px); }
+    .game-item-card:nth-child(5) { transform: rotate(4deg) translateY(4px); }
+
     .game-item-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(255, 215, 130, 0.8);
+      transform: translateY(-14px) scale(1.05) rotate(0deg) !important;
+      z-index: 6;
+      box-shadow: 0 18px 36px rgba(0,0,0,0.95), 0 0 22px rgba(240, 135, 45, 0.45);
     }
-    .game-item-card:active { transform: scale(0.94); cursor: grabbing; }
-    .game-item-card.primary-scroll {
-      background: linear-gradient(145deg, #d94b1a, #8f2209);
-      border-color: #ffd88a;
-      box-shadow: 0 6px 18px rgba(225, 75, 25, 0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+    .game-item-card:active { transform: translateY(-8px) scale(0.97) !important; cursor: grabbing; }
+
+    /* Card 1: Cinnabar Red-Gold Alchemy Talisman (주문·번뇌 쓰기) */
+    .game-item-card.card-talisman {
+      background: linear-gradient(170deg, #9c2b17 0%, #68180b 100%);
+      border: 1px solid #e5b36b;
+      color: #fdf2df;
     }
-    .game-item-card.gold-slot {
-      background: linear-gradient(145deg, rgba(95, 62, 14, 0.95), rgba(42, 25, 6, 0.98));
-      border-color: rgba(255, 215, 90, 0.68);
+    .game-item-card.card-talisman::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(229, 179, 107, 0.32); pointer-events: none;
     }
-    .item-emoji { font-size: 20px; line-height: 1; pointer-events: none; }
+
+    /* Card 2: Cream Hanji Resignation Envelope (사직서) */
+    .game-item-card.card-resign {
+      background: linear-gradient(175deg, #efe4d0 0%, #d8c5a5 100%);
+      border: 1px solid #8c6f4e;
+      color: #261910;
+    }
+    .game-item-card.card-resign::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(120, 40, 25, 0.25); pointer-events: none;
+    }
+
+    /* Card 3: Indigo Ledger Paper (물린 계좌) */
+    .game-item-card.card-ledger {
+      background: linear-gradient(175deg, #162234 0%, #0d1522 100%);
+      border: 1px solid #5983b8;
+      color: #d8e6f8;
+    }
+    .game-item-card.card-ledger::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(89, 131, 184, 0.25); pointer-events: none;
+    }
+
+    /* Card 4: Aged Copper Time Slip (월요병 시계) */
+    .game-item-card.card-clock {
+      background: linear-gradient(175deg, #2d1c1a 0%, #1a100f 100%);
+      border: 1px solid #b86b52;
+      color: #f4dcd3;
+    }
+    .game-item-card.card-clock::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(184, 107, 82, 0.25); pointer-events: none;
+    }
+
+    /* Card 5: Charred Oak Wood Tag (참나무 장작) */
+    .game-item-card.card-wood {
+      background: linear-gradient(175deg, #382417 0%, #1f130c 100%);
+      border: 1px solid #c48f52;
+      color: #f5e3c8;
+    }
+    .game-item-card.card-wood::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid rgba(196, 143, 82, 0.25); pointer-events: none;
+    }
+
+    .card-hanja-seal {
+      font-family: var(--font-title);
+      font-size: 10px; letter-spacing: 1px;
+      padding: 1px 5px;
+      border: 1px solid currentColor;
+      opacity: 0.82;
+      pointer-events: none;
+    }
+    .card-resign .card-hanja-seal { color: #9e2a1b; border-color: #9e2a1b; }
+    .card-talisman .card-hanja-seal { color: #f6d28b; border-color: #f6d28b; }
+
     .item-name {
       font-family: var(--font-title);
-      font-size: 11px; color: #fff8ec;
+      font-size: 12px;
+      letter-spacing: 0.5px;
       white-space: nowrap; pointer-events: none;
     }
     .item-sub {
       font-family: var(--font-num);
-      font-size: 9px; font-weight: 700; color: #ffbe76;
+      font-size: 9px; font-weight: 600;
+      opacity: 0.72;
       pointer-events: none;
     }
 
+    /* Subtle Secondary Utility Bar Below Cards */
     .dock-sub-actions {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      padding-top: 2px;
     }
     .sub-action-btn {
-      height: 31px; border-radius: 9px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 205, 135, 0.2);
-      color: #f7e6ce; font-family: var(--font-serif); font-size: 11px; font-weight: 700;
-      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-      cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      transition: all 0.15s;
+      background: transparent; border: 0;
+      border-bottom: 1px solid transparent;
+      color: rgba(244, 234, 220, 0.68);
+      font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
+      padding: 2px 4px;
+      cursor: pointer;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.95);
+      transition: color 0.15s, border-color 0.15s;
     }
     .sub-action-btn:hover {
-      background: rgba(255, 148, 66, 0.2);
-      border-color: rgba(255, 205, 135, 0.5);
+      color: var(--brass-bright);
+      border-bottom-color: var(--brass-bright);
     }
 
     /* ── Tactile Hanji Swipe-to-Burn Overlay ────────────────────────────── */
     .hanji-overlay {
       position: fixed; inset: 0; z-index: 35;
-      background: radial-gradient(circle at 50% 60%, rgba(28, 16, 10, 0.55), rgba(4, 5, 10, 0.88));
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      background: radial-gradient(circle at 50% 60%, rgba(24, 13, 8, 0.6), rgba(4, 4, 8, 0.92));
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       display: none; flex-direction: column; align-items: center; justify-content: flex-end;
       padding: 20px 16px max(24px, env(safe-area-inset-bottom));
       overflow-y: auto;
@@ -637,24 +684,22 @@
       animation: floatUp 2s infinite ease-in-out;
     }
     @keyframes floatUp {
-      0%, 100% { transform: translateY(0); opacity: 0.8; }
+      0%, 100% { transform: translateY(0); opacity: 0.75; }
       50% { transform: translateY(-6px); opacity: 1; }
     }
-    .swipe-arrow { font-size: 22px; color: var(--brass-bright); display: block; }
-    .swipe-guide span { font-family: var(--font-serif); font-size: 13px; color: #ffe7c4; font-weight: 700; }
+    .swipe-arrow { font-family: var(--font-title); font-size: 20px; color: var(--brass-bright); display: block; }
+    .swipe-guide span { font-family: var(--font-serif); font-size: 12.5px; color: #f4e2c6; }
 
     .hanji-sheet {
       width: min(100%, 410px);
       background:
         radial-gradient(circle at 20% 20%, rgba(255, 252, 244, 0.45), transparent 60%),
-        linear-gradient(165deg, #f6ebd8 0%, #ead7b7 55%, #dfc59c 100%);
-      color: #2b1d12;
-      border-radius: 20px;
+        linear-gradient(165deg, #f4e8d4 0%, #e5d0ae 55%, #d6bc92 100%);
+      color: #26180e;
+      border-radius: 4px;
+      border: 1px solid #9e7b56;
       padding: 18px 18px 15px;
-      box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.88),
-        0 0 40px rgba(255, 140, 55, 0.32),
-        inset 0 0 0 1.5px rgba(255, 255, 255, 0.55);
+      box-shadow: 0 28px 64px rgba(0, 0, 0, 0.92);
       position: relative;
       transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
     }
@@ -663,52 +708,51 @@
       background:
         radial-gradient(circle at 22% 18%, rgba(255, 252, 220, 0.96), transparent 55%),
         linear-gradient(155deg, #ffe799 0%, #f4c145 52%, #d49019 100%);
-      box-shadow: 0 24px 64px rgba(0,0,0,0.85), 0 0 48px rgba(255, 195, 55, 0.65);
       border: 1.5px solid #fff3bd;
     }
 
     .hanji-top {
       display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px dashed rgba(95, 65, 35, 0.28);
+      border-bottom: 1px solid rgba(95, 65, 35, 0.25);
       padding-bottom: 9px; margin-bottom: 10px;
     }
     .hanji-stamp {
       font-family: var(--font-title);
-      font-size: 12px; color: #9e3b1c;
-      border: 1.5px solid #9e3b1c; border-radius: 4px;
+      font-size: 12px; color: #9e2a1b;
+      border: 1.5px solid #9e2a1b;
       padding: 2px 7px; letter-spacing: 1px;
     }
     .gold-toggle-btn {
-      padding: 4px 10px; border-radius: 999px;
-      border: 1px solid rgba(165, 102, 18, 0.5);
-      background: linear-gradient(135deg, rgba(255, 215, 95, 0.32), rgba(215, 140, 25, 0.24));
-      color: #6b3d08; font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border: 1px solid #8c5812;
+      background: rgba(215, 145, 25, 0.18);
+      color: #5c3406; font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
+      cursor: pointer;
     }
     .hanji-sheet.golden .gold-toggle-btn {
       background: #7c2410; color: #ffefb8; border-color: #7c2410;
     }
     .hanji-close {
-      border: 0; background: rgba(60, 40, 20, 0.12);
-      color: #5a3e28; width: 28px; height: 28px; border-radius: 50%;
-      font-weight: 800; cursor: pointer;
+      border: 0; background: transparent;
+      color: #5a3e28; width: 28px; height: 28px;
+      font-size: 16px; cursor: pointer;
     }
 
     .hanji-chips {
       display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;
-      max-height: 92px; overflow-y: auto;
+      max-height: 88px; overflow-y: auto;
       overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
       touch-action: pan-y;
     }
     .hanji-chip {
-      padding: 4px 9px; border-radius: 999px;
-      background: rgba(90, 58, 28, 0.09);
-      border: 1px solid rgba(90, 58, 28, 0.22);
-      color: #4a311c; font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
+      padding: 3px 8px;
+      background: rgba(90, 58, 28, 0.08);
+      border: 1px solid rgba(90, 58, 28, 0.24);
+      color: #3d2715; font-family: var(--font-serif); font-size: 11.5px; font-weight: 700;
       cursor: pointer; transition: all 0.15s;
     }
     .hanji-chip:hover {
-      background: #9e3b1c; color: #fff8ee; border-color: #9e3b1c;
+      background: #9e2a1b; color: #fff8ee; border-color: #9e2a1b;
     }
 
     .hanji-textarea {
@@ -718,27 +762,27 @@
       line-height: 1.4;
     }
     .hanji-textarea::placeholder {
-      color: rgba(75, 50, 28, 0.45); font-family: var(--font-serif); font-size: 14px;
+      color: rgba(75, 50, 28, 0.48); font-family: var(--font-serif); font-size: 13.5px;
     }
 
     .hanji-foot {
       display: flex; justify-content: space-between; align-items: center;
       margin-top: 6px; padding-top: 10px;
-      border-top: 1px solid rgba(95, 65, 35, 0.18);
+      border-top: 1px solid rgba(95, 65, 35, 0.2);
     }
     .hanji-hint { font-family: var(--font-serif); font-size: 11.5px; color: rgba(75, 50, 28, 0.75); font-weight: 700; }
     .hanji-burn-cta {
-      height: 40px; padding: 0 18px; border-radius: 999px; border: 0;
-      background: linear-gradient(135deg, #d94818, #9e280e);
-      color: #fff8f0; font-family: var(--font-title); font-size: 14px;
-      cursor: pointer; box-shadow: 0 4px 14px rgba(180, 45, 15, 0.4);
+      height: 38px; padding: 0 18px; border: 1px solid #e5b36b;
+      background: linear-gradient(180deg, #9e2a1b, #69180d);
+      color: #fff8f0; font-family: var(--font-title); font-size: 13.5px; letter-spacing: 1px;
+      cursor: pointer;
     }
 
-    /* ── Modals (Museum, Automated Checkout, Audio, Cert, Guestbook) ────── */
+    /* ── Modals (Museum, Checkout, Audio, Cert, Guestbook) ──────────────── */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 45;
-      background: rgba(4, 4, 8, 0.84);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      background: rgba(4, 4, 8, 0.86);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       display: none; align-items: center; justify-content: center; padding: 14px;
       overflow-y: auto;
     }
@@ -749,59 +793,59 @@
       overflow-y: auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
-      background: linear-gradient(165deg, #1b1412, #0e0b0b);
-      border: 1.5px solid var(--brass-border);
-      border-radius: 22px; padding: 18px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.92);
-      color: var(--text-cream);
+      background: #120e0d;
+      border: 1px solid var(--brass-line);
+      padding: 18px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.95);
+      color: var(--text-parchment);
     }
     .modal-head {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(218, 178, 114, 0.18);
+      padding-bottom: 10px; margin-bottom: 14px;
     }
-    .modal-head h2 { margin: 0; font-family: var(--font-title); font-size: 17px; font-weight: 400; color: var(--brass-bright); }
+    .modal-head h2 { margin: 0; font-family: var(--font-title); font-size: 16.5px; font-weight: 400; color: var(--brass-bright); letter-spacing: 1px; }
     .close-btn {
-      width: 32px; height: 32px; border-radius: 50%; border: 0;
-      background: rgba(255,255,255,0.09); color: #fff; cursor: pointer; flex: none;
+      width: 28px; height: 28px; border: 1px solid rgba(218, 178, 114, 0.25);
+      background: transparent; color: var(--text-parchment); cursor: pointer; flex: none;
     }
     .slider-row { margin-bottom: 14px; }
     .slider-row label {
       display: flex; justify-content: space-between;
       font-family: var(--font-serif); font-size: 13px; color: var(--text-muted); margin-bottom: 6px;
     }
-    .slider-row input[type=range] { width: 100%; accent-color: #ff8a3d; }
+    .slider-row input[type=range] { width: 100%; accent-color: #c86428; }
     #cert-canvas {
-      width: 100%; height: auto; border-radius: 16px;
-      border: 1px solid rgba(255, 210, 150, 0.25);
+      width: 100%; height: auto;
+      border: 1px solid rgba(218, 178, 114, 0.3);
       display: block; margin-bottom: 12px;
     }
     .modal-cta {
-      width: 100%; height: 46px; border-radius: 14px; border: 0;
-      background: linear-gradient(135deg, #ff9642, #e84e1b);
-      color: #fff; font-family: var(--font-title); font-size: 15px; cursor: pointer;
-      box-shadow: 0 8px 24px rgba(232, 78, 27, 0.35);
+      width: 100%; height: 44px; border: 1px solid var(--brass-bright);
+      background: linear-gradient(180deg, #982916, #63170b);
+      color: #fff; font-family: var(--font-title); font-size: 14.5px; letter-spacing: 1px; cursor: pointer;
     }
 
     .myfire-section {
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 210, 150, 0.18);
-      border-radius: 14px; padding: 12px; margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(218, 178, 114, 0.18);
+      padding: 12px; margin-bottom: 10px;
     }
     .myfire-section h3 {
       margin: 0 0 8px; font-family: var(--font-serif); font-size: 12.5px; color: var(--brass-bright); font-weight: 700;
     }
     .myfire-input-row { display: flex; gap: 6px; margin-bottom: 8px; }
     .myfire-input {
-      flex: 1; height: 36px; padding: 0 11px; border-radius: 10px;
-      border: 1px solid rgba(255, 210, 150, 0.24);
-      background: rgba(8, 7, 10, 0.85); color: #fff6ea;
+      flex: 1; height: 34px; padding: 0 10px;
+      border: 1px solid rgba(218, 178, 114, 0.28);
+      background: rgba(6, 5, 7, 0.9); color: #fff6ea;
       font-family: var(--font-serif); font-size: 12.5px; outline: none;
     }
     .myfire-sub-btn {
-      height: 36px; padding: 0 12px; border-radius: 10px;
-      background: rgba(255, 145, 66, 0.24);
-      border: 1px solid rgba(255, 185, 110, 0.45);
-      color: #ffdfa2; font-family: var(--font-serif); font-size: 12px; font-weight: 700; cursor: pointer;
+      height: 34px; padding: 0 12px;
+      background: rgba(218, 178, 114, 0.15);
+      border: 1px solid var(--brass-line);
+      color: var(--brass-bright); font-family: var(--font-serif); font-size: 12px; font-weight: 700; cursor: pointer;
       white-space: nowrap;
     }
     .guestbook-list {
@@ -810,33 +854,28 @@
       margin-top: 8px;
     }
     .guestbook-item {
-      padding: 7px 10px; border-radius: 10px;
-      background: rgba(255, 150, 70, 0.08);
-      border: 1px solid rgba(255, 190, 120, 0.16);
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.025);
+      border-left: 2px solid var(--brass-bright);
       font-family: var(--font-hand); font-size: 15px; color: #f8ebd8;
       display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
 
-    .pay-grid {
-      display: grid; grid-template-columns: 1fr; gap: 8px; margin: 12px 0;
-    }
+    .pay-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 12px 0; }
     .pay-method-btn {
-      height: 50px; border-radius: 14px;
-      border: 1.5px solid rgba(255, 215, 155, 0.35);
-      background: rgba(255, 255, 255, 0.06);
+      height: 48px;
+      border: 1px solid var(--brass-bright);
+      background: linear-gradient(180deg, #162844, #0d182b);
       color: #fff8ee; font-family: var(--font-serif); font-size: 13.5px; font-weight: 700;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       cursor: pointer; transition: all 0.18s;
     }
-    .pay-method-btn:hover {
-      transform: translateY(-2px);
-      border-color: #ffd27d;
-    }
+    .pay-method-btn:hover { border-color: #fff; }
     .checkout-perk-list {
-      margin: 0 0 10px; padding: 11px 13px; border-radius: 14px;
-      background: rgba(255, 195, 70, 0.08);
-      border: 1px solid rgba(255, 205, 105, 0.24);
-      font-family: var(--font-serif); font-size: 12px; color: #f8e8ce; line-height: 1.65;
+      margin: 0 0 10px; padding: 11px 13px;
+      background: rgba(218, 178, 114, 0.06);
+      border: 1px solid rgba(218, 178, 114, 0.22);
+      font-family: var(--font-serif); font-size: 12px; color: #f8e8ce; line-height: 1.7;
     }
 
     /* ── Auto-Capture Flash & Floating Polaroid Toast ───────────────────── */
@@ -848,339 +887,303 @@
     .camera-flash.flash { opacity: 0.85; transition: none; }
 
     .capture-toast {
-      position: fixed; right: 14px; bottom: 142px; z-index: 38;
-      width: min(88vw, 330px);
-      background: rgba(18, 13, 12, 0.96);
-      border: 1.5px solid rgba(255, 205, 110, 0.65);
-      border-radius: 16px; padding: 10px;
-      box-shadow: 0 16px 42px rgba(0,0,0,0.88), 0 0 24px rgba(255, 165, 60, 0.35);
+      position: fixed; right: 16px; bottom: 136px; z-index: 38;
+      width: min(88vw, 320px);
+      background: rgba(14, 10, 9, 0.96);
+      border: 1px solid var(--brass-bright);
+      padding: 9px;
+      box-shadow: 0 16px 42px rgba(0,0,0,0.92);
       display: flex; align-items: center; gap: 10px;
-      transform: translateY(24px) scale(0.95); opacity: 0; pointer-events: none;
+      transform: translateY(24px); opacity: 0; pointer-events: none;
       transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
     }
-    .capture-toast.show {
-      transform: translateY(0) scale(1); opacity: 1; pointer-events: auto;
-    }
+    .capture-toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
     .capture-toast img {
-      width: 68px; height: 50px; object-fit: cover;
-      border-radius: 8px; border: 1px solid rgba(255, 215, 140, 0.45);
-      flex: none;
+      width: 66px; height: 48px; object-fit: cover;
+      border: 1px solid var(--brass-line); flex: none;
     }
     .capture-toast-info { flex: 1; min-width: 0; }
-    .capture-toast-tag {
-      font-size: 10px; font-weight: 800; color: #ffd479;
-      display: block; margin-bottom: 2px;
-    }
+    .capture-toast-tag { font-size: 10px; font-weight: 700; color: var(--brass-bright); display: block; margin-bottom: 2px; }
     .capture-toast-title {
       font-family: var(--font-title); font-size: 13px; color: #fff8ee;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .capture-toast-sub {
-      font-family: var(--font-serif); font-size: 10.5px; color: rgba(255, 225, 185, 0.82);
-    }
+    .capture-toast-sub { font-family: var(--font-serif); font-size: 10.5px; color: var(--text-muted); }
 
     /* ── Easter Egg Hall of Fame Album Modal (#modal-album) ─────────────── */
-    .album-card {
-      width: min(100%, 470px); max-height: 88vh;
-      display: flex; flex-direction: column;
-      overflow: hidden;
-    }
+    .album-card { width: min(100%, 470px); max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; }
     .album-progress-wrap {
-      background: rgba(255,255,255,0.035);
-      border: 1px solid rgba(255, 210, 150, 0.18);
-      border-radius: 14px; padding: 10px 12px; margin-bottom: 10px; flex: none;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(218, 178, 114, 0.2);
+      padding: 10px 12px; margin-bottom: 10px; flex: none;
     }
     .album-progress-top {
       display: flex; justify-content: space-between; align-items: center;
       font-family: var(--font-serif); font-size: 12px; margin-bottom: 6px; color: #ffe7c4; font-weight: 700;
     }
-    .album-bar-bg {
-      width: 100%; height: 6px; border-radius: 999px;
-      background: rgba(255,255,255,0.1); overflow: hidden;
-    }
-    .album-bar-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #ff9a3c, #ffd464, #ff4e88);
-      transition: width 0.35s ease;
-    }
-    .album-filter-bar {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
-      margin-bottom: 10px; flex: none;
-    }
+    .album-bar-bg { width: 100%; height: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .album-bar-fill { height: 100%; width: 0%; background: var(--brass-bright); transition: width 0.35s ease; }
+    .album-filter-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; flex: none; }
     .album-filter-btn {
-      height: 30px; padding: 0 4px; border-radius: 9px;
-      border: 1px solid rgba(255, 210, 150, 0.18);
-      background: rgba(255,255,255,0.04); color: var(--text-muted);
-      font-family: var(--font-serif); font-size: 11px; font-weight: 700;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+      height: 30px; padding: 0 4px;
+      border: 1px solid rgba(218, 178, 114, 0.2);
+      background: transparent; color: var(--text-muted);
+      font-family: var(--font-serif); font-size: 11px; font-weight: 700; cursor: pointer;
     }
     .album-filter-btn.active {
-      background: rgba(255, 150, 68, 0.28);
-      border-color: rgba(255, 200, 120, 0.65); color: #ffdfa2;
+      background: rgba(181, 51, 29, 0.28);
+      border-color: var(--brass-bright); color: var(--brass-bright);
     }
     .album-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 9px;
       overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-      padding-right: 4px; flex: 1; min-height: 220px;
-      touch-action: pan-y;
+      padding-right: 4px; flex: 1; min-height: 220px; touch-action: pan-y;
     }
     .egg-slot {
-      background: rgba(255, 255, 255, 0.035);
-      border: 1px solid rgba(255, 210, 150, 0.16);
-      border-radius: 14px; padding: 9px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      position: relative; overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(218, 178, 114, 0.16);
+      padding: 9px; display: flex; flex-direction: column; justify-content: space-between;
     }
     .egg-slot.unlocked {
-      background: linear-gradient(165deg, rgba(255, 155, 65, 0.15), rgba(20, 15, 14, 0.94));
-      border-color: rgba(255, 200, 115, 0.5);
+      background: linear-gradient(165deg, rgba(181, 51, 29, 0.14), rgba(16, 12, 11, 0.96));
+      border-color: rgba(218, 178, 114, 0.5);
     }
-    .egg-slot.tier-mythic.unlocked {
-      border-color: #ffd768;
-      box-shadow: 0 0 18px rgba(255, 195, 60, 0.28);
-    }
-    .egg-thumb {
-      width: 100%; aspect-ratio: 16 / 10; border-radius: 9px;
-      background: #090a10; border: 1px solid rgba(255,255,255,0.08);
-      object-fit: cover; margin-bottom: 7px; display: block;
-    }
+    .egg-thumb { width: 100%; aspect-ratio: 16 / 10; background: #090a10; object-fit: cover; margin-bottom: 7px; display: block; }
     .egg-locked-box {
-      width: 100%; aspect-ratio: 16 / 10; border-radius: 9px;
-      background: repeating-linear-gradient(135deg, rgba(255,255,255,0.02) 0 8px, rgba(0,0,0,0.25) 8px 16px);
-      border: 1px dashed rgba(255, 200, 130, 0.24);
+      width: 100%; aspect-ratio: 16 / 10;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px dashed rgba(218, 178, 114, 0.22);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      margin-bottom: 7px; color: rgba(255, 220, 175, 0.45); font-size: 20px;
+      margin-bottom: 7px; color: rgba(218, 178, 114, 0.45); font-family: var(--font-title); font-size: 14px;
     }
     .egg-tier-badge {
-      display: inline-block; padding: 1.5px 6px; border-radius: 999px;
-      font-family: var(--font-num); font-size: 9px; font-weight: 800; margin-bottom: 4px; width: fit-content;
+      display: inline-block; padding: 1px 5px;
+      border: 1px solid rgba(218, 178, 114, 0.35);
+      font-family: var(--font-num); font-size: 9px; font-weight: 700; margin-bottom: 4px; width: fit-content;
+      color: var(--brass-bright);
     }
-    .tier-common .egg-tier-badge { background: rgba(120, 190, 255, 0.18); color: #9ad1ff; }
-    .tier-rare .egg-tier-badge { background: rgba(185, 110, 255, 0.22); color: #d8a6ff; }
-    .tier-epic .egg-tier-badge { background: rgba(255, 95, 145, 0.24); color: #ff9ec0; }
-    .tier-mythic .egg-tier-badge { background: linear-gradient(135deg, #ffd86b, #ff6b2b); color: #1b0e04; }
-    .egg-title {
-      font-family: var(--font-title); font-size: 12.5px; color: #fff7eb; margin-bottom: 3px;
-      line-height: 1.3;
-    }
-    .egg-hint {
-      font-family: var(--font-serif); font-size: 10.5px; color: rgba(255, 230, 195, 0.72); line-height: 1.45;
-      margin-bottom: 6px; word-break: keep-all;
-    }
+    .egg-title { font-family: var(--font-title); font-size: 12.5px; color: #fff7eb; margin-bottom: 3px; line-height: 1.3; }
+    .egg-hint { font-family: var(--font-serif); font-size: 10.5px; color: rgba(244, 234, 220, 0.68); line-height: 1.45; margin-bottom: 6px; word-break: keep-all; }
     .egg-discoverer {
-      font-family: var(--font-serif); font-size: 10px; color: #ffd479; font-weight: 700;
-      background: rgba(255, 185, 65, 0.14);
-      border-radius: 6px; padding: 4px 6px; margin-bottom: 6px;
+      font-family: var(--font-serif); font-size: 10px; color: var(--brass-bright);
+      border-top: 1px solid rgba(218, 178, 114, 0.18); padding-top: 5px; margin-bottom: 6px;
     }
     .egg-actions { display: flex; gap: 4px; }
     .egg-act-btn {
-      flex: 1; height: 26px; border-radius: 7px; border: 0;
-      background: rgba(255, 150, 68, 0.24);
-      color: #ffdfa2; font-family: var(--font-serif); font-size: 10.5px; font-weight: 700; cursor: pointer;
+      flex: 1; height: 26px; border: 1px solid rgba(218, 178, 114, 0.32);
+      background: rgba(218, 178, 114, 0.12);
+      color: var(--brass-bright); font-family: var(--font-serif); font-size: 10.5px; font-weight: 700; cursor: pointer;
     }
-    .egg-act-btn:hover { background: rgba(255, 150, 68, 0.42); }
   </style>
 </head>
 <body>
   <canvas id="stage"></canvas>
   <div class="camera-flash" id="camera-flash"></div>
-  <div class="drag-ghost" id="drag-ghost">✉️ 화로에 던지기</div>
+  <div class="drag-ghost" id="drag-ghost">
+    <span class="drag-ghost-seal" id="drag-ghost-icon">燒却</span>
+    <span id="drag-ghost-label">화로에 던지기</span>
+  </div>
 
-  <!-- 1. Cinematic Game Title & Ignition Entry Screen -->
-  <section class="title-screen" id="title-screen" aria-label="불멍 재의 연금술 게임 시작 화면">
-    <div class="title-crest">🔥 GLOBAL CO-OP HEARTH CLICKER & SANCTUARY</div>
+  <!-- 1. Handcrafted Indie Game Title & Ignition Entry Screen -->
+  <section class="title-screen" id="title-screen" aria-label="불멍 재의 연금술 시작 화면">
+    <div class="title-seal-mark" aria-hidden="true">火</div>
     <h1 class="title-main">불 멍 : 재 의 연 금 술</h1>
-    <div class="title-en">HEARTH OF ASHES · TOUCH & BURN TOGETHER</div>
+    <div class="title-en">HEARTH OF ASHES</div>
+    <div class="title-divider"></div>
     <p class="title-desc">
-      화로를 연타해 온도를 <b>10,000°C 태양핵</b>까지 끌어올리고, 사직서·마이너스 계좌·번뇌와 <b>20가지 비밀 연금술 주문</b>을 불 속에 던지세요.<br>
-      최초로 발견한 시크릿 불꽃은 <b>전 세계 모든 유저의 도감에 실시간 박제</b>됩니다.
+      네 곳의 고요한 성소에서 화로를 깨우고,<br>
+      차마 건네지 못한 사직서와 깊은 밤의 번뇌, 그리고 <b>스무 가지 비전 주문</b>을 불길 속에 던지세요.<br>
+      최초로 피워낸 불꽃은 만인의 도감에 당신의 아호로 영구히 기록됩니다.
     </p>
     <div class="title-nick-box">
-      <label for="intro-nick-input">👑 전 세계 도감에 각인될 연금술사(발견자) 칭호</label>
-      <input type="text" id="intro-nick-input" class="title-nick-input" maxlength="14" placeholder="닉네임 입력 (예: 시루아빠)" value="시루아빠">
+      <label for="intro-nick-input">도감에 각인할 연금술사 아호 (雅號)</label>
+      <input type="text" id="intro-nick-input" class="title-nick-input" maxlength="14" placeholder="아호 입력 (예: 시루아빠)" value="시루아빠">
     </div>
     <button type="button" class="ignite-ember-btn" id="btn-ignite-start">
-      <span>🔥 불씨를 터치해 화로 깨우기</span>
+      <span>點火 · 화로 깨우기</span>
     </button>
     <div class="title-server-pill">
       <span class="server-dot"></span>
-      <span id="intro-server-status">실시간 멀티플레이 서버 연결됨 · 전 세계 불씨와 온도 공유 중</span>
+      <span id="intro-server-status">실시간 성소 연결됨 · 전 세계의 불씨와 온기를 나누는 중</span>
     </div>
   </section>
 
   <!-- Auto-Capture Floating Polaroid Toast -->
-  <div class="capture-toast" id="capture-toast" role="status" aria-live="polite" title="탭하여 불꽃 박물관 박제 앨범 열기">
-    <img id="capture-toast-img" src="" alt="캡처된 이스터에그 불꽃">
+  <div class="capture-toast" id="capture-toast" role="status" aria-live="polite" title="탭하여 불꽃 도감 열기">
+    <img id="capture-toast-img" src="" alt="기록된 연금술 불꽃">
     <div class="capture-toast-info">
-      <span class="capture-toast-tag" id="capture-toast-tag">📸 실시간 서버 박제 완료!</span>
-      <div class="capture-toast-title" id="capture-toast-title">시크릿 불꽃 발견</div>
-      <div class="capture-toast-sub" id="capture-toast-sub">👑 최초 발견자로 모든 유저에게 공유됨</div>
+      <span class="capture-toast-tag" id="capture-toast-tag">실시간 도감 각인 완료</span>
+      <div class="capture-toast-title" id="capture-toast-title">비전 불꽃 발견</div>
+      <div class="capture-toast-sub" id="capture-toast-sub">최초 발견자로 모든 접속자에게 공유됨</div>
     </div>
   </div>
 
   <!-- Poetic Oracle Floating Banner -->
   <div class="ash-oracle" id="ash-oracle" role="status" aria-live="polite">
-    <span class="ash-oracle-tag" id="oracle-tag">소각 완료 · 재가 남긴 문장</span>
+    <span class="ash-oracle-tag" id="oracle-tag">燒却 · 재가 남긴 문장</span>
     <div class="ash-oracle-text" id="oracle-text">“타버린 것은 이미 당신의 짐이 아닙니다.”</div>
   </div>
 
   <!-- Dying Fire Crisis Alert -->
   <div class="dying-alert" id="dying-fire-alert">
-    🕯️ 화로의 불씨가 식어갑니다 (Lv.0 · 100°C 이하)! 불꽃을 연타하거나 장작을 던져 온도를 높여주세요!<br>
-    <small style="color:#ffd86b;">(💡 힌트: Lv.0 잿더미 상태에서만 깨어나는 전설의 불새 주문을 외워보세요!)</small>
+    화로의 불씨가 차갑게 식어갑니다 (Lv.0 잿더미).<br>
+    장작을 던지거나, 잿더미에서만 깨어나는 전설의 불새 주문을 외워보세요.
   </div>
 
-  <!-- 2. Main Diegetic Game HUD -->
+  <!-- 2. Main Minimalist Diegetic Game HUD -->
   <div class="ui-shell" id="ui-shell">
     <div class="top-hud-cluster">
       <header class="game-top-hud">
-        <!-- Left: Hearth Level, Continuous Temperature & Server Sync Gauge -->
-        <div class="hearth-plaque" id="btn-fire-stage">
+        <!-- Left: Calligraphic Thermometer & Hairline Brass Mercury Gauge -->
+        <div class="hearth-plaque" id="btn-fire-stage" title="탭하여 화력 단계 안내 보기">
           <div class="plaque-top-row">
-            <span class="fire-stage-badge" id="fire-stage-badge">🔥 Lv.2 골목 모닥불</span>
-            <div class="temp-cluster">
-              <span class="combo-pill" id="combo-pill">2x</span>
-              <span class="plaque-temp" id="stat-heat">365°C</span>
-            </div>
+            <span class="plaque-temp" id="stat-heat">440°C</span>
+            <span class="fire-stage-badge" id="fire-stage-badge">Lv.2 골목 모닥불</span>
+            <span class="combo-pill" id="combo-pill">2x</span>
           </div>
           <div class="fatigue-bar-wrap">
             <div class="fatigue-bar-fill" id="fatigue-bar-fill"></div>
           </div>
           <div class="plaque-sub-row">
-            <span>🟢 동시접속 <strong id="live-count">1,428</strong> · 소각 <strong id="global-burn-total">1,482,920</strong></span>
-            <button type="button" class="lv0-test-btn" id="btn-cool-lv0" title="불사조 이스터에그용 Lv.0 잿더미 상태 즉시 전환">🕯️ 잿더미 전환</button>
+            <span>동시접속 <strong id="live-count">1,428</strong> · 누적 소각 <strong id="global-burn-total">1,482,920</strong></span>
+            <button type="button" class="lv0-test-btn" id="btn-cool-lv0" title="불사조 이스터에그 실험용 Lv.0 잿더미 전환">잿더미 전환</button>
           </div>
         </div>
 
-        <!-- Right: 3 Clean Game Medallions -->
+        <!-- Right: 3 Engraved Brass Sigil Buttons (Custom Fine-Line SVG, Zero Emoji!) -->
         <div class="hud-medallions">
-          <button type="button" class="medallion-btn gold-glow" id="btn-open-album" title="실시간 멀티플레이 불꽃 박물관 도감">
-            <span class="medallion-icon">🏛️</span>
+          <button type="button" class="medallion-btn gold-glow" id="btn-open-album" title="불꽃 박물관 도감 (20종 비전서)">
+            <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              <path d="M12 7c1.5 2 2.5 3.5 2 5.5-.4 1.4-1.5 2-2 2s-1.6-.6-2-2c-.5-2 .5-3.5 2-5.5z"/>
+            </svg>
             <span class="medallion-label" id="album-count-badge">0/20</span>
           </button>
-          <button type="button" class="medallion-btn" id="btn-world-toggle" title="소각 채널 · 실시간 TOP 5 순위 · 언어">
-            <span class="medallion-icon">🗺️</span>
+          <button type="button" class="medallion-btn" id="btn-world-toggle" title="소각 공감 채널 · 실시간 순위 · 언어">
+            <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3.6 9h16.8M3.6 15h16.8"/>
+              <path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+            </svg>
             <span class="medallion-label">채널·순위</span>
           </button>
-          <button type="button" class="medallion-btn" id="btn-audio" title="ASMR 사운드 믹서">
-            <span class="medallion-icon" id="audio-icon">🔊</span>
-            <span class="medallion-label" id="audio-label">ASMR</span>
+          <button type="button" class="medallion-btn" id="btn-audio" title="빗소리 & 장작 타는 소리 ASMR 조절">
+            <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true" id="audio-icon">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+            <span class="medallion-label" id="audio-label">음향</span>
           </button>
         </div>
       </header>
 
-      <!-- Always-Visible 4-Column Space Theme Bar (1-Tap Switch, Zero Horizontal Clipping!) -->
-      <div class="quick-space-bar" role="tablist" aria-label="화로 배경 공간 전환">
-        <button type="button" class="space-chip active" data-space="camp">🌧️ 밤공터</button>
-        <button type="button" class="space-chip" data-space="temple">🎐 산사 처마</button>
-        <button type="button" class="space-chip" data-space="snow">❄️ 설산 오두막</button>
-        <button type="button" class="space-chip" data-space="cosmos">🌌 성운의 끝</button>
+      <!-- 4-Space Book-Tab Strip (Each loads its own dedicated hand-painted sanctuary artwork!) -->
+      <div class="quick-space-bar" role="tablist" aria-label="4대 성소 배경 전환">
+        <button type="button" class="space-chip active" data-space="camp">밤공터</button>
+        <button type="button" class="space-chip" data-space="temple">산사 처마</button>
+        <button type="button" class="space-chip" data-space="snow">설산 오두막</button>
+        <button type="button" class="space-chip" data-space="cosmos">성운의 끝</button>
       </div>
 
-      <!-- Scrollable Expandable World / Channel / Ranking Drawer -->
+      <!-- Expandable World / Channel / Ranking Drawer -->
       <section class="world-drawer" id="world-drawer">
         <div>
           <div class="drawer-section-label">
-            <span>🔥 소각장 공감 채널 선택</span>
+            <span>소각장 공감 채널</span>
             <span id="zen-room-caption">속세 해방 라운지</span>
           </div>
           <nav class="room-bar">
-            <button type="button" class="room-tab active" data-room="work">🏢 직장인</button>
-            <button type="button" class="room-tab" data-room="stock">📉 주식·코인</button>
-            <button type="button" class="room-tab" data-room="relation">💔 흑역사</button>
-            <button type="button" class="room-tab" data-room="zen">🌙 무념무상</button>
+            <button type="button" class="room-tab active" data-room="work">직장인</button>
+            <button type="button" class="room-tab" data-room="stock">주식·코인</button>
+            <button type="button" class="room-tab" data-room="relation">흑역사</button>
+            <button type="button" class="room-tab" data-room="zen">무념무상</button>
           </nav>
         </div>
 
         <div>
           <button type="button" class="rank-strip" id="btn-rank-toggle" aria-expanded="true">
-            <span class="rank-badge">🔥 실시간 1위</span>
+            <span class="rank-badge">실시간 1위</span>
             <span class="rank-word" id="top-rank-word">월요일 아침 출근</span>
             <span class="rank-count" id="top-rank-count">4,892회</span>
           </button>
           <div class="rank-drawer open" id="rank-drawer">
             <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-muted);margin:4px 2px;">
               <span id="rank-drawer-title">오늘 밤 가장 많이 불탄 번뇌 TOP 5</span>
-              <span>탭하여 같이 태우기 (+75°C)</span>
+              <span>탭하여 함께 태우기 (+75°C)</span>
             </div>
             <div class="rank-list" id="rank-list"></div>
           </div>
         </div>
 
         <div>
-          <div class="drawer-section-label"><span>🌐 글로벌 언어 (Language)</span></div>
+          <div class="drawer-section-label"><span>언어 선택 (Language)</span></div>
           <div class="lang-bar">
-            <button type="button" class="lang-btn active" data-lang="ko">🇰🇷 KO</button>
-            <button type="button" class="lang-btn" data-lang="en">🇺🇸 EN</button>
-            <button type="button" class="lang-btn" data-lang="ja">🇯🇵 JA</button>
-            <button type="button" class="lang-btn" data-lang="zh">🇨🇳 ZH</button>
-            <button type="button" class="lang-btn" data-lang="es">🇪🇸 ES</button>
+            <button type="button" class="lang-btn active" data-lang="ko">한국어</button>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <button type="button" class="lang-btn" data-lang="ja">日本語</button>
+            <button type="button" class="lang-btn" data-lang="zh">中文</button>
+            <button type="button" class="lang-btn" data-lang="es">ES</button>
           </div>
         </div>
       </section>
     </div>
 
-    <!-- Hidden stat holders for compatibility -->
+    <!-- Hidden stat holders -->
     <div class="sr-stats">
       <span id="zen-timer">00:00</span>
       <span id="stat-burned">0</span>
       <span id="stat-warmth">0</span>
+      <span id="essence-count">0</span>
     </div>
 
-    <!-- Bottom Tactile Game Inventory Dock (Little Inferno Style) -->
+    <!-- 3. Bottom Tactile Paper Talisman Hand (Physical Slips Rising from Bottom Edge) -->
     <footer class="bottom-game-dock">
       <div class="live-whisper-bar" id="live-ticker">
-        🔥 화로를 연타하거나 아래 물건을 불 속으로 드래그해 온도를 높여보세요!
+        화로를 터치해 불길을 키우거나, 아래의 부적과 봉투를 불 속으로 끌어 던지세요.
       </div>
 
-      <div class="inventory-tray">
-        <div class="tray-header">
-          <span>🎒 <b>소각 인벤토리</b> · 카드를 위로 끌어 불에 던지거나 탭하세요!</span>
-          <span id="my-essence-label">🔥 해방 정수 <b id="essence-count">0</b></span>
-        </div>
+      <div class="talisman-hand" role="group" aria-label="소각할 부적 및 물건 패">
+        <button type="button" class="game-item-card card-resign" data-throw-item="resignation">
+          <span class="card-hanja-seal">辭職</span>
+          <span class="item-name">미제출 사직서</span>
+          <span class="item-sub">+65°C 소각</span>
+        </button>
 
-        <div class="item-slots">
-          <button type="button" class="game-item-card primary-scroll" id="btn-open-hanji">
-            <span class="item-emoji">📜</span>
-            <span class="item-name">주문·번뇌 적기</span>
-            <span class="item-sub">+95°C · 비전주문</span>
-          </button>
+        <button type="button" class="game-item-card card-ledger" data-throw-item="stock">
+          <span class="card-hanja-seal">損益</span>
+          <span class="item-name">물린 파란계좌</span>
+          <span class="item-sub">+65°C 소각</span>
+        </button>
 
-          <button type="button" class="game-item-card" data-throw-item="resignation">
-            <span class="item-emoji">✉️</span>
-            <span class="item-name">미제출 사직서</span>
-            <span class="item-sub">+65°C 소각</span>
-          </button>
+        <button type="button" class="game-item-card card-talisman primary-scroll" id="btn-open-hanji">
+          <span class="card-hanja-seal">符籍</span>
+          <span class="item-name">주문·번뇌 쓰기</span>
+          <span class="item-sub">+95°C 비전</span>
+        </button>
 
-          <button type="button" class="game-item-card" data-throw-item="stock">
-            <span class="item-emoji">📉</span>
-            <span class="item-name">물린 파란계좌</span>
-            <span class="item-sub">+65°C 양전기원</span>
-          </button>
+        <button type="button" class="game-item-card card-clock" data-throw-item="clock">
+          <span class="card-hanja-seal">時針</span>
+          <span class="item-name">월요병 시계</span>
+          <span class="item-sub">+65°C 폭파</span>
+        </button>
 
-          <button type="button" class="game-item-card" data-throw-item="clock">
-            <span class="item-emoji">⏰</span>
-            <span class="item-name">월요병 시계</span>
-            <span class="item-sub">+65°C 폭파</span>
-          </button>
+        <button type="button" class="game-item-card card-wood" id="btn-wood" data-throw-item="wood">
+          <span class="card-hanja-seal">柴木</span>
+          <span class="item-name">참나무 장작</span>
+          <span class="item-sub">+45°C 투입</span>
+        </button>
+      </div>
 
-          <button type="button" class="game-item-card gold-slot" id="btn-wood" data-throw-item="wood">
-            <span class="item-emoji">🪵</span>
-            <span class="item-name">참나무 장작</span>
-            <span class="item-sub">+45°C 화력상승</span>
-          </button>
-        </div>
-
-        <div class="dock-sub-actions">
-          <button type="button" class="sub-action-btn" id="btn-powder">✨ 불꽃 물약</button>
-          <button type="button" class="sub-action-btn" id="btn-warmth">🤲 온기 전송</button>
-          <button type="button" class="sub-action-btn" id="btn-myfire">
-            <span id="myfire-banner-label">🏕️ 내 화로</span>
-            (<span id="myfire-guest-count">3</span>)
-          </button>
-          <button type="button" class="sub-action-btn" id="btn-cert">🪪 증명서</button>
-        </div>
+      <div class="dock-sub-actions">
+        <button type="button" class="sub-action-btn" id="btn-powder">물약 변환</button>
+        <button type="button" class="sub-action-btn" id="btn-warmth">온기 나누기</button>
+        <button type="button" class="sub-action-btn" id="btn-myfire">
+          <span id="myfire-banner-label">내 화로</span> (<span id="myfire-guest-count">3</span>)
+        </button>
+        <button type="button" class="sub-action-btn" id="btn-cert">해방 증명서</button>
       </div>
     </footer>
   </div>
@@ -1189,14 +1192,14 @@
   <div class="hanji-overlay" id="hanji-overlay" role="dialog" aria-modal="true" aria-label="한지 번뇌 및 비밀 주문 소각장">
     <div class="swipe-guide">
       <span class="swipe-arrow">↑</span>
-      <span>다 적었으면 양피지를 위로 휙 밀어 화로 속에 던지세요</span>
+      <span>글을 적은 뒤 양피지를 위로 밀어 화로 속에 던지세요</span>
     </div>
 
     <div class="hanji-sheet" id="hanji-sheet">
       <div class="hanji-top">
         <span class="hanji-stamp" id="hanji-room-stamp">연금술 소각부적 · 燒却</span>
         <div style="display:flex; gap:6px; align-items:center;">
-          <button type="button" class="gold-toggle-btn" id="btn-gold-talisman">👑 황금 소원부적 전환</button>
+          <button type="button" class="gold-toggle-btn" id="btn-gold-talisman">황금 소원부적 전환</button>
           <button type="button" class="hanji-close" id="btn-close-hanji" aria-label="닫기">✕</button>
         </div>
       </div>
@@ -1207,12 +1210,12 @@
         id="burn-input"
         class="hanji-textarea"
         maxlength="60"
-        placeholder="태워버릴 스트레스나 20종 비밀 주문(예: 42, hello, world!, 프로메테우스)을 적어 불에 던지세요…"
+        placeholder="태워버릴 기억이나 20종 비밀 주문(예: 42, hello, world!, 프로메테우스)을 적어 불에 던지세요…"
       ></textarea>
 
       <div class="hanji-foot">
-        <span class="hanji-hint">👆 위로 스와이프하여 화로에 투척 (+95°C)</span>
-        <button type="button" class="hanji-burn-cta" id="burn-btn">🔥 화로에 던지기</button>
+        <span class="hanji-hint">위로 스와이프하여 화로에 투척 (+95°C)</span>
+        <button type="button" class="hanji-burn-cta" id="burn-btn">화로에 던지기</button>
       </div>
     </div>
   </div>
@@ -1221,22 +1224,22 @@
   <div class="modal-backdrop" id="modal-audio" role="dialog" aria-modal="true" aria-labelledby="audio-modal-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="audio-modal-title">🎧 밤비 & 화로 ASMR 사운드 믹서</h2>
+        <h2 id="audio-modal-title">성소 음향 조절 (ASMR Mixer)</h2>
         <button type="button" class="close-btn" data-close="modal-audio">✕</button>
       </div>
       <div class="slider-row">
-        <label><span>🔥 참나무 장작 타는 소리 (Crackle)</span><strong id="val-fire">75%</strong></label>
+        <label><span>참나무 장작 타는 소리 (Crackle)</span><strong id="val-fire">75%</strong></label>
         <input type="range" id="vol-fire" min="0" max="100" value="75">
       </div>
       <div class="slider-row">
-        <label><span>🌧️ 산사 밤비 소리 (Night Rain)</span><strong id="val-rain">55%</strong></label>
+        <label><span>밤비 & 설산 바람 소리 (Ambience)</span><strong id="val-rain">55%</strong></label>
         <input type="range" id="vol-rain" min="0" max="100" value="55">
       </div>
       <div class="slider-row">
-        <label><span>🔔 풍경 & 싱잉볼 울림 (Chime)</span><strong id="val-chime">70%</strong></label>
+        <label><span>산사 풍경 & 싱잉볼 울림 (Chime)</span><strong id="val-chime">70%</strong></label>
         <input type="range" id="vol-chime" min="0" max="100" value="70">
       </div>
-      <button type="button" class="modal-cta" id="btn-toggle-mute">🔊 사운드 켜짐 (탭하여 음소거 전환)</button>
+      <button type="button" class="modal-cta" id="btn-toggle-mute">음향 켜짐 (탭하여 음소거 전환)</button>
     </div>
   </div>
 
@@ -1244,11 +1247,11 @@
   <div class="modal-backdrop" id="modal-cert" role="dialog" aria-modal="true" aria-labelledby="cert-modal-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="cert-modal-title">🪪 속세 해방 & 연금술 소각 증명서</h2>
+        <h2 id="cert-modal-title">속세 해방 & 연금술 소각 증명서</h2>
         <button type="button" class="close-btn" data-close="modal-cert">✕</button>
       </div>
       <canvas id="cert-canvas" width="720" height="900"></canvas>
-      <button type="button" class="modal-cta" id="btn-download-cert">📥 증명서 이미지 저장 / 공유하기</button>
+      <button type="button" class="modal-cta" id="btn-download-cert">증명서 이미지 저장하기</button>
     </div>
   </div>
 
@@ -1256,29 +1259,29 @@
   <div class="modal-backdrop" id="modal-myfire" role="dialog" aria-modal="true" aria-labelledby="myfire-modal-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="myfire-modal-title">🏕️ 내 화로 분양 & 실시간 응원 장작 방명록</h2>
+        <h2 id="myfire-modal-title">내 화로 분양 & 응원 장작 방명록</h2>
         <button type="button" class="close-btn" data-close="modal-myfire">✕</button>
       </div>
 
       <div class="myfire-section">
-        <h3>🔗 내 전용 화로 링크 만들기 (카톡·스레드·인스타 공유용)</h3>
+        <h3>내 전용 화로 링크 만들기 (공유용)</h3>
         <div class="myfire-input-row">
-          <input type="text" id="myfire-owner-input" class="myfire-input" maxlength="12" placeholder="내 닉네임 (예: 시루아빠)">
+          <input type="text" id="myfire-owner-input" class="myfire-input" maxlength="12" placeholder="내 아호 (예: 시루아빠)">
           <button type="button" class="myfire-sub-btn" id="btn-copy-myfire">링크 복사</button>
         </div>
-        <input type="text" id="myfire-sign-input" class="myfire-input" style="width:100%;" maxlength="28" placeholder="화로 앞 나무 팻말 문구 (예: 지나가다 장작 하나 던져주고 가세요)">
+        <input type="text" id="myfire-sign-input" class="myfire-input" style="width:100%;" maxlength="28" placeholder="화로 소개글 (예: 지나가다 장작 하나씩 던져주고 가세요)">
       </div>
 
       <div class="myfire-section">
-        <h3>🪵 실시간 서버 응원 장작 던지기 (모든 접속자에게 즉시 표시!)</h3>
+        <h3>실시간 응원 장작 던지기 (모든 접속자에게 즉시 표시)</h3>
         <div class="myfire-input-row" style="margin-bottom:4px;">
           <input type="text" id="guest-wood-input" class="myfire-input" maxlength="32" placeholder="따뜻한 응원 한마디 적어 장작 던지기…">
-          <button type="button" class="myfire-sub-btn" id="btn-throw-guest-wood">🪵 장작 투척</button>
+          <button type="button" class="myfire-sub-btn" id="btn-throw-guest-wood">장작 투척</button>
         </div>
         <div class="guestbook-list" id="guestbook-list"></div>
       </div>
 
-      <button type="button" class="modal-cta" id="btn-apply-myfire">🔥 내 화로 팻말 적용 & 공유 링크 복사하기</button>
+      <button type="button" class="modal-cta" id="btn-apply-myfire">내 화로 설정 적용 & 공유 링크 복사</button>
     </div>
   </div>
 
@@ -1286,21 +1289,21 @@
   <div class="modal-backdrop" id="modal-checkout" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="checkout-modal-title">👑 황금 소원성취 부적 & 도감 비전서 자동 결제</h2>
+        <h2 id="checkout-modal-title">황금 소원성취 부적 & 도감 비전서 해금</h2>
         <button type="button" class="close-btn" data-close="modal-checkout">✕</button>
       </div>
       <div class="checkout-perk-list" id="checkout-perk-list">
-        • <b>수동 확인 불필요 (100% PayPal 자동 콜백 해금)</b>: PayPal 결제 완료 후 복귀 시 즉시 자동 해금됩니다.<br>
+        • <b>PayPal 100% 자동 콜백 해금</b>: 결제 완료 후 복귀 시 수동 확인 없이 즉시 자동 해금됩니다.<br>
         • <b>서버 IP & 기기 자동 귀속</b>: 현재 접속 IP(<code id="user-ip-badge">확인 중…</code>)와 브라우저에 영구 귀속됩니다.<br>
-        • <b>해금 혜택 (<span id="checkout-price-label">$0.99 · 약 ₩1,300</span>)</b>: <b>황금 용오름 소원부적 무제한 + 도감 미발견 시크릿 불꽃 1클릭 즉시 발동 비전서</b>
+        • <b>해금 혜택 (<span id="checkout-price-label">$0.99 · PayPal 자동결제</span>)</b>: <b>황금 소원부적 무제한 + 도감 미발견 비전 불꽃 즉시 발동</b>
       </div>
       <div class="pay-grid">
-        <button type="button" class="pay-method-btn" id="btn-pay-paypal" style="background:linear-gradient(135deg, rgba(0,112,240,0.42), rgba(0,70,175,0.52));border-color:#74b9ff;box-shadow:0 8px 24px rgba(0,112,240,0.35);">
-          💳 PayPal 글로벌 자동 결제 ($0.99 · 가입비 0원 즉시 해금)
+        <button type="button" class="pay-method-btn" id="btn-pay-paypal">
+          PayPal 글로벌 자동 결제 ($0.99 · 즉시 해금)
         </button>
       </div>
-      <div style="font-size:11px;color:rgba(255,225,185,0.68);text-align:center;line-height:1.45;">
-        🔒 수동 입금 확인 없이 PayPal 승인 콜백으로 즉시 자동 해금됩니다.
+      <div style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.45;">
+        수동 입금 확인 없이 PayPal 승인 콜백으로 즉시 자동 해금됩니다.
       </div>
     </div>
   </div>
@@ -1309,29 +1312,29 @@
   <div class="modal-backdrop" id="modal-album" role="dialog" aria-modal="true" aria-labelledby="album-modal-title">
     <div class="modal-card album-card">
       <div class="modal-head" style="margin-bottom:10px;flex:none;">
-        <h2 id="album-modal-title">🏛️ 불꽃 박물관 · 전 세계 실시간 최초 발견자 도감</h2>
+        <h2 id="album-modal-title">불꽃 박물관 · 전 세계 최초 발견자 도감</h2>
         <button type="button" class="close-btn" data-close="modal-album">✕</button>
       </div>
 
       <div class="album-progress-wrap">
         <div class="album-progress-top">
-          <span id="album-progress-text">🔥 전 세계 서버 해금 현황: 0 / 20종 (0%)</span>
-          <span style="color:#38ef7d;font-size:11px;">🟢 실시간 서버 동기화 ON</span>
+          <span id="album-progress-text">전 세계 서버 해금 현황: 0 / 20종 (0%)</span>
+          <span style="color:var(--brass-bright);font-size:11px;">실시간 동기화 중</span>
         </div>
         <div class="album-bar-bg">
           <div class="album-bar-fill" id="album-bar-fill"></div>
         </div>
         <div class="myfire-input-row" style="margin-top:8px;margin-bottom:0;">
-          <input type="text" id="discoverer-name-input" class="myfire-input" style="height:32px;font-size:12px;" maxlength="14" placeholder="최초 발견자 서버 각인 닉네임 (예: 시루아빠)">
-          <button type="button" class="myfire-sub-btn" id="btn-save-discoverer" style="height:32px;">닉네임 저장</button>
+          <input type="text" id="discoverer-name-input" class="myfire-input" style="height:32px;font-size:12px;" maxlength="14" placeholder="최초 발견자 각인 아호 (예: 시루아빠)">
+          <button type="button" class="myfire-sub-btn" id="btn-save-discoverer" style="height:32px;">아호 저장</button>
         </div>
       </div>
 
       <div class="album-filter-bar" role="tablist">
         <button type="button" class="album-filter-btn active" data-filter="all">전체 (20)</button>
-        <button type="button" class="album-filter-btn" data-filter="unlocked">👑 박제완료</button>
-        <button type="button" class="album-filter-btn" data-filter="locked">🔒 미발견</button>
-        <button type="button" class="album-filter-btn" data-filter="mythic">🔥 신화·암호</button>
+        <button type="button" class="album-filter-btn" data-filter="unlocked">기록완료</button>
+        <button type="button" class="album-filter-btn" data-filter="locked">미발견</button>
+        <button type="button" class="album-filter-btn" data-filter="mythic">신화·비전</button>
       </div>
 
       <div class="album-grid" id="album-grid"></div>
