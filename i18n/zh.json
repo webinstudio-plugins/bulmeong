@@ -54,7 +54,7 @@
   "sheet.goldStamp": "心愿",
   "sheet.ph": "写下想烧掉的东西。写到隐藏的词，火焰会变样。",
   "sheet.phGold": "写下你想实现的心愿。",
-  "sheet.hint": "往上一推，就进火里了",
+  "sheet.hint": "自己写的字不会上传",
   "sheet.burn": "扔进火里",
   "oracle.tag": "灰烬留下的话",
   "oracle.burnTag": "烧完了 · “{text}”",

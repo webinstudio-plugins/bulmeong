@@ -54,7 +54,7 @@
   "sheet.goldStamp": "Wish",
   "sheet.ph": "Write down whatever you want to burn. Hidden words change the flames.",
   "sheet.phGold": "Write a wish you want to come true.",
-  "sheet.hint": "Swipe up to drop it in the fire",
+  "sheet.hint": "What you type yourself is never sent to the server",
   "sheet.burn": "Throw it in",
   "oracle.tag": "What the ashes said",
   "oracle.burnTag": "Burned up · \"{text}\"",

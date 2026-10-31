@@ -54,7 +54,7 @@
   "sheet.goldStamp": "願い",
   "sheet.ph": "燃やしてしまいたいことを書いてみてください。ひみつの言葉を書くと、炎が変わります。",
   "sheet.phGold": "かなえたい願いを書いてみてください。",
-  "sheet.hint": "上にスワイプすると火に入ります",
+  "sheet.hint": "書いた言葉は送信されません",
   "sheet.burn": "火にくべる",
   "oracle.tag": "灰が残した言葉",
   "oracle.burnTag": "燃えつきました · 「{text}」",

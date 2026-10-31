@@ -17,7 +17,7 @@ for (const k of Object.keys(ko)) {
 for (const k of Object.keys(tr)) if (!(k in ko)) problems.push(`extra ${k}`);
 
 // Same matching as app.mjs detectSecretSpell: mythic, epic, rare, common; regex or alias.
-const src = fs.readFileSync(new URL('../app.mjs', dir), 'utf8');
+const src = fs.readFileSync(new URL('../app.mjs', dir), 'utf8').replace(/\r\n/g, '\n'); // Windows checkouts get CRLF
 const start = src.indexOf('const EASTER_EGG_DEX = [');
 const body = src.slice(src.indexOf('[', start), src.indexOf('\n];\n', start) + 2);
 const state = { space: 'camp' };

@@ -355,7 +355,6 @@ const ghostNotes = [];
 const risingEmberTexts = [];
 const risingClickPopups = [];
 let activeNote = null;
-let activeGiftLog = null;
 
 // ── Hand-Painted Indie Game Art Assets (4 Bespoke Space Illustrations) ──────
 // v9 scenes: an unlit and a lit plate per orientation; the pit is a separate layer set on the plate's empty patch,
@@ -1363,32 +1362,6 @@ function drawTempleEave(pal) {
   ctx.restore();
 }
 
-function drawGiftLog(log) {
-  ctx.save();
-  ctx.translate(log.x, log.y);
-  ctx.rotate(log.rot);
-
-  const lg = ctx.createLinearGradient(-86, -14, 86, 14);
-  lg.addColorStop(0, '#5a351c');
-  lg.addColorStop(0.5, '#7c4b27');
-  lg.addColorStop(1, '#3d2211');
-  ctx.fillStyle = lg;
-  ctx.strokeStyle = '#ffbe6b';
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  ctx.roundRect(-86, -14, 172, 28, 10);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#fff7e8';
-  ctx.font = `700 11.5px ${CANVAS_FONTS.serif}`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  const msg = log.text.length > 14 ? log.text.slice(0, 14) + '…' : log.text;
-  ctx.fillText(`🪵 ${msg}`, 0, 0);
-  ctx.restore();
-}
-
 function drawSpaceCoverImage(img, alpha = 1) {
   if (!img || !img.complete || img.naturalWidth <= 0 || alpha <= 0.005) return false;
   const imgRatio = img.naturalWidth / img.naturalHeight;
@@ -1668,6 +1641,39 @@ function drawScene() {
     }
   }
 
+  // Other visitors' throws: their item flies in from the side and burns in the fire; only their name rides along.
+  for (let i = ghostNotes.length - 1; i >= 0; i--) {
+    const gn = ghostNotes[i];
+    gn.p += 0.011;
+    const fly = Math.min(1, gn.p / 0.5), burn = Math.max(0, (gn.p - 0.5) / 0.5);
+    const ease = 1 - Math.pow(1 - fly, 2);
+    gn.x = gn.sx + (fireX - gn.sx) * ease;
+    gn.y = gn.sy + (fireY - 18 - gn.sy) * ease - Math.sin(fly * Math.PI) * 70;
+    gn.rotation = gn.rot * (1 - ease);
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    drawHanjiNote(gn, burn);
+    ctx.restore();
+    if (fly < 1) {
+      ctx.save();
+      ctx.globalAlpha = 1 - fly * fly;
+      ctx.font = `700 13px ${CANVAS_FONTS.serif}`;
+      ctx.textAlign = 'center';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(20, 10, 4, 0.75)';
+      ctx.strokeText(gn.origin, gn.x, gn.y + 46 * fireUnit);
+      ctx.fillStyle = '#fff1dc';
+      ctx.fillText(gn.origin, gn.x, gn.y + 46 * fireUnit);
+      ctx.restore();
+    }
+    if (burn > 0 && tick % 3 === 0) spawnSpark(gn.x + (Math.random() - 0.5) * 50, gn.y, true);
+    if (gn.p >= 1) {
+      for (let k = 0; k < 10; k++) spawnSpark(fireX, fireY - 14, true);
+      ghostNotes.splice(i, 1);
+    }
+  }
+
   // 6. Flame: the shader sprite (flame-gl.mjs) over the paper, or canvas-path tongues and particles without WebGL
   const flameCount = Math.min(6, Math.max(1, Math.floor(fScale * 1.8)));
   for (let k = 0; k < flameCount; k++) spawnFlameParticle();
@@ -1774,49 +1780,7 @@ function drawScene() {
   // 7c. Secret-word effects (spells.mjs)
   drawSpells(spellEnv());
 
-  // 7b. Real-Time Multiplayer Notes Flying from Other Connected Users + Rising Ember Texts
-  for (let i = ghostNotes.length - 1; i >= 0; i--) {
-    const gn = ghostNotes[i];
-    gn.p += 0.016;
-    if (gn.p < 1) {
-      const ease = 1 - Math.pow(1 - gn.p, 2);
-      gn.x = gn.sx + (fireX - gn.sx) * ease;
-      gn.y = gn.sy + (fireY - 12 - gn.sy) * ease - Math.sin(gn.p * Math.PI) * 34;
-
-      ctx.save();
-      ctx.translate(gn.x, gn.y);
-      ctx.rotate(gn.rot + gn.p * 0.25);
-      const s = 1 - gn.p * 0.35;
-      ctx.scale(s, s);
-      ctx.fillStyle = 'rgba(248, 236, 212, 0.88)';
-      ctx.strokeStyle = 'rgba(255, 148, 66, 0.75)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(-68, -14, 136, 28, 6);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.fillStyle = '#2b1a0e';
-      ctx.font = `700 10.5px ${CANVAS_FONTS.serif}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const shortTxt = gn.text.length > 14 ? gn.text.slice(0, 14) + '…' : gn.text;
-      ctx.fillText(`${gn.origin} · ${shortTxt}`, 0, 0);
-      ctx.restore();
-    } else {
-      for (let k = 0; k < 14; k++) spawnSpark(fireX, fireY - 14, true);
-      risingEmberTexts.push({
-        label: `${gn.origin} · 「${gn.text.slice(0, 18)}」`,
-        x: fireX + (Math.random() - 0.5) * 36,
-        y: fireY - 42,
-        life: 0,
-        maxLife: 140,
-        isGold: false
-      });
-      ghostNotes.splice(i, 1);
-    }
-  }
-
+  // 7b. Rising ember texts
   for (let i = risingEmberTexts.length - 1; i >= 0; i--) {
     const rt = risingEmberTexts[i];
     rt.life += 1;
@@ -1859,25 +1823,6 @@ function drawScene() {
     if (cp.life >= cp.maxLife) risingClickPopups.splice(i, 1);
   }
 
-  // 8. Active Friend Cheer Firewood Log (Flying into the fire)
-  if (activeGiftLog) {
-    activeGiftLog.progress += 0.022;
-    const p = activeGiftLog.progress;
-    if (p < 1.0) {
-      const ease = 1 - Math.pow(1 - p, 2);
-      activeGiftLog.x = activeGiftLog.startX + (fireX - activeGiftLog.startX) * ease;
-      activeGiftLog.y = activeGiftLog.startY + (fireY + 6 - activeGiftLog.startY) * ease - Math.sin(p * Math.PI) * 95;
-      activeGiftLog.rot = (1 - p) * -0.45 + p * 0.12;
-      drawGiftLog(activeGiftLog);
-    } else {
-      addTemperature(55, fireX, fireY - 50, true);
-      stokeFire(65);
-      updateStatsUI();
-      showOracle(t('wood.thrown'), t('wood.tag'));
-      activeGiftLog = null;
-    }
-  }
-
   requestAnimationFrame(drawScene);
 }
 
@@ -1886,7 +1831,7 @@ const noteBuf = document.createElement('canvas');
 function drawHanjiNote(note, burnRatio) {
   const img = art(`objects/${ITEM_ART[note.isGold ? 'gold' : note.itemType] || ITEM_ART.scroll}`);
   if (!ready(img)) return;
-  const size = Math.min(170, W * 0.36) * fireUnit * (1 - burnRatio * 0.45);
+  const size = Math.min(170, W * 0.36) * fireUnit * (note.scale || 1) * (1 - burnRatio * 0.45);
   const k = size / Math.max(img.naturalWidth, img.naturalHeight);
   const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
   noteBuf.width = w;
@@ -1908,7 +1853,7 @@ function drawHanjiNote(note, burnRatio) {
     g.globalCompositeOperation = 'source-over';
   }
   ctx.save();
-  ctx.globalAlpha = 1 - Math.max(0, burnRatio - 0.55) / 0.45; // the last of it turns to ash instead of vanishing
+  ctx.globalAlpha *= 1 - Math.max(0, burnRatio - 0.55) / 0.45; // the last of it turns to ash instead of vanishing
   ctx.translate(note.x, note.y);
   ctx.rotate(note.rotation + burnRatio * 0.16);
   const remainH = h * (1 - burnRatio);
@@ -2444,14 +2389,17 @@ async function syncState() {
       const what = ranked ? ranked.word : t(REMOTE_ITEM_KEYS[f.itemType] || 'item.note');
       bumpGlobalBurnCounter(0, 3.0);
       document.getElementById('live-ticker').textContent = t('ticker.remote', { nick, what });
+      const side = Math.random() < 0.5 ? -1 : 1;
       ghostNotes.push({
         origin: nick,
-        text: what,
-        sx: fireX + (Math.random() - 0.5) * 240,
-        sy: fireY - 120,
+        itemType: REMOTE_ITEM_KEYS[f.itemType] ? f.itemType : 'scroll',
+        text: '', // what they typed never reaches the server, so their paper stays blank
+        scale: 0.72,
+        sx: fireX + side * (W * 0.5 + 60),
+        sy: fireY - H * 0.22,
         x: fireX,
-        y: fireY - 120,
-        rot: (Math.random() - 0.5) * 0.3,
+        y: fireY,
+        rot: side * 0.5,
         p: 0
       });
     }

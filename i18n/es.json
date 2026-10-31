@@ -54,7 +54,7 @@
   "sheet.goldStamp": "Deseo",
   "sheet.ph": "Escribe lo que quieras quemar. Si escribes una palabra secreta, la llama cambia.",
   "sheet.phGold": "Escribe el deseo que quieres que se cumpla.",
-  "sheet.hint": "Desliza hacia arriba para quemarlo",
+  "sheet.hint": "Lo que escribes tú no se envía al servidor",
   "sheet.burn": "Echar al fuego",
   "oracle.tag": "Lo que dice la ceniza",
   "oracle.burnTag": "Hecho ceniza · «{text}»",
