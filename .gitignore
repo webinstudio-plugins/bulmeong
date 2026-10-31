@@ -7,3 +7,5 @@ promo-*.png
 /ja/
 /zh/
 /es/
+/firebase-public/
+.firebase/

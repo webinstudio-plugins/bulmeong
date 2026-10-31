@@ -32,7 +32,7 @@ export const LOCALE = lang === 'zh' ? 'zh-CN' : lang;
 export function setLang(next) {
   if (!LANGS.includes(next)) return;
   try { localStorage.setItem('bulmeong:lang', next); } catch {}
-  location.assign(`/${next}/`);
+  location.assign(new URL(`/${next}/`, location.origin)); // <base> may point at CloudFront; stay on this host
 }
 
 export function applyDom(root = document) {

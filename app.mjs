@@ -369,6 +369,7 @@ const artCache = {};
 function art(path) {
   if (!artCache[path]) {
     artCache[path] = new Image();
+    artCache[path].crossOrigin = 'anonymous'; // web.app pages draw these from CloudFront; keeps the share card exportable
     artCache[path].src = `./assets/${path}.webp`;
   }
   return artCache[path];
@@ -399,7 +400,7 @@ let fireUnit = 1;
 function drawPlate(key, alpha, litAlpha) {
   const a = SCENE_ART[key];
   if (!a) {
-    cosmosImg = cosmosImg || Object.assign(new Image(), { src: './bg-cosmos.jpg' });
+    cosmosImg = cosmosImg || Object.assign(new Image(), { crossOrigin: 'anonymous', src: './bg-cosmos.jpg' });
     drawSpaceCoverImage(cosmosImg, alpha);
     if (key === state.space) { fireX = W * 0.5; fireY = H * 0.63; fireUnit = 1; }
     return null;
@@ -2922,7 +2923,7 @@ document.getElementById('btn-toggle-mute').addEventListener('click', () => toggl
 });
 
 // ── Viral Liberation Certificate Generator (#cert-canvas) ────────────────────
-const SHARE_URL = 'https://bulmeong.netlify.app/';
+const SHARE_URL = 'https://bulmeong.web.app/';
 function renderCertificate() {
   // the card is a snapshot of the stage; wait until a written note has burned away
   if (activeNote) {
