@@ -964,6 +964,9 @@ function triggerSecretSpell(egg, rawText) {
   } else {
     addTemperature(egg.tier === 'mythic' ? 320 : egg.tier === 'epic' ? 180 : 95, fireX, fireY - 56, true);
   }
+  // a level-up message from that heat would sit on top of the title card
+  clearTimeout(oracleTimer);
+  document.getElementById('ash-oracle').classList.remove('show');
 
   // The title card, the toast and the polaroid announce the find; the oracle box would only repeat them.
   spawnSpell(egg, spellEnv(), {
