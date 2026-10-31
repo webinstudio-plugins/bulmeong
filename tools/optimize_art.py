@@ -1,4 +1,4 @@
-"""Codex originals in _art/v9 (gitignored) -> web files in assets/.
+"""Codex originals in _art/v9 (gitignored) -> web files in assets/. Batch 2 (2026-10-31) added the cosmos scene, its altar and the album cards.
 usage: python -I tools/optimize_art.py   (run from the repo root)
 Prints each output with its size; also prints where the firelight centres in each scene, which app.mjs uses as the pit anchor."""
 import pathlib
@@ -26,7 +26,7 @@ def fit(im, longest):
     return im if s >= 1 else im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
 
 
-for scene in ['forest', 'temple', 'snow']:
+for scene in ['forest', 'temple', 'snow', 'cosmos']:
     for orient in ['land', 'port']:
         for light in ['unlit', 'lit']:
             im = Image.open(SRC / f'scenes/{scene}_{orient}_{light}.png').convert('RGB')
@@ -40,7 +40,7 @@ for scene in ['forest', 'temple', 'snow']:
         print(f'  anchor {scene}-{orient}: x={(w * xs).sum() / w.sum() / d.shape[1]:.3f} y={(w * ys).sum() / w.sum() / d.shape[0]:.3f}')
 
 # Both pit states share one crop box so they stay pixel-aligned when cross-faded.
-for pit in ['stone', 'snow', 'brazier']:
+for pit in ['stone', 'snow', 'brazier', 'altar']:
     u = Image.open(SRC / f'pit/pit_{pit}_unlit.png').convert('RGBA')
     l = Image.open(SRC / f'pit/pit_{pit}_lit.png').convert('RGBA')
     bx = u.getchannel('A').point(lambda a: 255 if a > 8 else 0).getbbox()
@@ -53,6 +53,10 @@ for f in sorted((SRC / 'objects').glob('obj_*.png')):
     save(fit(crop_alpha(Image.open(f).convert('RGBA')), 384), OUT / f'objects/{f.stem[4:].replace("_", "-")}.webp', 82)
 
 save(fit(Image.open(SRC / 'ui/paper_sheet.png').convert('RGB'), 1024), OUT / 'ui/paper.webp', 72)
+
+# Album cards: cropped to the motif so every card fills its slot the same way.
+for f in sorted((SRC / 'cards').glob('card_*.png')):
+    save(fit(crop_alpha(Image.open(f).convert('RGBA')), 320), OUT / f'cards/{f.stem[5:]}.webp', 82)
 
 icon = Image.open(SRC / 'brand/app_icon.png').convert('RGB')
 for size, name in [(180, 'apple-touch-icon.png'), (512, 'assets/icon-512.png'), (192, 'assets/icon-192.png')]:

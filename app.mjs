@@ -362,13 +362,15 @@ let activeNote = null;
 const SCENE_ART = {
   camp: { scene: 'forest', pit: 'stone', anchor: { land: [0.513, 0.681], port: [0.508, 0.637] } },
   temple: { scene: 'temple', pit: 'brazier', anchor: { land: [0.486, 0.693], port: [0.5, 0.685] } },
-  snow: { scene: 'snow', pit: 'snow', anchor: { land: [0.47, 0.63], port: [0.476, 0.611] } }
+  snow: { scene: 'snow', pit: 'snow', anchor: { land: [0.47, 0.63], port: [0.476, 0.611] } },
+  cosmos: { scene: 'cosmos', pit: 'altar', anchor: { land: [0.482, 0.626], port: [0.496, 0.69] } }
 };
 // ground: pit-image height that sits on the anchor; base: where the flames start; front: band where the front stones fade in over the flames.
 const PIT_ART = {
   stone: { ground: 0.6, base: 0.5, front: [0.52, 0.66], width: 0.95 },
   snow: { ground: 0.6, base: 0.5, front: [0.52, 0.66], width: 0.95 },
-  brazier: { ground: 0.8, base: 0.36, front: [0.36, 0.48], width: 0.8 }
+  brazier: { ground: 0.8, base: 0.36, front: [0.36, 0.48], width: 0.8 },
+  altar: { ground: 0.72, base: 0.45, front: [0.5, 0.62], width: 0.82 }
 };
 const artCache = {};
 function art(path) {
@@ -399,17 +401,10 @@ function pitFront(im, band) {
   }
   return frontCache.get(im);
 }
-let cosmosImg = null; // the v8 painting stays for the hidden cosmos scene until it gets its own plates
 let fireUnit = 1;
 
 function drawPlate(key, alpha, litAlpha) {
   const a = SCENE_ART[key];
-  if (!a) {
-    cosmosImg = cosmosImg || Object.assign(new Image(), { crossOrigin: 'anonymous', src: './bg-cosmos.jpg' });
-    drawSpaceCoverImage(cosmosImg, alpha);
-    if (key === state.space) { fireX = W * 0.5; fireY = H * 0.63; fireUnit = 1; }
-    return null;
-  }
   const o = H > W ? 'port' : 'land';
   const unlit = art(`scenes/${a.scene}-${o}-unlit`);
   const lit = art(`scenes/${a.scene}-${o}-lit`);
@@ -1362,29 +1357,6 @@ function drawTempleEave(pal) {
   ctx.restore();
 }
 
-function drawSpaceCoverImage(img, alpha = 1) {
-  if (!img || !img.complete || img.naturalWidth <= 0 || alpha <= 0.005) return false;
-  const imgRatio = img.naturalWidth / img.naturalHeight;
-  const viewRatio = W / H;
-  let dw = W, dh = H, dx = 0, dy = 0;
-  if (viewRatio > imgRatio) {
-    dh = W / imgRatio;
-    dy = (H - dh) * 0.58;
-  } else {
-    dw = H * imgRatio;
-    dx = (W - dw) * 0.5;
-  }
-  if (alpha < 0.999) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.drawImage(img, dx, dy, dw, dh);
-    ctx.restore();
-  } else {
-    ctx.drawImage(img, dx, dy, dw, dh);
-  }
-  return true;
-}
-
 function drawScene() {
   tick += 1;
   state.stoking = Math.max(0.18, state.stoking * 0.985);
@@ -1987,14 +1959,17 @@ function renderAlbumModal() {
       return `
         <div class="egg-slot unlocked tier-${egg.tier}">
           <div>
-            <img class="egg-thumb" src="${safeImg(rec.lastImage)}" alt="${esc(egg.title)}">
+            <div class="egg-art">
+              <img class="egg-art-img" src="./assets/cards/${egg.id.slice(4)}.webp" alt="${esc(egg.title)}" loading="lazy" draggable="false">
+              ${safeImg(rec.lastImage) ? `<img class="egg-snap" src="${safeImg(rec.lastImage)}" alt="" draggable="false">` : ''}
+            </div>
             <span class="egg-tier-badge">${egg.tierLabel}</span>
             <div class="egg-title">${egg.title}</div>
             <div class="egg-discoverer">👑 ${esc(t('album.first', { name: rec.firstDiscoverer }))}<br><span style="font-weight:500;opacity:0.8;">${esc(t('album.times', { time: showTime(rec.firstTime), n: Number(rec.count) || 0 }))}</span></div>
           </div>
           <div class="egg-actions">
-            <button type="button" class="egg-act-btn" data-reignite="${egg.id}">🔥 ${t('album.reignite')}</button>
-            <button type="button" class="egg-act-btn" data-dl-egg="${egg.id}">📥 ${t('album.save')}</button>
+            <button type="button" class="egg-act-btn" data-reignite="${egg.id}">${t('album.reignite')}</button>
+            <button type="button" class="egg-act-btn" data-dl-egg="${egg.id}">${t('album.save')}</button>
           </div>
         </div>
       `;
@@ -2002,7 +1977,10 @@ function renderAlbumModal() {
     return `
       <div class="egg-slot tier-${egg.tier}">
         <div>
-          <div class="egg-locked-box">🔒<span style="font-size:11px;margin-top:4px;">${t('album.lockedBox')}</span></div>
+          <div class="egg-art">
+            <img class="egg-art-img" src="./assets/cards/${egg.id.slice(4)}.webp" alt="" loading="lazy" draggable="false">
+            <span class="egg-art-lock">🔒 ${t('album.lockedBox')}</span>
+          </div>
           <span class="egg-tier-badge">${egg.tierLabel}</span>
           <div class="egg-title">??? (${egg.title.replace(/^[^\s]+\s/, '')})</div>
           <div class="egg-hint">💡 <b>${t('album.hint')}</b>: ${egg.codeHint}</div>
