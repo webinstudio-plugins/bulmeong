@@ -9,3 +9,6 @@ promo-*.png
 /es/
 /firebase-public/
 .firebase/
+
+# 홍보 영상(수 MB). 커밋하지 않는다.
+_promo/

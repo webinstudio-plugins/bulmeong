@@ -10,7 +10,7 @@
 0~5단계를 마쳤고 https://bulmeong.web.app 에 올라가 있다. 남은 건 사장님 쪽 일이 필요한 것들이다.
 - 결제(황금 부적): PayPal 개발자 앱의 client ID와 secret이 있어야 서버 검증을 붙일 수 있다. 그때까지 판매는 닫혀 있다.
 - 검색엔진 등록: 시작했다가 사장님 지시로 멈췄다. 할 때 말해 주면 서치 콘솔 등록과 sitemap 제출을 한다.
-- 소개 글 게시: 5개 언어 초안이 [launch-posts.md](launch-posts.md)에 있다.
+- 소개 글 게시: 채널 순서, 일정, 올릴 글, 홍보 영상 12개 목록이 [launch-posts.md](launch-posts.md)에 있다(2026-10-31 개정).
 - 디자인 다듬기: 2차 첫 회를 마쳤다(아래). 더 거슬리는 곳을 말해 주면 이어서 손본다.
 
 1차 화면: [docs/shots/v9-1st-release-phones.jpg](shots/v9-1st-release-phones.jpg), [v9-1st-release-desktop.jpg](shots/v9-1st-release-desktop.jpg)

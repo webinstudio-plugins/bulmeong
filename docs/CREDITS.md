@@ -12,4 +12,6 @@ Converted to mono AAC, loudness-normalised, and the first 2 seconds cross-faded 
 The wind in the snow scene, the crackle accents and the bowl/chime one-shots are synthesised in `app.mjs`.
 
 ## Images
-Scenes, pits, objects, paper, emblem and app icon: generated with Codex for this site (2026-10-31, `_art/v9/IMAGE_LOG.md`, not in git). `bg-cosmos.jpg` is from v8.
+Scenes, pits, objects, paper, emblem, app icon and album cards: generated with Codex for this site (2026-10-31, `_art/v9/IMAGE_LOG.md`, not in git).
+
+`og.jpg` (link preview) is a screenshot of the site's own forest scene with the fire stoked, 2026-10-31.
