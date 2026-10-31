@@ -2,6 +2,8 @@
 // 100% Procedural Canvas Physics, Volumetric Flame & Ember System, Hanji Flick-to-Burn & Web Audio ASMR.
 
 import { t, tl, lang, LOCALE, setLang, applyDom } from './i18n.mjs';
+import { createFlame } from './flame-gl.mjs';
+import { spawnSpell, drawSpells, screenFlash } from './spells.mjs';
 
 applyDom();
 
@@ -117,7 +119,7 @@ const PALETTES = [
   { name: t('palette.4'), core: [255, 210, 245], mid: [235, 38, 115], outer: [52, 12, 98], smoke: [22, 10, 35], glow: '235, 38, 115' },
   { name: t('palette.5'), core: [255, 255, 255], mid: [255, 232, 130], outer: [255, 122, 24], smoke: [90, 75, 45], glow: '255, 228, 120' },
   { name: t('palette.6'), core: [230, 255, 255], mid: [0, 245, 255], outer: [255, 0, 168], smoke: [30, 50, 65], glow: '0, 240, 255' },
-  { name: t('palette.7'), core: [255, 255, 255], mid: [168, 255, 120], outer: [118, 68, 255], smoke: [55, 45, 80], glow: '175, 135, 255' }
+  { name: t('palette.7'), core: [255, 255, 255], mid: [255, 232, 170], outer: [128, 78, 255], smoke: [55, 45, 80], glow: '175, 135, 255' }
 ];
 
 // ── Procedural Web Audio ASMR Engine ─────────────────────────────────────────
@@ -336,6 +338,10 @@ window.addEventListener('resize', resize);
 resize();
 
 const flames = [];
+const flameGL = createFlame();
+// shader colours ease towards the palette so a found word recolours the fire instead of switching it
+const flameCol = Object.fromEntries(['core', 'mid', 'outer'].map(k => [k, [...PALETTES[state.paletteIndex][k]]]));
+let flameTop = fireY - 120;
 const sparks = [];
 const smokes = [];
 const raindrops = [];
@@ -556,15 +562,18 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
   }
 
   if (showPopup) {
-    risingClickPopups.push({
-      text: state.clickCombo >= 3 ? `+${actualDelta}°C ×${state.clickCombo}` : `+${actualDelta}°C`,
-      x: popupX + (Math.random() - 0.5) * 34,
-      y: popupY + (Math.random() - 0.5) * 14,
+    // fast taps add to the newest popup instead of stacking unreadable copies on top of each other
+    const last = risingClickPopups[risingClickPopups.length - 1];
+    const pop = last && last.life < 24 ? last : { sum: 0, x: popupX + (Math.random() - 0.5) * 34, y: popupY + (Math.random() - 0.5) * 14 };
+    pop.sum += actualDelta;
+    Object.assign(pop, {
+      text: state.clickCombo >= 3 ? `+${pop.sum}°C ×${state.clickCombo}` : `+${pop.sum}°C`,
       vy: -1.55 - Math.min(1.0, state.clickCombo * 0.04),
       scale: Math.min(1.45, 1 + state.clickCombo * 0.025),
-      life: 0,
+      life: Math.min(pop.life || 0, 6),
       maxLife: 54
     });
+    if (pop !== last) risingClickPopups.push(pop);
 
     const comboEl = document.getElementById('combo-pill');
     if (comboEl) {
@@ -653,6 +662,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 function spawnFlameParticle(boost = 1) {
+  if (flameGL && !flameGL.lost) return; // the shader flame needs no particles
   const fScale = getDynamicFireScale();
   const spread = (34 + state.stoking * 16) * Math.pow(fScale, 0.82);
   flames.push({
@@ -684,7 +694,7 @@ function spawnSpark(x = fireX, y = fireY - 12, burst = false) {
 
 function spawnSmoke(x = fireX, y = fireY - 75) {
   smokes.push({
-    x: x + (Math.random() - 0.5) * 20,
+    x: x + (Math.random() - 0.5) * 34,
     y,
     vx: (Math.random() - 0.5) * 0.35,
     vy: -(0.55 + Math.random() * 0.65),
@@ -903,18 +913,9 @@ for (const egg of EASTER_EGG_DEX) {
   egg.aliases = tl(`egg.${egg.id}.alias`).map(a => a.toLowerCase());
 }
 
-const spellEffects = {
-  matrixTimer: 0,
-  matrixDrops: [],
-  bullCandles: [],
-  skyFireworks: [],
-  lightningBolts: [],
-  lightningFlash: 0,
-  sakuraPetals: [],
-  cosmicRings: [],
-  floatingRunes: [],
-  activeMythicBanner: null
-};
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const CANVAS_FONTS = { title: cssVar('--font-title'), serif: cssVar('--font-serif'), mono: cssVar('--font-num') };
+const spellEnv = () => ({ ctx, W, H, fx: fireX, fy: fireY, top: flameTop, spark: spawnSpark, fonts: CANVAS_FONTS });
 
 function detectSecretSpell(rawText) {
   const clean = (rawText || '').trim();
@@ -939,7 +940,7 @@ function triggerSecretSpell(egg, rawText) {
 
   // Check if a Mythic egg has a special environmental condition!
   if (egg.checkCondition && !egg.checkCondition()) {
-    spellEffects.lightningFlash = 0.45;
+    screenFlash();
     showOracle(egg.failMsg, t('egg.lockedTag', { title: egg.title }));
     return;
   }
@@ -964,154 +965,13 @@ function triggerSecretSpell(egg, rawText) {
     addTemperature(egg.tier === 'mythic' ? 320 : egg.tier === 'epic' ? 180 : 95, fireX, fireY - 56, true);
   }
 
-  // Spawn visual effects based on egg id & tier
-  if (egg.id === 'egg_matrix' || egg.id === 'egg_helloworld' || egg.id === 'egg_binary') {
-    spellEffects.matrixTimer = 420;
-    const tokens = egg.id === 'egg_helloworld'
-      ? ['hello, world!', '#include <stdio.h>', 'main()', 'printf()', 'return 0;', 'KERNEL_GENESIS']
-      : egg.id === 'egg_binary'
-      ? ['01100110', '01101001', '01110010', '01100101', 'SINGULARITY', '101010']
-      : ['0101', 'rm -rf', '404', 'NULL', '0x00', 'git push -f', 'SEGFAULT', 'FREE()', '{}', 'sudo'];
-    for (let i = 0; i < 56; i++) {
-      spellEffects.matrixDrops.push({
-        x: Math.random() * W,
-        y: -Math.random() * H * 0.8,
-        vy: 3.2 + Math.random() * 4.5,
-        token: tokens[i % tokens.length],
-        life: 0,
-        maxLife: 200 + Math.random() * 90
-      });
-    }
-  }
-
-  if (egg.id === 'egg_bull' || egg.id === 'egg_satoshi') {
-    const labels = egg.id === 'egg_satoshi'
-      ? ['₿ GENESIS 2009', '0x00000000', 'SATOSHI', '+10,000%']
-      : ['+30%', '🚀 TO THE MOON', '₿ +100%'];
-    for (let i = 0; i < 14; i++) {
-      spellEffects.bullCandles.push({
-        x: fireX + (Math.random() - 0.5) * (W * 0.72),
-        y: fireY + 10 + Math.random() * 40,
-        vy: -(2.9 + Math.random() * 3.6),
-        h: 30 + Math.random() * 36,
-        label: labels[i % labels.length],
-        life: 0,
-        maxLife: 110 + Math.random() * 35
-      });
-    }
-  }
-
-  if (egg.id === 'egg_fireworks' || egg.id === 'egg_konami' || egg.tier === 'mythic') {
-    const colors = ['255, 215, 80', '255, 95, 185', '70, 240, 255', '170, 110, 255', '110, 255, 150'];
-    const bursts = egg.tier === 'mythic' ? 5 : 4;
-    for (let b = 0; b < bursts; b++) {
-      const cx = W * (0.18 + (b / Math.max(1, bursts - 1)) * 0.64);
-      const cy = H * (0.18 + (b % 3) * 0.08);
-      const col = colors[b % colors.length];
-      for (let i = 0; i < 20; i++) {
-        const ang = (i / 20) * Math.PI * 2;
-        const spd = 1.8 + Math.random() * 3.6;
-        spellEffects.skyFireworks.push({
-          x: cx,
-          y: cy,
-          vx: Math.cos(ang) * spd,
-          vy: Math.sin(ang) * spd,
-          col,
-          life: 0,
-          maxLife: 80 + Math.random() * 30
-        });
-      }
-    }
-  }
-
-  if (egg.id === 'egg_lightning' || egg.id === 'egg_sword' || egg.id === 'egg_prometheus' || egg.id === 'egg_creator') {
-    spellEffects.lightningFlash = 1.0;
-    const bolts = egg.tier === 'mythic' ? 6 : 3;
-    for (let b = 0; b < bolts; b++) {
-      const pts = [];
-      let lx = fireX + (b - (bolts - 1) / 2) * 44;
-      let ly = 0;
-      pts.push({ x: lx, y: ly });
-      while (ly < fireY) {
-        ly += 24 + Math.random() * 24;
-        lx += (Math.random() - 0.5) * 52;
-        pts.push({ x: lx, y: Math.min(fireY, ly) });
-      }
-      spellEffects.lightningBolts.push({ pts, life: 0, maxLife: 52 });
-    }
-  }
-
-  if (egg.id === 'egg_sakura' || egg.id === 'egg_nirvana') {
-    for (let i = 0; i < 75; i++) {
-      spellEffects.sakuraPetals.push({
-        x: fireX + (Math.random() - 0.5) * 180,
-        y: fireY - Math.random() * 50,
-        vx: (Math.random() - 0.3) * 1.9,
-        vy: -(1.3 + Math.random() * 2.5),
-        rot: Math.random() * Math.PI * 2,
-        size: 4.5 + Math.random() * 5,
-        life: 0,
-        maxLife: 165 + Math.random() * 60
-      });
-    }
-  }
-
-  // Spawn expanding cosmic / mythic shockwave rings & floating mystic runes for Rare/Epic/Mythic eggs
-  const ringColor = egg.tier === 'mythic' ? '255, 218, 95' : egg.tier === 'epic' ? '255, 105, 180' : '90, 230, 255';
-  for (let r = 0; r < (egg.tier === 'mythic' ? 5 : 3); r++) {
-    spellEffects.cosmicRings.push({
-      x: fireX,
-      y: fireY - 24,
-      rad: 12 + r * 22,
-      maxRad: Math.min(W, H) * (0.42 + r * 0.12),
-      col: ringColor,
-      life: 0,
-      maxLife: 95 + r * 18
-    });
-  }
-
-  const runePool = {
-    egg_konami: ['⬆️', '⬇️', '⬅️', '➡️', '🅱️', '🅰️', '30 LIVES', '1UP'],
-    egg_blackhole: ['🕳️', 'EVENT HORIZON', 'SINGULARITY', 'G-FORCE', '∞'],
-    egg_satoshi: ['₿', 'SHA-256', 'GENESIS', '21,000,000', 'BLOCK #0'],
-    egg_sword: ['⚔️ +99', 'MYTHIC', 'LEGEND', 'CRITICAL!', '✨'],
-    egg_dragon: ['🐉', '🔮', 'AZURE DRAGON', 'ASCEND', '🌊'],
-    egg_pi: ['π', '3.1415926535', '∞', '2πr', 'COSMIC PI'],
-    egg_42: ['42', 'DEEP THOUGHT', 'DON\'T PANIC', 'GALAXY', '🌌'],
-    egg_helloworld: ['hello, world!', 'C89', '0x00', 'root@bulmeong', '💻'],
-    egg_binary: ['01100110', '01101001', '01110010', '01100101', 'AI AWAKE'],
-    egg_morse: ['··· −−− ···', 'SOS', 'MAYDAY', 'RESCUE', '🚢'],
-    egg_prometheus: ['☀️ PROMETHEUS', 'OLYMPIA FIRE', 'TITAN FLAME', 'FIRST FIRE'],
-    egg_schrodinger: ['|ψ⟩ = α|0⟩ + β|1⟩', 'E=mc²', '🐈‍⬛ QUANTUM', 'SUPERPOSITION'],
-    egg_nirvana: ['🪷 色即是空', '空即是色', '涅槃', 'MANDALA', '🙏'],
-    egg_phoenix: ['🦅 PHOENIX', 'IMMORTAL REBIRTH', 'REBIRTH', '🔥 Lv.MAX'],
-    egg_creator: ['👑 SIRUABBA', '👨‍👧', 'CREATOR SUPERNOVA', 'ABSOLUTE FLAME', '✨']
-  }[egg.id] || ['✨', egg.title];
-
-  for (let i = 0; i < 16; i++) {
-    const ang = -Math.PI * 0.15 - Math.random() * Math.PI * 0.7;
-    const spd = 1.4 + Math.random() * 2.6;
-    spellEffects.floatingRunes.push({
-      x: fireX + (Math.random() - 0.5) * 90,
-      y: fireY - 20 - Math.random() * 30,
-      vx: Math.cos(ang) * spd * 0.7,
-      vy: -1.6 - Math.random() * 2.2,
-      text: runePool[i % runePool.length],
-      col: ringColor,
-      life: 0,
-      maxLife: 135 + Math.random() * 45
-    });
-  }
-
-  spellEffects.activeMythicBanner = {
+  // The title card, the toast and the polaroid announce the find; the oracle box would only repeat them.
+  spawnSpell(egg, spellEnv(), {
     title: egg.title,
-    tierLabel: egg.tierLabel,
-    discoverer: state.discovererName || t('common.anon'),
-    life: 0,
-    maxLife: 210
-  };
-
-  showOracle(t('egg.found', { title: egg.title }), t('egg.foundTag', { title: egg.title }));
+    sub: t('banner.found', { tier: egg.tierLabel, name: state.discovererName || t('common.anon') }),
+    col: PALETTES[state.paletteIndex].glow.split(',').map(Number),
+    upRed: ['ko', 'ja', 'zh'].includes(lang)
+  });
 
   // Auto-capture snapshot at peak visual glory (600ms after trigger)!
   setTimeout(() => {
@@ -1191,20 +1051,20 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
 
   // Top Header on Polaroid
   sg.fillStyle = borderCol;
-  sg.font = '800 15px Pretendard, sans-serif';
+  sg.font = `800 15px ${CANVAS_FONTS.serif}`;
   sg.fillText(t('polaroid.head', { tier: egg.tierLabel }), 24, 36);
 
   sg.fillStyle = '#ffffff';
-  sg.font = '800 26px Pretendard, sans-serif';
+  sg.font = `800 26px ${CANVAS_FONTS.serif}`;
   sg.fillText(egg.title, 24, 70);
 
   // Bottom First-Discoverer Plaque on Polaroid
   sg.fillStyle = '#ffd97d';
-  sg.font = '800 18px Pretendard, sans-serif';
+  sg.font = `800 18px ${CANVAS_FONTS.serif}`;
   sg.fillText(`👑 ${t('polaroid.first', { name: firstDiscoverer })}`, 24, Sh - 48);
 
   sg.fillStyle = 'rgba(255, 240, 215, 0.78)';
-  sg.font = '600 13.5px Pretendard, sans-serif';
+  sg.font = `600 13.5px ${CANVAS_FONTS.serif}`;
   sg.fillText(t('polaroid.meta', { time: showTime(firstTime), text: (triggerText || egg.sampleTrigger).slice(0, 20) }), 24, Sh - 22);
 
       // Non-blocking async JPEG encoding (prevents 80ms synchronous CPU frame hitch on toDataURL!)
@@ -1518,7 +1378,7 @@ function drawGiftLog(log) {
   ctx.stroke();
 
   ctx.fillStyle = '#fff7e8';
-  ctx.font = '700 11.5px Pretendard, sans-serif';
+  ctx.font = `700 11.5px ${CANVAS_FONTS.serif}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const msg = log.text.length > 14 ? log.text.slice(0, 14) + '…' : log.text;
@@ -1569,6 +1429,8 @@ function drawScene() {
   if (fading) drawPlate(prevSpaceKey, 1, litAlpha);
   const pitPlace = drawPlate(sp, fading ? spaceFadeAlpha : 1, litAlpha);
   const fScale = baseScale * fireUnit;
+  const flameH = Math.min(H * 0.6, 190 * Math.pow(fScale, 0.9));
+  flameTop = fireY + flameH * 0.12 - flameH;
 
   // Cosmos Nebula & Twinkling Starfield
   if (sp === 'cosmos') {
@@ -1735,15 +1597,15 @@ function drawScene() {
   ctx.restore();
 
   // 5. Smoke Plumes
-  if (tick % 4 === 0) spawnSmoke();
+  if (tick % 4 === 0) spawnSmoke(fireX, flameTop + flameH * 0.15);
   for (let i = smokes.length - 1; i >= 0; i--) {
     const s = smokes[i];
     s.life += 1;
     s.x += s.vx + Math.sin(tick * 0.03 + s.life * 0.08) * 0.35 + windOffset * 0.015;
     s.y += s.vy;
-    s.radius += 0.28;
+    s.radius += 0.42;
     const ratio = s.life / s.maxLife;
-    const alpha = Math.sin(ratio * Math.PI) * 0.14;
+    const alpha = Math.sin(ratio * Math.PI) * 0.09;
     const [sr, sg, sb] = pal.smoke;
     const grad = ctx.createRadialGradient(s.x, s.y, 2, s.x, s.y, s.radius);
     grad.addColorStop(0, `rgba(${sr}, ${sg}, ${sb}, ${alpha})`);
@@ -1755,13 +1617,78 @@ function drawScene() {
     if (s.life >= s.maxLife) smokes.splice(i, 1);
   }
 
-  // 6. Volumetric Waving Flame Tongues & Plasma Particles (Continuously scaled with fScale!)
+  // 7. Active Burning Hanji Note
+  if (activeNote) {
+    activeNote.progress += 0.011;
+    const p = activeNote.progress;
+    if (p < 0.30) {
+      const t = p / 0.30;
+      const ease = 1 - Math.pow(1 - t, 3);
+      activeNote.x = activeNote.startX + (fireX - activeNote.startX) * ease + Math.sin(t * Math.PI) * 16;
+      activeNote.y = activeNote.startY + (fireY - 18 - activeNote.startY) * ease;
+      drawHanjiNote(activeNote, 0);
+    } else if (p < 1.0) {
+      if (!activeNote.spellTriggered) {
+        activeNote.spellTriggered = true;
+        const sp = detectSecretSpell(activeNote.text);
+        if (sp) {
+          activeNote.hasSpell = true;
+          triggerSecretSpell(sp, activeNote.text);
+        }
+      }
+      const burnRatio = (p - 0.30) / 0.70;
+      activeNote.x = fireX + Math.sin(tick * 0.2) * 2.5;
+      activeNote.y = fireY - 18 - burnRatio * 14;
+      drawHanjiNote(activeNote, burnRatio);
+      if (tick % 2 === 0) {
+        spawnSpark(activeNote.x + (Math.random() - 0.5) * 90, activeNote.y, true);
+        spawnFlameParticle(1.3);
+      }
+    } else {
+      state.burnedCount += 1;
+      rollDay();
+      state.burnedToday += 1;
+      risingEmberTexts.push({
+        label: `${t('note.me')} 🔥`,
+        x: fireX,
+        y: fireY - 46,
+        life: 0,
+        maxLife: 150,
+        isGold: !!activeNote.isGold
+      });
+      saveState();
+      stokeFire(55);
+      if (!activeNote.hasSpell) {
+        showOracle(activeNote.oracle, t('oracle.burnTag', { text: activeNote.text.slice(0, 16) + (activeNote.text.length > 16 ? '…' : '') }));
+      }
+      activeNote = null;
+    }
+  }
+
+  // 6. Flame: the shader sprite (flame-gl.mjs) over the paper, or canvas-path tongues and particles without WebGL
   const flameCount = Math.min(6, Math.max(1, Math.floor(fScale * 1.8)));
   for (let k = 0; k < flameCount; k++) spawnFlameParticle();
   if (Math.random() < 0.65 + state.stoking * 0.5) spawnFlameParticle();
   if (Math.random() < (0.45 + state.stoking * 0.6) * fScale) spawnSpark();
 
   ctx.save();
+  if (flameGL && !flameGL.lost) {
+    for (const k of ['core', 'mid', 'outer']) for (let c = 0; c < 3; c++) flameCol[k][c] += (pal[k][c] - flameCol[k][c]) * 0.05;
+    flameGL.render({
+      time: tick / 60,
+      level: Math.min(1, baseScale / 3.55),
+      stoke: Math.min(1, state.stoking),
+      wind: (window.__fireWindX || 0) / 45,
+      ...flameCol
+    });
+    const fw = flameH * 0.82;
+    ctx.drawImage(flameGL.canvas, fireX - fw / 2, flameTop, fw, flameH);
+    // a second, additive pass makes the painted flame glow without bleaching it white
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.22;
+    ctx.drawImage(flameGL.canvas, fireX - fw / 2, flameTop, fw, flameH);
+    ctx.globalAlpha = 1;
+  } else {
   ctx.globalCompositeOperation = 'lighter';
 
   // 6a. Procedural Waving Flame Tongues (Little Inferno / Cozy Grove style organic ribbons)
@@ -1812,220 +1739,37 @@ function drawScene() {
 
     if (f.life >= f.maxLife) flames.splice(i, 1);
   }
+  }
 
+  // Sparks are short streaks along their path that cool from the core colour through mid to outer.
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round';
   for (let i = sparks.length - 1; i >= 0; i--) {
     const sp = sparks[i];
     sp.life += 1;
     const ratio = sp.life / sp.maxLife;
-    sp.x += sp.vx + Math.sin(tick * 0.1 + sp.wobble) * 0.65 + windOffset * 0.03;
+    const dx = sp.vx + Math.sin(tick * 0.1 + sp.wobble) * 0.65 + windOffset * 0.03;
+    sp.x += dx;
     sp.y += sp.vy;
     sp.vy -= 0.015;
-    const alpha = Math.max(0, 1 - ratio);
-
-    ctx.fillStyle = `rgba(${pal.core[0]}, ${pal.core[1]}, ${pal.core[2]}, ${alpha})`;
+    const alpha = Math.max(0, 1 - ratio) * (0.75 + 0.25 * Math.sin(sp.life * 0.7 + sp.wobble));
+    const [a, b, k] = ratio < 0.4 ? [pal.core, pal.mid, ratio / 0.4] : [pal.mid, pal.outer, (ratio - 0.4) / 0.6];
+    ctx.strokeStyle = `rgba(${a.map((v, c) => Math.round(v + (b[c] - v) * k)).join(', ')}, ${alpha})`;
+    ctx.lineWidth = sp.size * (1 - ratio * 0.5);
     ctx.beginPath();
-    ctx.arc(sp.x, sp.y, sp.size * (1 - ratio * 0.4), 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(sp.x, sp.y);
+    ctx.lineTo(sp.x - dx * 1.3, sp.y - sp.vy * 1.3);
+    ctx.stroke();
 
     if (sp.life >= sp.maxLife) sparks.splice(i, 1);
   }
   ctx.restore();
 
-  // 7. Active Burning Hanji Note
-  if (activeNote) {
-    activeNote.progress += 0.011;
-    const p = activeNote.progress;
-    if (p < 0.30) {
-      const t = p / 0.30;
-      const ease = 1 - Math.pow(1 - t, 3);
-      activeNote.x = activeNote.startX + (fireX - activeNote.startX) * ease + Math.sin(t * Math.PI) * 16;
-      activeNote.y = activeNote.startY + (fireY - 18 - activeNote.startY) * ease;
-      drawHanjiNote(activeNote, 0);
-    } else if (p < 1.0) {
-      if (!activeNote.spellTriggered) {
-        activeNote.spellTriggered = true;
-        const sp = detectSecretSpell(activeNote.text);
-        if (sp) {
-          activeNote.hasSpell = true;
-          triggerSecretSpell(sp, activeNote.text);
-        }
-      }
-      const burnRatio = (p - 0.30) / 0.70;
-      activeNote.x = fireX + Math.sin(tick * 0.2) * 2.5;
-      activeNote.y = fireY - 18 - burnRatio * 14;
-      drawHanjiNote(activeNote, burnRatio);
-      if (tick % 2 === 0) {
-        spawnSpark(activeNote.x + (Math.random() - 0.5) * 90, activeNote.y, true);
-        spawnFlameParticle(1.3);
-      }
-    } else {
-      state.burnedCount += 1;
-      rollDay();
-      state.burnedToday += 1;
-      risingEmberTexts.push({
-        label: `${t('note.me')} 🔥`,
-        x: fireX,
-        y: fireY - 46,
-        life: 0,
-        maxLife: 150,
-        isGold: !!activeNote.isGold
-      });
-      saveState();
-      stokeFire(55);
-      if (!activeNote.hasSpell) {
-        showOracle(activeNote.oracle, t('oracle.burnTag', { text: activeNote.text.slice(0, 16) + (activeNote.text.length > 16 ? '…' : '') }));
-      }
-      activeNote = null;
-    }
-  }
-
   // Front stones go over the flame base and the burning note, so both sit inside the pit.
   drawPit(pitPlace, true);
 
-  // 7c. Secret Code / Easter Egg Spell Particle Effects
-  if (spellEffects.lightningFlash > 0.01) {
-    ctx.fillStyle = `rgba(215, 225, 255, ${spellEffects.lightningFlash * 0.42})`;
-    ctx.fillRect(0, 0, W, H);
-    spellEffects.lightningFlash *= 0.86;
-  }
-
-  for (let i = spellEffects.lightningBolts.length - 1; i >= 0; i--) {
-    const lb = spellEffects.lightningBolts[i];
-    lb.life += 1;
-    const a = 1 - lb.life / lb.maxLife;
-    ctx.save();
-    ctx.strokeStyle = `rgba(225, 240, 255, ${a})`;
-    ctx.shadowColor = '#9370ff';
-    ctx.shadowBlur = 18;
-    ctx.lineWidth = 3 * a;
-    ctx.beginPath();
-    lb.pts.forEach((pt, idx) => {
-      if (idx === 0) ctx.moveTo(pt.x, pt.y);
-      else ctx.lineTo(pt.x, pt.y);
-    });
-    ctx.stroke();
-    ctx.restore();
-    if (lb.life >= lb.maxLife) spellEffects.lightningBolts.splice(i, 1);
-  }
-
-  for (let i = spellEffects.matrixDrops.length - 1; i >= 0; i--) {
-    const md = spellEffects.matrixDrops[i];
-    md.life += 1;
-    md.y += md.vy;
-    const a = Math.max(0, 1 - md.life / md.maxLife);
-    ctx.save();
-    ctx.font = '700 12px monospace';
-    ctx.fillStyle = `rgba(46, 255, 148, ${a * 0.9})`;
-    ctx.fillText(md.token, md.x, md.y);
-    ctx.restore();
-    if (md.life >= md.maxLife || md.y > fireY + 60) spellEffects.matrixDrops.splice(i, 1);
-  }
-
-  for (let i = spellEffects.bullCandles.length - 1; i >= 0; i--) {
-    const bc = spellEffects.bullCandles[i];
-    bc.life += 1;
-    bc.y += bc.vy;
-    const a = Math.max(0, 1 - bc.life / bc.maxLife);
-    ctx.save();
-    ctx.translate(bc.x, bc.y);
-    // Red Bullish Candle Wick & Body (Zero shadowBlur for 60FPS smooth rendering!)
-    ctx.strokeStyle = `rgba(255, 82, 82, ${a})`;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, -bc.h * 0.7);
-    ctx.lineTo(0, bc.h * 0.7);
-    ctx.stroke();
-    ctx.fillStyle = `rgba(255, 56, 56, ${a * 0.92})`;
-    ctx.fillRect(-7, -bc.h * 0.45, 14, bc.h * 0.9);
-    ctx.font = '800 10.5px Pretendard, sans-serif';
-    ctx.fillStyle = `rgba(255, 232, 165, ${a})`;
-    ctx.textAlign = 'center';
-    ctx.fillText(bc.label, 0, -bc.h * 0.78);
-    ctx.restore();
-    if (bc.life >= bc.maxLife) spellEffects.bullCandles.splice(i, 1);
-  }
-
-  for (let i = spellEffects.skyFireworks.length - 1; i >= 0; i--) {
-    const fw = spellEffects.skyFireworks[i];
-    fw.life += 1;
-    fw.x += fw.vx;
-    fw.y += fw.vy;
-    fw.vy += 0.035;
-    const a = Math.max(0, 1 - fw.life / fw.maxLife);
-    ctx.fillStyle = `rgba(${fw.col}, ${a})`;
-    ctx.beginPath();
-    ctx.arc(fw.x, fw.y, 2.6, 0, Math.PI * 2);
-    ctx.fill();
-    if (fw.life >= fw.maxLife) spellEffects.skyFireworks.splice(i, 1);
-  }
-
-  for (let i = spellEffects.sakuraPetals.length - 1; i >= 0; i--) {
-    const sk = spellEffects.sakuraPetals[i];
-    sk.life += 1;
-    sk.x += sk.vx + Math.sin(tick * 0.06 + i) * 0.6;
-    sk.y += sk.vy;
-    sk.rot += 0.04;
-    const a = Math.max(0, 1 - sk.life / sk.maxLife);
-    ctx.save();
-    ctx.translate(sk.x, sk.y);
-    ctx.rotate(sk.rot);
-    ctx.fillStyle = `rgba(255, 182, 205, ${a * 0.9})`;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, sk.size, sk.size * 0.55, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-    if (sk.life >= sk.maxLife) spellEffects.sakuraPetals.splice(i, 1);
-  }
-
-  for (let i = spellEffects.cosmicRings.length - 1; i >= 0; i--) {
-    const cr = spellEffects.cosmicRings[i];
-    cr.life += 1;
-    const ratio = cr.life / cr.maxLife;
-    const rad = cr.rad + (cr.maxRad - cr.rad) * (1 - Math.pow(1 - ratio, 2));
-    const a = Math.max(0, (1 - ratio) * 0.78);
-    ctx.save();
-    ctx.strokeStyle = `rgba(${cr.col}, ${a})`;
-    ctx.lineWidth = 2.6 * (1 - ratio * 0.5);
-    ctx.beginPath();
-    ctx.ellipse(cr.x, cr.y, rad, rad * 0.42, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.restore();
-    if (cr.life >= cr.maxLife) spellEffects.cosmicRings.splice(i, 1);
-  }
-
-  for (let i = spellEffects.floatingRunes.length - 1; i >= 0; i--) {
-    const fr = spellEffects.floatingRunes[i];
-    fr.life += 1;
-    fr.x += fr.vx + Math.sin(tick * 0.08 + i) * 0.4;
-    fr.y += fr.vy;
-    const a = Math.max(0, 1 - fr.life / fr.maxLife);
-    ctx.save();
-    ctx.font = '800 13px Pretendard, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = `rgba(${fr.col}, ${a})`;
-    ctx.fillText(fr.text, fr.x, fr.y);
-    ctx.restore();
-    if (fr.life >= fr.maxLife) spellEffects.floatingRunes.splice(i, 1);
-  }
-
-  if (spellEffects.activeMythicBanner) {
-    const mb = spellEffects.activeMythicBanner;
-    mb.life += 1;
-    const ratio = mb.life / mb.maxLife;
-    const a = ratio < 0.12 ? ratio / 0.12 : ratio > 0.8 ? (1 - ratio) / 0.2 : 1;
-    ctx.save();
-    ctx.textAlign = 'center';
-    ctx.font = '800 12px Pretendard, sans-serif';
-    ctx.fillStyle = `rgba(255, 218, 105, ${a * 0.95})`;
-    ctx.fillText(`✨ ${t('banner.found', { tier: mb.tierLabel, name: mb.discoverer })}`, fireX, fireY - 142);
-    ctx.font = '800 19px Pretendard, sans-serif';
-    ctx.fillStyle = `rgba(255, 250, 235, ${a})`;
-    ctx.shadowColor = 'rgba(255, 165, 50, 0.95)';
-    ctx.shadowBlur = 18;
-    ctx.fillText(mb.title, fireX, fireY - 118);
-    ctx.restore();
-    if (mb.life >= mb.maxLife) spellEffects.activeMythicBanner = null;
-  }
+  // 7c. Secret-word effects (spells.mjs)
+  drawSpells(spellEnv());
 
   // 7b. Real-Time Multiplayer Notes Flying from Other Connected Users + Rising Ember Texts
   for (let i = ghostNotes.length - 1; i >= 0; i--) {
@@ -2050,7 +1794,7 @@ function drawScene() {
       ctx.stroke();
 
       ctx.fillStyle = '#2b1a0e';
-      ctx.font = '700 10.5px Pretendard, sans-serif';
+      ctx.font = `700 10.5px ${CANVAS_FONTS.serif}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const shortTxt = gn.text.length > 14 ? gn.text.slice(0, 14) + '…' : gn.text;
@@ -2079,7 +1823,7 @@ function drawScene() {
     const alpha = ratio < 0.2 ? ratio / 0.2 : Math.max(0, 1 - (ratio - 0.2) / 0.8);
 
     ctx.save();
-    ctx.font = rt.isGold ? '800 13px Pretendard, sans-serif' : '600 11.5px Pretendard, sans-serif';
+    ctx.font = rt.isGold ? `800 13px ${CANVAS_FONTS.serif}` : `600 11.5px ${CANVAS_FONTS.serif}`;
     ctx.textAlign = 'center';
     ctx.fillStyle = rt.isGold
       ? `rgba(255, 232, 135, ${alpha})`
@@ -2100,7 +1844,7 @@ function drawScene() {
     ctx.save();
     ctx.translate(cp.x, cp.y);
     ctx.scale(cp.scale || 1, cp.scale || 1);
-    ctx.font = '800 13.5px "JetBrains Mono", "Pretendard Variable", sans-serif';
+    ctx.font = `800 13.5px ${CANVAS_FONTS.mono}`;
     ctx.textAlign = 'center';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = `rgba(16, 7, 3, ${alpha * 0.88})`;
@@ -2139,7 +1883,7 @@ const noteBuf = document.createElement('canvas');
 function drawHanjiNote(note, burnRatio) {
   const img = art(`objects/${ITEM_ART[note.isGold ? 'gold' : note.itemType] || ITEM_ART.scroll}`);
   if (!ready(img)) return;
-  const size = Math.min(170, W * 0.36) * fireUnit * (1 - burnRatio * 0.3);
+  const size = Math.min(170, W * 0.36) * fireUnit * (1 - burnRatio * 0.45);
   const k = size / Math.max(img.naturalWidth, img.naturalHeight);
   const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
   noteBuf.width = w;
@@ -2161,6 +1905,7 @@ function drawHanjiNote(note, burnRatio) {
     g.globalCompositeOperation = 'source-over';
   }
   ctx.save();
+  ctx.globalAlpha = 1 - Math.max(0, burnRatio - 0.55) / 0.45; // the last of it turns to ash instead of vanishing
   ctx.translate(note.x, note.y);
   ctx.rotate(note.rotation + burnRatio * 0.16);
   const remainH = h * (1 - burnRatio);
@@ -2457,8 +2202,8 @@ document.getElementById('btn-ignite-start')?.addEventListener('click', () => {
   audio.playWhooshAndBowl();
   reviveFire(35, fireX, fireY - 45);
   stokeFire(95);
+  // no oracle here: the line above the items already says how to grow the fire and throw things in
   document.getElementById('title-screen')?.classList.add('hidden');
-  showOracle(t('start.msg'), t('start.tag'));
 });
 
 document.getElementById('btn-world-toggle')?.addEventListener('click', () => {
@@ -2635,17 +2380,17 @@ function makeFallbackPolaroid(egg, discoverer, firstTime, triggerText) {
   g.fillRect(8, 222, 464, 70);
 
   g.fillStyle = borderCol;
-  g.font = '800 12px Pretendard, sans-serif';
+  g.font = `800 12px ${CANVAS_FONTS.serif}`;
   g.fillText(t('polaroid.head', { tier: egg.tierLabel }), 20, 30);
   g.fillStyle = '#fff';
-  g.font = '800 20px Pretendard, sans-serif';
+  g.font = `800 20px ${CANVAS_FONTS.serif}`;
   g.fillText(egg.title, 20, 58);
 
   g.fillStyle = '#ffd97d';
-  g.font = '800 15px Pretendard, sans-serif';
+  g.font = `800 15px ${CANVAS_FONTS.serif}`;
   g.fillText(`👑 ${t('polaroid.first', { name: discoverer })}`, 20, 250);
   g.fillStyle = 'rgba(255, 240, 215, 0.8)';
-  g.font = '600 11.5px Pretendard, sans-serif';
+  g.font = `600 11.5px ${CANVAS_FONTS.serif}`;
   g.fillText(t('polaroid.meta', { time: showTime(firstTime), text: egg.sampleTrigger.slice(0, 18) }), 20, 274);
   return c.toDataURL('image/jpeg', 0.82);
 }
