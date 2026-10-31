@@ -127,6 +127,42 @@ class AsmrAudioEngine {
     this.running = false;
     this.fireGain = null;
     this.rainGain = null;
+    this.mix = {};
+    this.loaded = new Set();
+  }
+
+  // Recorded loops (assets/audio, credits in docs/CREDITS.md) replace the synth beds once decoded.
+  async loadLoop(file, out, name) {
+    if (this.mix[name]) return;
+    this.mix[name] = this.ctx.createGain();
+    this.mix[name].gain.value = 0;
+    this.mix[name].connect(out);
+    try {
+      const buf = await this.ctx.decodeAudioData(await (await fetch(`./assets/audio/${file}`)).arrayBuffer());
+      const src = this.ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      // skip the AAC encoder padding at both ends so the loop seam stays silent-free
+      src.loopStart = 0.05;
+      src.loopEnd = buf.duration - 0.05;
+      src.connect(this.mix[name]);
+      src.start(0, 0.05);
+      this.loaded.add(name);
+      this.applyScene();
+    } catch {}
+  }
+
+  // Fire everywhere; recorded rain in the forest and temple, synth wind in the snow; chimes only at the temple.
+  applyScene() {
+    if (!this.ctx) return;
+    const snow = state.space === 'snow', temple = state.space === 'temple';
+    if (temple) this.loadLoop('chime.m4a', this.chimeGain, 'recChime');
+    const set = (name, v) => this.mix[name]?.gain.setTargetAtTime(v, this.ctx.currentTime, 0.6);
+    set('synthFire', this.loaded.has('recFire') ? 0 : 1);
+    set('recFire', 2.5);
+    set('synthRain', this.loaded.has('recRain') && !snow ? 0 : 1);
+    set('recRain', snow ? 0 : 2.5);
+    set('recChime', temple ? 1 : 0);
   }
 
   init() {
@@ -154,7 +190,8 @@ class AsmrAudioEngine {
 
     this.fireGain = this.ctx.createGain();
     this.fireGain.gain.value = state.volFire * 0.32;
-    fireSource.connect(fireFilter).connect(this.fireGain).connect(this.ctx.destination);
+    this.mix.synthFire = this.ctx.createGain();
+    fireSource.connect(fireFilter).connect(this.mix.synthFire).connect(this.fireGain).connect(this.ctx.destination);
     fireSource.start();
 
     const rainBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
@@ -182,12 +219,19 @@ class AsmrAudioEngine {
 
     this.rainGain = this.ctx.createGain();
     this.rainGain.gain.value = state.volRain * 0.22;
-    rainSource.connect(rainFilter).connect(this.rainGain).connect(this.ctx.destination);
+    this.mix.synthRain = this.ctx.createGain();
+    rainSource.connect(rainFilter).connect(this.mix.synthRain).connect(this.rainGain).connect(this.ctx.destination);
     rainSource.start();
+
+    this.chimeGain = this.ctx.createGain();
+    this.chimeGain.gain.value = 0;
+    this.chimeGain.connect(this.ctx.destination);
+    this.loadLoop('fire.m4a', this.fireGain, 'recFire');
+    this.loadLoop('rain.m4a', this.rainGain, 'recRain');
 
     setInterval(() => {
       if (!this.running || !this.ctx || state.volFire <= 0.01) return;
-      if (Math.random() < 0.65) this.triggerCrackle();
+      if (!this.loaded.has('recFire') && Math.random() < 0.65) this.triggerCrackle();
     }, 180);
   }
 
@@ -260,6 +304,7 @@ class AsmrAudioEngine {
     } else if (this.ctx) {
       this.fireGain.gain.value = 0;
       this.rainGain.gain.value = 0;
+      this.chimeGain.gain.value = 0;
     }
   }
 
@@ -267,6 +312,7 @@ class AsmrAudioEngine {
     if (!this.ctx || !this.running) return;
     this.fireGain.gain.setTargetAtTime(state.volFire * 0.32, this.ctx.currentTime, 0.08);
     this.rainGain.gain.setTargetAtTime(state.volRain * 0.22, this.ctx.currentTime, 0.08);
+    this.chimeGain.gain.setTargetAtTime(state.volChime * 0.6, this.ctx.currentTime, 0.08);
   }
 }
 
@@ -1569,7 +1615,7 @@ function drawScene() {
   ctx.fillRect(0, 0, W, H);
 
   // Temple Wind Chime Ambient Audio (`bg-temple.jpg` already has the hand-painted temple eave & brass fish chime)
-  if (sp === 'temple' && tick % 210 === 0 && state.audioEnabled) {
+  if (sp === 'temple' && tick % 210 === 0 && state.audioEnabled && !audio.loaded.has('recChime')) {
     audio.playWindChime();
   }
 
@@ -2172,6 +2218,7 @@ document.querySelectorAll('.space-chip').forEach(btn => {
     saveState();
     renderSpaceUI();
     const sp = SPACES[state.space] || SPACES.camp;
+    audio.applyScene();
     if (state.space === 'temple') audio.playWindChime();
     else audio.playWhooshAndBowl();
     stokeFire(24);

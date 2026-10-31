@@ -1063,6 +1063,8 @@
     body.idle #ui-shell, body.idle .ash-oracle, body.idle .capture-toast, body.idle .dying-alert { opacity: 0 !important; pointer-events: none !important; }
     body.idle.idle-bar-on .idle-bar { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
     body.idle #stage { cursor: none; }
+    .audio-credits { margin: 12px 0 0; font-family: var(--font-ui); font-size: 11px; line-height: 1.6; color: var(--text-muted); }
+    .audio-credits a { color: var(--brass-bright); }
     .ui-shell:has(.world-drawer.open) ~ .ash-oracle, body:has(.world-drawer.open) .ash-oracle { opacity: 0; }
   </style>
 </head>
@@ -1295,6 +1297,11 @@
         <input type="range" id="vol-chime" min="0" max="100" value="70">
       </div>
       <button type="button" class="modal-cta" id="btn-toggle-mute" data-i18n="audio.off"></button>
+      <p class="audio-credits">
+        <a href="https://commons.wikimedia.org/wiki/File:Campfire_sound_ambience.ogg" target="_blank" rel="noopener">Campfire sound ambience</a> · Glaneur de sons · CC BY 3.0<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Rain_on_a_veranda_and_t.ogg" target="_blank" rel="noopener">Rain on a veranda</a> · ezwa · Public domain<br>
+        <a href="https://commons.wikimedia.org/wiki/File:Windglockenspiel.Koshi.ogg" target="_blank" rel="noopener">Windglockenspiel Koshi</a> · Membeth · CC0
+      </p>
     </div>
   </div>
 
