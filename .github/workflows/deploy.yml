@@ -32,9 +32,13 @@ jobs:
           IMG=(--include '*.jpg' --include '*.png' --include '*.webp' --include '*.ico' --include '*.svg')
           aws s3 sync . "s3://$BUCKET" --delete "${X[@]}" --exclude '*.mjs' --exclude '*.jpg' --exclude '*.png' --exclude '*.webp' --exclude '*.ico' --exclude '*.svg' \
             --cache-control 'public, max-age=0, must-revalidate, s-maxage=31536000'
+          # filters run in order and the last match wins: repo-only paths are excluded after each include
           # .mjs must be served as JavaScript or the browser refuses the module
-          aws s3 sync . "s3://$BUCKET" --delete "${X[@]}" --exclude '*' --include '*.mjs' --content-type 'text/javascript; charset=utf-8' \
+          aws s3 sync . "s3://$BUCKET" --delete --exclude '*' --include '*.mjs' "${X[@]}" --content-type 'text/javascript; charset=utf-8' \
             --cache-control 'public, max-age=0, must-revalidate, s-maxage=31536000'
-          aws s3 sync . "s3://$BUCKET" --delete "${X[@]}" --exclude '*' "${IMG[@]}" --cache-control 'public, max-age=604800'
+          aws s3 sync . "s3://$BUCKET" --delete --exclude '*' "${IMG[@]}" "${X[@]}" --cache-control 'public, max-age=604800'
+          # removes repo-only files an earlier filter order let through (no-op once gone)
+          aws s3 rm "s3://$BUCKET/scripts/" --recursive
+          aws s3 rm "s3://$BUCKET/i18n/check.mjs"
           id=$(aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths '/*' --query Invalidation.Id --output text)
           aws cloudfront wait invalidation-completed --distribution-id "$DIST_ID" --id "$id"
