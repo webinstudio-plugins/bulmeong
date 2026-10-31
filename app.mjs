@@ -694,7 +694,7 @@ function spawnSmoke(x = fireX, y = fireY - 75) {
   });
 }
 
-// Remote ntfy events are attacker-controlled: escape before any innerHTML.
+// Server data (rankings, discoverer names) comes from other visitors: escape before any innerHTML.
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const safeImg = s => (typeof s === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(s) ? s : '');
 
@@ -2592,10 +2592,10 @@ window.addEventListener('pointerup', e => {
   burnWorry(spec.text, lx, ly, spec.itemType);
 });
 
-// ── Real-Time Shared Multiplayer Server Sync (100% Real Concurrent Presence & Real Cumulative Burns) ──
-const MULTIPLAYER_TOPIC = 'bulmeong_lounge_global_v8_real';
-const LEGACY_EGG_TOPIC = 'bulmeong_lounge_global_v5';
-const NTFY_BASE = `https://ntfy.sh/${MULTIPLAYER_TOPIC}`;
+// ── Shared state: our own API (infra/api: Lambda + DynamoDB) ─────────────────
+// Polled every 30 s: total burns, ranked preset words, visitors seen in the last 150 s, first discoverers and
+// other visitors' recent throws. Only item types, preset ids and the nickname are ever sent.
+const API = 'https://3dglku7p2zq6zstsxc5bb4iqu40fyuay.lambda-url.us-east-1.on.aws/';
 
 let clientSessionId = '';
 try {
@@ -2608,25 +2608,9 @@ try {
   clientSessionId = 'sess_' + Math.random().toString(36).slice(2, 10);
 }
 
-const activePeers = new Map([[clientSessionId, Date.now()]]);
-const seenBurnIds = new Set();
 const REMOTE_ITEM_KEYS = { resignation: 'item.resign', stock: 'item.stock', clock: 'item.clock', wood: 'item.wood' };
-
-function updateLiveConcurrentUI() {
-  const now = Date.now();
-  activePeers.set(clientSessionId, now);
-  for (const [peerId, lastTs] of activePeers.entries()) {
-    if (peerId !== clientSessionId && now - lastTs > 300000) {
-      activePeers.delete(peerId);
-    }
-  }
-  const onlineCount = Math.max(1, activePeers.size);
-  window.__liveOnlineCount = onlineCount;
-  const el = document.getElementById('live-count');
-  if (el) el.textContent = onlineCount.toLocaleString(LOCALE);
-}
-updateLiveConcurrentUI();
-setInterval(updateLiveConcurrentUI, 5000);
+const seenFeed = new Set();
+let feedSince = 0;
 
 function makeFallbackPolaroid(egg, discoverer, firstTime, triggerText) {
   const c = document.createElement('canvas');
@@ -2666,80 +2650,52 @@ function makeFallbackPolaroid(egg, discoverer, firstTime, triggerText) {
   return c.toDataURL('image/jpeg', 0.82);
 }
 
-async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0) {
-  if (!evt || typeof evt !== 'object') return;
+// The album is shared: a flame anyone found shows up for everyone, with the server's first discoverer.
+function mergeEgg(id, rec) {
+  const egg = EASTER_EGG_DEX.find(x => x.id === id);
+  if (!egg || !rec) return;
+  const existing = state.eggAlbum[id];
+  const firstDiscoverer = String(rec.first || existing?.firstDiscoverer || t('common.anon')).slice(0, 14);
+  const firstTime = rec.at || existing?.firstTime || new Date().toISOString();
+  state.eggAlbum[id] = {
+    ...existing,
+    id,
+    firstDiscoverer,
+    firstTime,
+    lastImage: existing?.lastImage || makeFallbackPolaroid(egg, firstDiscoverer, firstTime),
+    triggerText: existing?.triggerText || egg.sampleTrigger,
+    count: Math.max(existing?.count || 0, Number(rec.count) || 0)
+  };
+}
 
-  // 1. Track real-time concurrent session presence
-  const eventMs = msgTimeSec ? msgTimeSec * 1000 : (evt.ts || Date.now());
-  if (evt.sender) {
-    if (evt.type === 'leave') {
-      if (evt.sender !== clientSessionId) {
-        activePeers.delete(evt.sender);
-        updateLiveConcurrentUI();
-      }
-      return;
-    } else if (Date.now() - eventMs <= 300000) {
-      activePeers.set(evt.sender, eventMs);
-      updateLiveConcurrentUI();
-    }
-  }
+async function syncState() {
+  if (document.hidden) return;
+  try {
+    const r = await fetch(`${API}state?sid=${clientSessionId}&since=${feedSince}`);
+    if (!r.ok) return;
+    const s = await r.json();
+    const firstSync = feedSince === 0;
+    feedSince = s.now;
 
-  if (evt.type === 'presence') return;
-
-  if (evt.type === 'egg_unlock' && evt.eggId) {
-    const egg = EASTER_EGG_DEX.find(x => x.id === evt.eggId);
-    if (!egg) return;
-    const existing = state.eggAlbum[evt.eggId];
-    const firstDiscoverer = existing?.firstDiscoverer || String(evt.firstDiscoverer || '').slice(0, 14) || t('common.anon');
-    const firstTime = existing?.firstTime || evt.firstTime || new Date(eventMs).toISOString();
-    const count = Math.max((existing?.count || 0) + (isHistorical ? 0 : 1), Number(evt.count) || 1);
-
-    let lastImage = existing?.lastImage || '';
-    if (!lastImage) {
-      lastImage = makeFallbackPolaroid(egg, firstDiscoverer, firstTime);
-    }
-
-    state.eggAlbum[evt.eggId] = {
-      id: evt.eggId,
-      firstDiscoverer,
-      firstTime,
-      lastImage,
-      triggerText: egg.sampleTrigger,
-      count
-    };
-
-    saveState();
+    window.__liveOnlineCount = s.online;
+    document.getElementById('live-count').textContent = Number(s.online || 1).toLocaleString(LOCALE);
+    state.globalBurnTotal = Number(s.total) || 0;
+    updateGlobalBurnUI();
+    for (const item of ALL_RANKINGS) item.count = Number(s.rankings?.[item.rk]) || 0;
+    renderRoomUI();
+    for (const [id, rec] of Object.entries(s.eggs || {})) mergeEgg(id, rec);
     updateAlbumBadgeUI();
-    if (document.getElementById('modal-album')?.classList.contains('open')) {
-      renderAlbumModal();
-    }
-    if (!isHistorical && evt.sender !== clientSessionId) {
-      const ticker = document.getElementById('live-ticker');
-      if (ticker) {
-        ticker.textContent = t('ticker.remoteEgg', { nick: firstDiscoverer, title: egg.title });
-      }
-    }
-  } else if (evt.type === 'burn') {
-    const bId = evt.burnId || `${evt.sender || 'anon'}_${msgTimeSec}`;
-    if (seenBurnIds.has(bId)) return;
-    seenBurnIds.add(bId);
-    const ranked = typeof evt.rk === 'string' ? (ROOMS[evt.rk.split('.')[0]]?.rankings.find(x => x.rk === evt.rk) || null) : null;
-    const nick = String(evt.nick || '').slice(0, 14) || t('common.anon');
-    const what = ranked ? ranked.word : t(REMOTE_ITEM_KEYS[evt.itemType] || 'item.note');
+    if (document.getElementById('modal-album')?.classList.contains('open')) renderAlbumModal();
 
-    if (isHistorical) {
-      incrementRanking(ranked);
-    } else if (evt.sender !== clientSessionId) {
-      bumpGlobalBurnCounter(1, 3.0);
-      if (typeof evt.totalAfter === 'number' && evt.totalAfter > state.globalBurnTotal) {
-        state.globalBurnTotal = evt.totalAfter;
-        updateGlobalBurnUI();
-      }
-      incrementRanking(ranked);
-      const ticker = document.getElementById('live-ticker');
-      if (ticker) {
-        ticker.textContent = t('ticker.remote', { nick, what });
-      }
+    for (const f of s.feed || []) {
+      if (seenFeed.has(f.id)) continue;
+      seenFeed.add(f.id);
+      if (firstSync || f.mine) continue; // only throws that happen while you are here fly into your fire
+      const ranked = ALL_RANKINGS.find(x => x.rk === f.rk) || null;
+      const nick = String(f.nick || '').slice(0, 14) || t('common.anon');
+      const what = ranked ? ranked.word : t(REMOTE_ITEM_KEYS[f.itemType] || 'item.note');
+      bumpGlobalBurnCounter(0, 3.0);
+      document.getElementById('live-ticker').textContent = t('ticker.remote', { nick, what });
       ghostNotes.push({
         origin: nick,
         text: what,
@@ -2751,128 +2707,42 @@ async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0)
         p: 0
       });
     }
-  }
-}
-
-window.__broadcastEggUnlock = async (egg, rec) => {
-  try {
-    await fetch(NTFY_BASE, {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'egg_unlock',
-        sender: clientSessionId,
-        eggId: egg.id,
-        firstDiscoverer: rec.firstDiscoverer,
-        firstTime: rec.firstTime,
-        count: rec.count,
-        ts: Date.now()
-      })
-    });
-  } catch {}
-};
-
-window.__broadcastBurnEvent = async payload => {
-  if (payload && payload.burnId) {
-    seenBurnIds.add(payload.burnId);
-  }
-  try {
-    await fetch(NTFY_BASE, {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'burn',
-        sender: clientSessionId,
-        ts: Date.now(),
-        ...payload
-      })
-    });
-  } catch {}
-};
-
-function sendPresenceHeartbeat() {
-  activePeers.set(clientSessionId, Date.now());
-  updateLiveConcurrentUI();
-  fetch(NTFY_BASE, {
-    method: 'POST',
-    body: JSON.stringify({
-      type: 'presence',
-      sender: clientSessionId,
-      ts: Date.now()
-    })
-  }).catch(() => {});
-}
-
-window.addEventListener('pagehide', () => {
-  try {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(NTFY_BASE, JSON.stringify({
-        type: 'leave',
-        sender: clientSessionId,
-        ts: Date.now()
-      }));
-    }
-  } catch {}
-});
-
-async function initSharedServerSync() {
-  // 0. Restore legacy First-Discoverer Easter Egg records from v5 topic
-  try {
-    const resV5 = await fetch(`https://ntfy.sh/${LEGACY_EGG_TOPIC}/json?poll=1&since=all`);
-    const txtV5 = await resV5.text();
-    for (const line of txtV5.trim().split('\n').filter(Boolean)) {
-      try {
-        const w = JSON.parse(line);
-        if (w && w.event === 'message' && w.message) {
-          const p = JSON.parse(w.message);
-          if (p.type === 'egg_unlock' || p.type === 'vip_unlock') {
-            await applyRemoteServerEvent(p, true, w.time || 0);
-          }
-        }
-      } catch {}
-    }
-  } catch {}
-
-  // 1. Fetch real server history from v8_real topic for accurate cumulative burns & active presence
-  try {
-    const res = await fetch(`${NTFY_BASE}/json?poll=1&since=all`);
-    const text = await res.text();
-    const lines = text.trim().split('\n').filter(Boolean);
-    let maxReportedTotal = 0;
-    for (const line of lines) {
-      try {
-        const wrapper = JSON.parse(line);
-        if (wrapper && wrapper.event === 'message' && wrapper.message) {
-          const payload = JSON.parse(wrapper.message);
-          if (payload.type === 'burn' && typeof payload.totalAfter === 'number') {
-            maxReportedTotal = Math.max(maxReportedTotal, payload.totalAfter);
-          }
-          await applyRemoteServerEvent(payload, true, wrapper.time || 0);
-        }
-      } catch {}
-    }
-    state.globalBurnTotal = Math.max(seenBurnIds.size, maxReportedTotal, state.burnedCount);
-    updateGlobalBurnUI();
     saveState();
   } catch {}
-
-  // 2. Announce our own presence and repeat every 25s
-  sendPresenceHeartbeat();
-  setInterval(sendPresenceHeartbeat, 120000); // ntfy.sh allows 250 messages per visitor IP a day
-
-  // 3. Connect real-time SSE stream for instant 0.1s multiplayer broadcasts
-  try {
-    const es = new EventSource(`${NTFY_BASE}/sse`);
-    es.onmessage = ev => {
-      try {
-        const wrapper = JSON.parse(ev.data);
-        if (wrapper && wrapper.event === 'message' && wrapper.message) {
-          const payload = JSON.parse(wrapper.message);
-          applyRemoteServerEvent(payload, false, wrapper.time || 0);
-        }
-      } catch {}
-    };
-  } catch {}
 }
-initSharedServerSync();
+
+const postJson = (path, body) => fetch(`${API}${path}`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ sid: clientSessionId, ...body })
+});
+
+window.__broadcastBurnEvent = async payload => {
+  try {
+    const r = await postJson('burn', { itemType: payload.itemType, rk: payload.rk || '', nick: payload.nick || '' });
+    if (r.ok) {
+      state.globalBurnTotal = Number((await r.json()).total) || state.globalBurnTotal;
+      updateGlobalBurnUI();
+    }
+  } catch {}
+};
+
+window.__broadcastEggUnlock = async egg => {
+  try {
+    const r = await postJson('egg', { eggId: egg.id, nick: state.discovererName || '' });
+    if (r.ok) {
+      mergeEgg(egg.id, await r.json());
+      saveState();
+      updateAlbumBadgeUI();
+    }
+  } catch {}
+};
+
+syncState();
+setInterval(syncState, 30000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) syncState();
+});
 
 document.getElementById('btn-wood').addEventListener('click', () => {
   if (!state.audioEnabled) toggleAudio(true);
