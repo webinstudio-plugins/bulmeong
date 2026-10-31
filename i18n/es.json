@@ -1,5 +1,5 @@
 {
-  "meta.title": "Bulmeong · Una fogata encendida en tu navegador",
+  "meta.title": "Bulmeong · Fogata virtual con sonido de leña",
   "common.close": "Cerrar",
   "common.anon": "Anónimo",
   "common.lang": "Idioma",
@@ -405,5 +405,6 @@
   "share.btn": "Compartir",
   "share.stats": "Hoy quemé {n} · Máx. {temp}°C · Llamas ocultas {found}/20",
   "share.text": "Esta noche quemé {n} cosas en Bulmeong.",
-  "share.copied": "Copié el texto y el enlace."
+  "share.copied": "Copié el texto y el enlace.",
+  "meta.desc": "Una fogata virtual en tu navegador. Escucha la leña crujir y la lluvia, escribe lo que te pesa y míralo arder. Gratis y sin instalar nada."
 }

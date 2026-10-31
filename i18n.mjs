@@ -1,4 +1,4 @@
-// UI language: ?lang= > the visitor's own pick > browser languages > English.
+// UI language: the page's own path (/ja/) > ?lang= > the visitor's own pick > browser languages > English.
 export const LANGS = ['ko', 'en', 'ja', 'zh', 'es'];
 const pick = v => {
   const base = String(v || '').toLowerCase().split('-')[0];
@@ -7,7 +7,8 @@ const pick = v => {
 let savedPick = null;
 try { savedPick = localStorage.getItem('bulmeong:lang'); } catch {}
 
-export const lang = pick(new URLSearchParams(location.search).get('lang'))
+export const lang = pick(location.pathname.split('/')[1])
+  || pick(new URLSearchParams(location.search).get('lang'))
   || pick(savedPick)
   || (navigator.languages || [navigator.language]).map(pick).find(Boolean)
   || 'en';
@@ -31,9 +32,7 @@ export const LOCALE = lang === 'zh' ? 'zh-CN' : lang;
 export function setLang(next) {
   if (!LANGS.includes(next)) return;
   try { localStorage.setItem('bulmeong:lang', next); } catch {}
-  const url = new URL(location.href);
-  url.searchParams.delete('lang');
-  location.replace(url);
+  location.assign(`/${next}/`);
 }
 
 export function applyDom(root = document) {

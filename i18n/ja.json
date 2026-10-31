@@ -1,5 +1,5 @@
 {
-  "meta.title": "Bulmeong · ブラウザで灯す焚き火",
+  "meta.title": "Bulmeong · ブラウザで灯す焚き火と薪の音",
   "common.close": "閉じる",
   "common.anon": "匿名",
   "common.lang": "言語",
@@ -414,5 +414,6 @@
   "share.btn": "共有する",
   "share.stats": "今日燃やしたもの {n}・最高 {temp}°C・ひみつの炎 {found}/20",
   "share.text": "今夜はBulmeongで{n}個燃やしました。",
-  "share.copied": "文章とリンクをコピーしました。"
+  "share.copied": "文章とリンクをコピーしました。",
+  "meta.desc": "ブラウザで灯す焚き火。薪のはぜる音と雨音を聞きながら、心に引っかかっていることを書いて燃やせます。作業用の環境音にも。インストール不要、無料です。"
 }

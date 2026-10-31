@@ -4,13 +4,61 @@
   <url>
     <loc>https://d3ouqxquns99r3.cloudfront.net/</loc>
     <lastmod>2026-10-31</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/?lang=ko"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/?lang=en"/>
-    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/?lang=ja"/>
-    <xhtml:link rel="alternate" hreflang="zh" href="https://d3ouqxquns99r3.cloudfront.net/?lang=zh"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/?lang=es"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/ko/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://d3ouqxquns99r3.cloudfront.net/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/"/>
+  </url>
+  <url>
+    <loc>https://d3ouqxquns99r3.cloudfront.net/ko/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/ko/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://d3ouqxquns99r3.cloudfront.net/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/"/>
+  </url>
+  <url>
+    <loc>https://d3ouqxquns99r3.cloudfront.net/en/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/ko/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://d3ouqxquns99r3.cloudfront.net/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/"/>
+  </url>
+  <url>
+    <loc>https://d3ouqxquns99r3.cloudfront.net/ja/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/ko/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://d3ouqxquns99r3.cloudfront.net/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/"/>
+  </url>
+  <url>
+    <loc>https://d3ouqxquns99r3.cloudfront.net/zh/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/ko/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://d3ouqxquns99r3.cloudfront.net/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/es/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/"/>
+  </url>
+  <url>
+    <loc>https://d3ouqxquns99r3.cloudfront.net/es/</loc>
+    <lastmod>2026-10-31</lastmod>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://d3ouqxquns99r3.cloudfront.net/ko/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://d3ouqxquns99r3.cloudfront.net/en/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://d3ouqxquns99r3.cloudfront.net/ja/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://d3ouqxquns99r3.cloudfront.net/zh/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://d3ouqxquns99r3.cloudfront.net/es/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/"/>
   </url>
 </urlset>

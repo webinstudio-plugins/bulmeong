@@ -1,5 +1,5 @@
 {
-  "meta.title": "Bulmeong · 浏览器里燃着的篝火",
+  "meta.title": "Bulmeong · 浏览器里的篝火白噪音",
   "common.close": "关闭",
   "common.anon": "匿名",
   "common.lang": "语言",
@@ -418,5 +418,6 @@
   "share.btn": "分享",
   "share.stats": "今天烧掉 {n} 样 · 最高 {temp}°C · 隐藏火焰 {found}/20",
   "share.text": "今晚在 Bulmeong 烧掉了 {n} 样东西。",
-  "share.copied": "已复制文字和链接。"
+  "share.copied": "已复制文字和链接。",
+  "meta.desc": "浏览器里的篝火。听着木柴噼啪声和雨声发呆，把心里放不下的事写下来烧掉。也可以当白噪音，免费，无需安装。"
 }

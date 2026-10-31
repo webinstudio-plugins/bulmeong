@@ -1,5 +1,5 @@
 {
-  "meta.title": "Bulmeong · A campfire that stays lit in your browser",
+  "meta.title": "Bulmeong · Virtual campfire with crackling fire sounds",
   "common.close": "Close",
   "common.anon": "Anonymous",
   "common.lang": "Language",
@@ -405,5 +405,6 @@
   "share.btn": "Share",
   "share.stats": "Burned today {n} · Hottest {temp}°C · Hidden flames {found}/20",
   "share.text": "I burned {n} things at Bulmeong tonight.",
-  "share.copied": "Copied the text and link."
+  "share.copied": "Copied the text and link.",
+  "meta.desc": "A virtual campfire in your browser. Listen to crackling wood and rain, write down what's weighing on you and watch it burn. Free, nothing to install."
 }
