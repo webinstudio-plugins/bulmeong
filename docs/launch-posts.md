@@ -44,7 +44,7 @@
 | `C:\Users\user\Desktop\work\bulmeong-lounge\_promo\bulmeong-en-sakura.mp4` | 영어 화면, 벚꽃 | Burned a wish for cherry blossoms |
 | `C:\Users\user\Desktop\work\bulmeong-lounge\_promo\bulmeong-en-ambient.mp4` | 틀어 두기 | A campfire to leave on while you work |
 
-'사직서 축포'도 녹화했지만 영상으로 보면 불꽃놀이가 작고 짧아서 뺐다. 영상은 git에 넣지 않는다(`_promo/`는 .gitignore).
+'사직서 축포'도 녹화했지만 영상으로 보면 불꽃놀이가 작고 짧아서 뺐다. 영상은 git에 넣지 않는다(`_promo/`는 .gitignore). 다시 만들 때는 `tools/promo/record.py`로 화면을 프레임 단위로 녹화하고 `tools/promo/encode.py`로 문구와 소리를 입힌다. 녹화 중에는 공용 서버를 막아 두므로 기록이 남지 않는다.
 
 장작 소리는 CC BY 3.0이라 저작자 표기가 필요하다. 영상 끝에 작게 넣어 두었고, 설명란에도 `Fire sound: Glaneur de sons (CC BY 3.0)` 한 줄을 넣는다.
 
