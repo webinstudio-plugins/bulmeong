@@ -26,7 +26,7 @@ jobs:
           aws-region: us-east-1
       - name: Deploy
         run: |
-          X=(--exclude '.git/*' --exclude '.github/*' --exclude '.gitignore' --exclude 'docs/*' --exclude 'infra/*' --exclude '*.md')
+          X=(--exclude '.git/*' --exclude '.github/*' --exclude '.gitignore' --exclude 'docs/*' --exclude 'infra/*' --exclude 'tools/*' --exclude 'i18n/check.mjs' --exclude '*.md')
           IMG=(--include '*.jpg' --include '*.png' --include '*.webp' --include '*.ico' --include '*.svg')
           aws s3 sync . "s3://$BUCKET" --delete "${X[@]}" --exclude '*.mjs' --exclude '*.jpg' --exclude '*.png' --exclude '*.webp' --exclude '*.ico' --exclude '*.svg' \
             --cache-control 'public, max-age=0, must-revalidate, s-maxage=31536000'

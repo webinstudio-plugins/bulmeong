@@ -26,7 +26,7 @@
   <link rel="alternate" hreflang="x-default" href="https://d3ouqxquns99r3.cloudfront.net/">
 
   <!-- Favicons & PWA Manifest -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="64x64" href="/assets/emblem-64.png">
   <link rel="alternate icon" type="image/png" sizes="64x64" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
@@ -37,9 +37,9 @@
   <meta property="og:title" content="불멍(火멍) : 재의 연금술 · 글로벌 실시간 화로 클리커 & 번뇌 소각 웹게임">
   <meta property="og:description" content="화로를 연타해 10,000°C까지 온도를 올리고 사직서·마이너스 계좌·20종 비밀 주문을 불 속에 던지세요! 최초 발견한 불꽃은 전 세계 유저 도감에 실시간 박제됩니다.">
   <meta property="og:url" content="https://d3ouqxquns99r3.cloudfront.net/">
-  <meta property="og:image" content="https://d3ouqxquns99r3.cloudfront.net/bg-sanctuary.jpg">
-  <meta property="og:image:width" content="1376">
-  <meta property="og:image:height" content="768">
+  <meta property="og:image" content="https://d3ouqxquns99r3.cloudfront.net/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="불멍 재의 연금술 - 산사 밤비 마당의 돌화로와 타오르는 참나무 불꽃">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:locale:alternate" content="en_US">
@@ -49,7 +49,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="불멍(火멍) : 재의 연금술 · 글로벌 실시간 화로 클리커 & 소각 게임">
   <meta name="twitter:description" content="전 세계 사람들과 함께 화로 온도를 올리고 20종 비밀 연금술 주문을 찾아 불꽃 박물관 최초 발견자로 이름을 남기세요.">
-  <meta name="twitter:image" content="https://d3ouqxquns99r3.cloudfront.net/bg-sanctuary.jpg">
+  <meta name="twitter:image" content="https://d3ouqxquns99r3.cloudfront.net/og.jpg">
 
   <!-- Schema.org Structured Data (VideoGame + WebApplication + FAQPage) -->
   <script type="application/ld+json">
@@ -61,7 +61,7 @@
         "name": "불멍(火멍) : 재의 연금술 (Hearth of Ashes)",
         "alternateName": ["불멍 재의 연금술", "Hearth of Ashes", "Bulmeong Alchemy Hearth"],
         "url": "https://d3ouqxquns99r3.cloudfront.net/",
-        "image": "https://d3ouqxquns99r3.cloudfront.net/bg-sanctuary.jpg",
+        "image": "https://d3ouqxquns99r3.cloudfront.net/og.jpg",
         "description": "전 세계 유저들과 실시간으로 화로 온도를 공유하며 사직서, 마이너스 주식계좌, 일상의 번뇌와 20가지 비밀 연금술 주문을 태우는 멀티플레이 불멍 클리커 & 힐링 소각 웹게임.",
         "applicationCategory": "GameApplication",
         "genre": ["Simulation", "Idle Clicker", "Casual", "Relaxation ASMR"],
@@ -181,8 +181,7 @@
     .title-screen {
       position: fixed; inset: 0; z-index: 50;
       background:
-        radial-gradient(circle at 50% 64%, rgba(28, 12, 6, 0.35) 0%, rgba(4, 4, 8, 0.92) 78%),
-        url('./bg-camp.jpg') center/cover no-repeat;
+        radial-gradient(circle at 50% 45%, rgba(5, 6, 10, 0.6) 0%, rgba(5, 6, 10, 0.9) 75%);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 28px 20px; text-align: center;
       transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
@@ -991,6 +990,41 @@
       background: rgba(218, 178, 114, 0.12);
       color: var(--brass-bright); font-family: var(--font-serif); font-size: 10.5px; font-weight: 700; cursor: pointer;
     }
+
+    /* ── v9: Codex objects as cards, paper sheet ── */
+    .game-item-card, .game-item-card.card-resign, .game-item-card.card-ledger, .game-item-card.card-talisman, .game-item-card.card-clock, .game-item-card.card-wood {
+      background: none; border: 0; box-shadow: none; color: #fbf1df;
+      height: auto; padding: 0 2px 2px; gap: 3px; justify-content: flex-end;
+    }
+    .game-item-card::before { display: none; }
+    .game-item-card:hover { box-shadow: none; }
+    .card-art {
+      width: 100%; max-width: 78px; height: 60px; object-fit: contain;
+      filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.75));
+      pointer-events: none; user-select: none;
+    }
+    .item-name {
+      font-family: var(--font-serif); font-size: 13px; font-weight: 700; line-height: 1.2;
+      white-space: normal; text-align: center;
+      text-shadow: 0 1px 2px #000, 0 2px 10px rgba(0, 0, 0, 0.95);
+    }
+    .item-sub { font-size: 11px; color: rgba(255, 228, 196, 0.8); text-shadow: 0 1px 3px #000; }
+    .game-item-card.primary-scroll .item-name { color: #ffd79a; }
+    .hanji-sheet {
+      background: linear-gradient(165deg, rgba(255, 250, 238, 0.35), rgba(214, 188, 146, 0.25)), url('./assets/ui/paper.webp') center/cover;
+    }
+    .space-chip[hidden] { display: none; }
+    .item-name { font-size: 11.5px; overflow-wrap: normal; }
+    .talisman-hand { gap: 2px; }
+    :root:lang(ja) .item-name { word-break: auto-phrase !important; }
+    @media (max-width: 420px) { .ui-shell { padding-left: 10px; padding-right: 10px; } }
+    :root:lang(ko) .item-name { word-break: keep-all; }
+    /* keep-all is a Korean rule; Japanese and Chinese have no spaces and must break between characters */
+    :root:lang(ja) *, :root:lang(zh-Hans) * { word-break: normal !important; line-break: strict; }
+    .title-nick-input { font-size: 16px; letter-spacing: 0.5px; }
+    .title-nick-input::placeholder { font-size: 13px; letter-spacing: 0; }
+    #title-screen:not(.hidden) ~ #ui-shell { opacity: 0; pointer-events: none; }
+    #ui-shell { transition: opacity 0.6s ease; }
   </style>
 </head>
 <body>
@@ -1159,27 +1193,27 @@
 
       <div class="talisman-hand" role="group" data-i18n-attr="aria-label:card.group">
         <button type="button" class="game-item-card card-resign" data-throw-item="resignation">
-          <span class="card-hanja-seal" aria-hidden="true">✉️</span>
+          <img class="card-art" src="./assets/objects/resignation.webp" alt="" draggable="false">
           <span class="item-name" data-i18n="card.resign"></span>
           <span class="item-sub">+65°C</span>
         </button>
         <button type="button" class="game-item-card card-ledger" data-throw-item="stock">
-          <span class="card-hanja-seal" aria-hidden="true">📉</span>
+          <img class="card-art" src="./assets/objects/stock-chart.webp" alt="" draggable="false">
           <span class="item-name" data-i18n="card.stock"></span>
           <span class="item-sub">+65°C</span>
         </button>
         <button type="button" class="game-item-card card-talisman primary-scroll" id="btn-open-hanji">
-          <span class="card-hanja-seal" aria-hidden="true">✍️</span>
+          <img class="card-art" src="./assets/objects/note.webp" alt="" draggable="false">
           <span class="item-name" data-i18n="card.write"></span>
           <span class="item-sub">+95°C</span>
         </button>
         <button type="button" class="game-item-card card-clock" data-throw-item="clock">
-          <span class="card-hanja-seal" aria-hidden="true">⏰</span>
+          <img class="card-art" src="./assets/objects/alarm-clock.webp" alt="" draggable="false">
           <span class="item-name" data-i18n="card.clock"></span>
           <span class="item-sub">+65°C</span>
         </button>
         <button type="button" class="game-item-card card-wood" id="btn-wood" data-throw-item="wood">
-          <span class="card-hanja-seal" aria-hidden="true">🪵</span>
+          <img class="card-art" src="./assets/objects/firewood.webp" alt="" draggable="false">
           <span class="item-name" data-i18n="card.wood"></span>
           <span class="item-sub">+45°C</span>
         </button>

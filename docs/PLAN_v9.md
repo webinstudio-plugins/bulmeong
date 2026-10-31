@@ -1,7 +1,7 @@
 # 불멍 v9 개편 계획서
 
 작성 2026-10-31 · Claude
-대상: https://bulmeong.netlify.app/ · 저장소 webinstudio-plugins/bulmeong(공개) · 폴더 `C:\Users\user\Desktop\work\bulmeong-lounge`
+대상: https://d3ouqxquns99r3.cloudfront.net/ (bulmeong.netlify.app은 여기로 넘겨줌) · 저장소 webinstudio-plugins/bulmeong(공개) · 폴더 `C:\Users\user\Desktop\work\bulmeong-lounge`
 같이 보는 문서: [CODEX_IMAGE_REQUEST_v9.md](CODEX_IMAGE_REQUEST_v9.md)
 
 ## 0. 요약
@@ -206,9 +206,12 @@ ntfy.sh 공개 토픽을 걷어내고 Netlify Functions와 Netlify Blobs로 옮�
 - 애니메이션은 시간 기준으로 돌린다. 입자 수에 상한을 두고, 휴대폰은 DPR 1.5까지만, 그라디언트는 미리 그려 다시 쓴다.
 - 상태는 바뀔 때만 저장하고, 이미지(dataUrl)는 저장하지 않는다.
 
-### 배포
-- Netlify는 GitHub에 연결하지 않는다. 푸시마다 배포되면 크레딧이 빨리 닳는다. Claude가 단계가 끝날 때 Netlify CLI(`netlify deploy --prod`, 사이트 bulmeong)로 모아서 배포한다. CLI 로그인은 2026-10-31에 끝냈다.
-- GitHub Pages 자동 배포는 끈다. 같은 사이트가 두 주소에 있으면 검색에서 손해다.
+### 배포 (2026-10-31 AWS로 옮김)
+- Netlify 무료 플랜은 월 300크레딧이라 방문이 몇천 번만 돼도 사이트가 멈춘다. 다른 사이트들과 같이 S3 + CloudFront로 옮겼다. CloudFront는 매달 1TB까지 무료다.
+- 주소는 https://d3ouqxquns99r3.cloudfront.net 이다. 쓸 만한 무료 도메인은 없다. bulmeong.app이나 bulmeong.net을 사면(1년 2만 원 안팎) 붙인다.
+- bulmeong.netlify.app은 새 주소로 넘겨주는 302 안내판만 남겼다. 넘겨주기는 요청 1건이라 크레딧을 거의 쓰지 않는다.
+- master에 푸시하면 GitHub Actions가 S3에 올리고 CloudFront 캐시를 비운다(`.github/workflows/deploy.yml`, 설정값은 `infra/README.md`). 미완성 작업은 브랜치에서 한다.
+- GitHub Pages 자동 배포는 껐다.
 
 ## 7. 팀과 검수
 
@@ -228,30 +231,31 @@ ntfy.sh 공개 토픽을 걷어내고 Netlify Functions와 Netlify Blobs로 옮�
 ### 0단계: 그림 없이 지금 할 수 있는 것 (Codex 기다리는 동안)
 - [x] 저장형 XSS 막기 (2026-10-31, b9baa0f, Netlify 배포 완료)
 - [x] Netlify CLI 로그인 (2026-10-31)
-- [ ] GitHub Pages 끄기
-- [ ] ntfy 하트비트를 25초에서 2분으로 늘리고 첫 로딩에서 하트비트 기록 건너뛰기(서버로 옮기기 전까지 버티기용)
-- [ ] `?paypal_paid=1` 해금 막기, 황금 부적 결제 버튼과 사실과 다른 결제 문구 내리기
-- [ ] api.ipify.org 호출과 IP 표시 빼기, 판매자 이메일을 코드에서 빼기
-- [ ] 적은 글 원문을 공개 토픽에 보내지 않기(물건 종류와 개수만)
-- [ ] 테스트 버튼, '시루아빠' 기본값, 가짜 방명록 빼기
-- [ ] 첫 접속 온도를 모닥불 단계로, 첫 3분 꺼짐 경고 끄기
-- [ ] 언어 감지와 언어 파일 구조(3장), 화면 문구를 전부 언어 파일로
+- [x] AWS로 이사, Netlify는 안내판, GitHub Pages 끄기 (2026-10-31)
+- [x] ntfy 하트비트를 25초에서 2분으로 늘리고 첫 로딩에서 하트비트 기록 건너뛰기(서버로 옮기기 전까지 버티기용)
+- [x] `?paypal_paid=1` 해금 막기, 황금 부적 결제 버튼과 사실과 다른 결제 문구 내리기
+- [x] api.ipify.org 호출과 IP 표시 빼기, 판매자 이메일을 코드에서 빼기
+- [x] 적은 글 원문을 공개 토픽에 보내지 않기(물건 종류와 개수만)
+- [x] 테스트 버튼, '시루아빠' 기본값, 가짜 방명록 빼기
+- [x] 첫 접속 온도를 모닥불 단계로, 첫 3분 꺼짐 경고 끄기
+- [x] 언어 감지와 언어 파일 구조(3장), 화면 문구를 전부 언어 파일로
 - 검수: 개발 → 기획·QA
 
 ### 1단계: 문구 원문과 번역
-- [ ] 남기는 기능의 한국어 원문 확정(기획)
-- [ ] en·ja·zh·es 번역, 언어별 문체 검수, 원문과 숫자 대조(번역)
-- [ ] 비밀 단어 언어별 별칭
+- [x] 남기는 기능의 한국어 원문 확정(기획)
+- [x] en·ja·zh·es 번역, 언어별 문체 검수, 원문과 숫자 대조(번역)
+- [x] 비밀 단어 언어별 별칭
 - 검수: 번역 → 기획·출시
 
 ### 2단계: 그림 (사용자가 Codex로)
-- [ ] Codex 1차 35장 도착
-- [ ] 크기·알파·겹침 검사, 다시 받을 것 목록(디자인)
-- [ ] 웹용 변환
+- [x] Codex 1차 35장 도착
+- [x] 크기·알파·겹침 검사, 다시 받을 것 목록(디자인)
+- [x] 웹용 변환
 - 검수: 디자인 → 개발·QA
 
 ### 3단계: 새 화면
-- [ ] 레이아웃(4장), 불 레이어 6단계, 물건 PNG와 타는 연출
+- [x] 불 레이어(꺼진 판·불빛 판·화로 앞뒤), 물건 그림 카드, 그림으로 타는 연출, 종이 질감, 새 아이콘·OG (2026-10-31)
+- [ ] 레이아웃 나머지(4장): 상단 메뉴 정리, 방 탭 빼기, 13px 미만 글자 없애기
 - [ ] 틀어 두기 모드, 공유 카드, CC0 소리 교체
 - 검수: 디자인·개발 → 기획·QA
 
@@ -278,5 +282,6 @@ ntfy.sh 공개 토픽을 걷어내고 Netlify Functions와 Netlify Blobs로 옮�
 - 적은 글은 서버로 보내지 않는다.
 - 결제는 서버 검증 전까지 내린다.
 - 방명록과 내 화로 링크는 미룬다.
-- 배포는 GitHub 자동 연동 대신 Claude가 CLI로 단계마다 모아서 한다(크레딧 아끼기).
+- 호스팅은 AWS S3 + CloudFront(다른 사이트와 같은 방식). 도메인은 사기 전까지 CloudFront 기본 주소.
+- 성운 장면은 '사건의 지평선' 불꽃을 찾으면 열린다.
 - 광고는 트래픽을 확인하기 전까지 붙이지 않는다. 붙이더라도 틀어 두기 화면에는 넣지 않는다.

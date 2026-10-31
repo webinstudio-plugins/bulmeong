@@ -56,6 +56,7 @@ const state = {
   tossLink: saved.tossLink || '',
   goldUnlocked: Boolean(saved.goldUnlocked),
   goldMode: Boolean(saved.goldUnlocked),
+  cosmosOpen: Boolean(saved.cosmosOpen),
   eggAlbum: (saved.eggAlbum && typeof saved.eggAlbum === 'object') ? saved.eggAlbum : {},
   albumFilter: 'all',
   heat: 36.5,
@@ -82,6 +83,7 @@ function saveState() {
       discovererName: state.discovererName,
       tossLink: state.tossLink,
       goldUnlocked: state.goldUnlocked,
+      cosmosOpen: state.cosmosOpen,
       eggAlbum: state.eggAlbum
     }));
   } catch {}
@@ -291,16 +293,104 @@ let activeNote = null;
 let activeGiftLog = null;
 
 // ── Hand-Painted Indie Game Art Assets (4 Bespoke Space Illustrations) ──────
-const spaceBgImgs = {
-  camp: new Image(),
-  temple: new Image(),
-  snow: new Image(),
-  cosmos: new Image()
+// v9 scenes: an unlit and a lit plate per orientation; the pit is a separate layer set on the plate's empty patch,
+// and the flames are drawn between the pit and its front stones. Anchors come from tools/optimize_art.py.
+const SCENE_ART = {
+  camp: { scene: 'forest', pit: 'stone', anchor: { land: [0.513, 0.681], port: [0.508, 0.637] } },
+  temple: { scene: 'temple', pit: 'brazier', anchor: { land: [0.486, 0.693], port: [0.5, 0.685] } },
+  snow: { scene: 'snow', pit: 'snow', anchor: { land: [0.47, 0.63], port: [0.476, 0.611] } }
 };
-spaceBgImgs.camp.src = './bg-camp.jpg';
-spaceBgImgs.temple.src = './bg-temple.jpg';
-spaceBgImgs.snow.src = './bg-snow.jpg';
-spaceBgImgs.cosmos.src = './bg-cosmos.jpg';
+// ground: pit-image height that sits on the anchor; base: where the flames start; front: band where the front stones fade in over the flames.
+const PIT_ART = {
+  stone: { ground: 0.6, base: 0.5, front: [0.52, 0.66], width: 0.95 },
+  snow: { ground: 0.6, base: 0.5, front: [0.52, 0.66], width: 0.95 },
+  brazier: { ground: 0.8, base: 0.36, front: [0.36, 0.48], width: 0.8 }
+};
+const artCache = {};
+function art(path) {
+  if (!artCache[path]) {
+    artCache[path] = new Image();
+    artCache[path].src = `./assets/${path}.webp`;
+  }
+  return artCache[path];
+}
+const ready = im => im && im.complete && im.naturalWidth > 0;
+const frontCache = new Map();
+function pitFront(im, band) {
+  if (!ready(im)) return null;
+  if (!frontCache.has(im)) {
+    const c = document.createElement('canvas');
+    c.width = im.naturalWidth;
+    c.height = im.naturalHeight;
+    const g = c.getContext('2d');
+    g.drawImage(im, 0, 0);
+    g.globalCompositeOperation = 'destination-in';
+    const fade = g.createLinearGradient(0, band[0] * c.height, 0, band[1] * c.height);
+    fade.addColorStop(0, 'rgba(0,0,0,0)');
+    fade.addColorStop(1, 'rgba(0,0,0,1)');
+    g.fillStyle = fade;
+    g.fillRect(0, 0, c.width, c.height);
+    frontCache.set(im, c);
+  }
+  return frontCache.get(im);
+}
+let cosmosImg = null; // the v8 painting stays for the hidden cosmos scene until it gets its own plates
+let fireUnit = 1;
+
+function drawPlate(key, alpha, litAlpha) {
+  const a = SCENE_ART[key];
+  if (!a) {
+    cosmosImg = cosmosImg || Object.assign(new Image(), { src: './bg-cosmos.jpg' });
+    drawSpaceCoverImage(cosmosImg, alpha);
+    if (key === state.space) { fireX = W * 0.5; fireY = H * 0.63; fireUnit = 1; }
+    return null;
+  }
+  const o = H > W ? 'port' : 'land';
+  const unlit = art(`scenes/${a.scene}-${o}-unlit`);
+  const lit = art(`scenes/${a.scene}-${o}-lit`);
+  if (!ready(unlit)) return null;
+  const s = Math.max(W / unlit.naturalWidth, H / unlit.naturalHeight);
+  const dw = unlit.naturalWidth * s, dh = unlit.naturalHeight * s;
+  const [ax, ay] = a.anchor[o];
+  // keep the fire near the middle and a little low, never past the plate edges
+  const dx = Math.min(0, Math.max(W - dw, W * 0.5 - ax * dw));
+  const dy = Math.min(0, Math.max(H - dh, H * 0.6 - ay * dh));
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.drawImage(unlit, dx, dy, dw, dh);
+  if (ready(lit)) {
+    ctx.globalAlpha = alpha * litAlpha;
+    ctx.drawImage(lit, dx, dy, dw, dh);
+  }
+  ctx.restore();
+  const p = PIT_ART[a.pit];
+  const pu = art(`pit/${a.pit}-unlit`), pl = art(`pit/${a.pit}-lit`);
+  if (!ready(pu)) return null;
+  const pw = dw * (o === 'land' ? 0.3 : 0.58) * p.width;
+  const ph = pw * pu.naturalHeight / pu.naturalWidth;
+  const place = { alpha, litAlpha, pu, pl, band: p.front, x: dx + ax * dw - pw / 2, y: dy + ay * dh - ph * p.ground, w: pw, h: ph };
+  drawPit(place, false);
+  if (key === state.space) {
+    fireX = place.x + pw / 2;
+    fireY = place.y + ph * p.base;
+    fireUnit = Math.max(0.8, Math.min(1.6, pw / 320));
+  }
+  return place;
+}
+
+function drawPit(place, front) {
+  if (!place) return;
+  const u = front ? pitFront(place.pu, place.band) : place.pu;
+  const l = front ? pitFront(place.pl, place.band) : place.pl;
+  ctx.save();
+  ctx.globalAlpha = place.alpha;
+  if (u) ctx.drawImage(u, place.x, place.y, place.w, place.h);
+  if (l && ready(place.pl)) {
+    ctx.globalAlpha = place.alpha * place.litAlpha;
+    ctx.drawImage(l, place.x, place.y, place.w, place.h);
+  }
+  ctx.restore();
+}
 
 let prevSpaceKey = state.space;
 let spaceFadeAlpha = 1;
@@ -624,13 +714,13 @@ const EASTER_EGG_DEX = [
     id: 'egg_matrix',
     tier: 'common',
     palette: 1,
-    match: t => /rm\s*-rf|버그|배포|404|git|null|sudo|코드|야근|컴파일|세그폴트/.test(t)
+    match: t => /rm\s*-rf|버그|배포|\b404\b|\bgit\b|\bnull\b|\bsudo\b|코드|야근|컴파일|세그폴트/.test(t)
   },
   {
     id: 'egg_bull',
     tier: 'common',
     palette: 0,
-    match: t => /상한가|떡상|비트코인|양전|투더문|moon|대박|급등|10배/.test(t)
+    match: t => /상한가|떡상|비트코인|양전|투더문|\bmoon\b|대박|급등|10배/.test(t)
   },
   {
     id: 'egg_fireworks',
@@ -648,7 +738,7 @@ const EASTER_EGG_DEX = [
     id: 'egg_sakura',
     tier: 'common',
     palette: 2,
-    match: t => /벚꽃|사랑|행복|봄|꽃|힐링|sakura/.test(t)
+    match: t => /벚꽃|사랑|행복|봄|꽃잎|꽃길|힐링|sakura/.test(t)
   },
 
   // [Tier 2: Rare (희귀 · 5종)]
@@ -808,6 +898,11 @@ function triggerSecretSpell(egg, rawText) {
   }
 
   state.paletteIndex = egg.palette ?? 3;
+  if (egg.id === 'egg_blackhole' && !state.cosmosOpen) {
+    state.cosmosOpen = true;
+    saveState();
+    renderSpaceUI();
+  }
   stokeFire(egg.tier === 'mythic' ? 140 : egg.tier === 'epic' ? 95 : 65);
 
   if (egg.id === 'egg_phoenix') {
@@ -1414,45 +1509,21 @@ function drawScene() {
   state.stoking = Math.max(0.18, state.stoking * 0.985);
   const pal = PALETTES[state.paletteIndex];
   const sp = state.space;
-  const fScale = getDynamicFireScale();
+  const baseScale = getDynamicFireScale();
 
   // 1. Bespoke 4-Space Hand-Painted Backdrop with Smooth Cross-Fade
   if (spaceFadeAlpha < 1) {
     spaceFadeAlpha = Math.min(1, spaceFadeAlpha + 0.035);
   }
-  const curImg = spaceBgImgs[sp] || spaceBgImgs.camp;
-  const prevImg = spaceBgImgs[prevSpaceKey] || curImg;
-
-  let drewBg = false;
-  if (spaceFadeAlpha < 1 && prevImg !== curImg && prevImg.complete && prevImg.naturalWidth > 0) {
-    drawSpaceCoverImage(prevImg, 1);
-    drewBg = drawSpaceCoverImage(curImg, spaceFadeAlpha) || true;
-  } else {
-    drewBg = drawSpaceCoverImage(curImg, 1);
-  }
-
-  if (!drewBg) {
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-    if (sp === 'snow') {
-      skyGrad.addColorStop(0, '#040914');
-      skyGrad.addColorStop(0.55, '#0c192e');
-      skyGrad.addColorStop(1, '#08101d');
-    } else if (sp === 'cosmos') {
-      skyGrad.addColorStop(0, '#04020c');
-      skyGrad.addColorStop(0.5, '#130826');
-      skyGrad.addColorStop(1, '#06111e');
-    } else if (sp === 'temple') {
-      skyGrad.addColorStop(0, '#06060c');
-      skyGrad.addColorStop(0.55, '#12101b');
-      skyGrad.addColorStop(1, '#09070d');
-    } else {
-      skyGrad.addColorStop(0, '#04050a');
-      skyGrad.addColorStop(0.55, '#0a0d18');
-      skyGrad.addColorStop(1, '#07060b');
-    }
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, W, H);
-  }
+  // The lit plate follows the fire: bigger fire, brighter surroundings, plus a slow two-speed flicker.
+  const flicker = 0.06 * Math.sin(tick * 0.83) + 0.04 * Math.sin(tick * 0.31 + 1.7) + 0.03 * Math.sin(tick * 1.9);
+  const litAlpha = Math.max(0, Math.min(1, 0.3 + baseScale * 0.3 + state.stoking * 0.15 + flicker));
+  ctx.fillStyle = '#0b0d14';
+  ctx.fillRect(0, 0, W, H);
+  const fading = spaceFadeAlpha < 1 && prevSpaceKey !== sp;
+  if (fading) drawPlate(prevSpaceKey, 1, litAlpha);
+  const pitPlace = drawPlate(sp, fading ? spaceFadeAlpha : 1, litAlpha);
+  const fScale = baseScale * fireUnit;
 
   // Cosmos Nebula & Twinkling Starfield
   if (sp === 'cosmos') {
@@ -1493,7 +1564,7 @@ function drawScene() {
   const pulse = Math.sin(tick * 0.07) * 8 + Math.cos(tick * 0.13) * 5;
   const glowRadius = Math.min(W, H) * (0.22 + fScaleGlow * 0.34 + state.stoking * 0.14) + pulse;
   const ambGrad = ctx.createRadialGradient(fireX, fireY - 10, 8, fireX, fireY, glowRadius);
-  ambGrad.addColorStop(0, `rgba(${pal.glow}, ${Math.min(0.62, 0.12 + fScaleGlow * 0.15 + state.stoking * 0.10)})`);
+  ambGrad.addColorStop(0, `rgba(${pal.glow}, ${Math.min(0.4, 0.06 + fScaleGlow * 0.09 + state.stoking * 0.08)})`);
   ambGrad.addColorStop(0.45, `rgba(${pal.glow}, ${Math.min(0.28, 0.04 + fScaleGlow * 0.04)})`);
   ambGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = ambGrad;
@@ -1598,8 +1669,7 @@ function drawScene() {
     if (a.t >= 1) warmthArcs.splice(i, 1);
   }
 
-  // 4. Unified 1st-Person Eye-Level Hearth Illumination & Glowing Charcoal Core
-  // (`bg-sanctuary.jpg` v7 already has the grand Korean stone hearth and oak logs painted in unified perspective!)
+  // 4. Glowing charcoal bed under the flames
   const stage = getFireStage();
   const windOffset = (window.__fireWindX || 0) * fScale;
   if (window.__fireWindX) window.__fireWindX *= 0.92;
@@ -1610,7 +1680,7 @@ function drawScene() {
   ctx.translate(fireX, fireY + 10);
   ctx.scale(1, 0.34);
   const bedGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, bedW);
-  bedGrad.addColorStop(0, `rgba(255, 245, 190, ${Math.min(0.76, 0.24 + fScale * 0.22 + state.stoking * 0.18)})`);
+  bedGrad.addColorStop(0, `rgba(255, 245, 190, ${Math.min(0.5, 0.14 + fScale * 0.14 + state.stoking * 0.12)})`);
   bedGrad.addColorStop(0.45, `rgba(${pal.glow}, ${Math.min(0.54, 0.14 + fScale * 0.16)})`);
   bedGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = bedGrad;
@@ -1662,8 +1732,8 @@ function drawScene() {
 
     const tGrad = ctx.createLinearGradient(baseX, baseY + 14, baseX + tipSway, baseY - h);
     tGrad.addColorStop(0, `rgba(${pal.mid[0]}, ${pal.mid[1]}, ${pal.mid[2]}, 0)`);
-    tGrad.addColorStop(0.16, `rgba(${pal.core[0]}, ${pal.core[1]}, ${pal.core[2]}, 0.44)`);
-    tGrad.addColorStop(0.52, `rgba(${pal.mid[0]}, ${pal.mid[1]}, ${pal.mid[2]}, 0.36)`);
+    tGrad.addColorStop(0.16, `rgba(${pal.core[0]}, ${pal.core[1]}, ${pal.core[2]}, 0.3)`);
+    tGrad.addColorStop(0.52, `rgba(${pal.mid[0]}, ${pal.mid[1]}, ${pal.mid[2]}, 0.3)`);
     tGrad.addColorStop(1, `rgba(${pal.outer[0]}, ${pal.outer[1]}, ${pal.outer[2]}, 0)`);
 
     ctx.fillStyle = tGrad;
@@ -1683,7 +1753,7 @@ function drawScene() {
     f.x += f.vx + Math.sin(tick * 0.08 + f.seed + ratio * 4) * 0.85 + (fireX - f.x) * 0.025 + windOffset * 0.04;
     f.y += f.vy;
     const r = f.radius * (1 - ratio * 0.72);
-    const alpha = (1 - ratio) * 0.58;
+    const alpha = (1 - ratio) * 0.4;
 
     const c = ratio < 0.28 ? pal.core : ratio < 0.65 ? pal.mid : pal.outer;
     const fg = ctx.createRadialGradient(f.x, f.y, 1, f.x, f.y, Math.max(2, r));
@@ -1761,6 +1831,9 @@ function drawScene() {
       activeNote = null;
     }
   }
+
+  // Front stones go over the flame base and the burning note, so both sit inside the pit.
+  drawPit(pitPlace, true);
 
   // 7c. Secret Code / Easter Egg Spell Particle Effects
   if (spellEffects.lightningFlash > 0.01) {
@@ -2014,124 +2087,45 @@ function drawScene() {
   requestAnimationFrame(drawScene);
 }
 
+const ITEM_ART = { resignation: 'resignation', stock: 'stock-chart', clock: 'alarm-clock', wood: 'firewood', scroll: 'note', gold: 'wish-gold' };
+const noteBuf = document.createElement('canvas');
 function drawHanjiNote(note, burnRatio) {
-  const nw = note.itemType && note.itemType !== 'scroll' ? 168 : 224;
-  const nh = note.itemType && note.itemType !== 'scroll' ? 88 : 74;
+  const img = art(`objects/${ITEM_ART[note.isGold ? 'gold' : note.itemType] || ITEM_ART.scroll}`);
+  if (!ready(img)) return;
+  const size = Math.min(170, W * 0.36) * fireUnit * (1 - burnRatio * 0.3);
+  const k = size / Math.max(img.naturalWidth, img.naturalHeight);
+  const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+  noteBuf.width = w;
+  noteBuf.height = h;
+  const g = noteBuf.getContext('2d');
+  g.drawImage(img, 0, 0, w, h);
+  const label = note.itemType === 'scroll' || note.isGold ? note.text : note.itemType === 'resignation' ? t('note.resign') : '';
+  if (label) {
+    g.fillStyle = '#2a1a0e';
+    g.font = `700 ${Math.round(h * 0.16)}px ${getComputedStyle(document.documentElement).getPropertyValue('--font-hand') || 'serif'}`;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(label.length > 14 ? label.slice(0, 14) + '…' : label, w / 2, note.itemType === 'resignation' ? h * 0.3 : h * 0.55, w * 0.8);
+  }
+  if (burnRatio > 0) {
+    g.globalCompositeOperation = 'source-atop';
+    g.fillStyle = `rgba(22, 10, 4, ${Math.min(0.9, burnRatio * 1.3)})`;
+    g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = 'source-over';
+  }
   ctx.save();
   ctx.translate(note.x, note.y);
   ctx.rotate(note.rotation + burnRatio * 0.16);
-  const scale = 1 - burnRatio * 0.24;
-  ctx.scale(scale, scale);
-
-  const remainH = nh * (1 - burnRatio);
+  const remainH = h * (1 - burnRatio);
   if (remainH > 2) {
-    ctx.beginPath();
-    ctx.rect(-nw / 2, -nh / 2, nw, remainH);
-    ctx.clip();
-
-    if (note.itemType === 'resignation') {
-      // Physical White Envelope with Red Wax Seal ("사직서 / RESIGNATION")
-      ctx.fillStyle = '#f8f4ec';
-      ctx.strokeStyle = '#c8baa6';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(-nw / 2, -nh / 2, nw, nh, 8);
-      ctx.fill();
-      ctx.stroke();
-      // Envelope flap lines
-      ctx.beginPath();
-      ctx.moveTo(-nw / 2 + 4, -nh / 2 + 4);
-      ctx.lineTo(0, 6);
-      ctx.lineTo(nw / 2 - 4, -nh / 2 + 4);
-      ctx.stroke();
-      // Red wax seal
-      ctx.fillStyle = '#b8251e';
-      ctx.beginPath();
-      ctx.arc(0, 4, 13, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#241811';
-      ctx.font = '900 15px "Noto Serif KR", serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(t('note.resign'), 0, -18);
-    } else if (note.itemType === 'stock') {
-      // Plunging Blue Stock Account Card ("-74.8% 마이너스 계좌")
-      ctx.fillStyle = '#0f172a';
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(-nw / 2, -nh / 2, nw, nh, 10);
-      ctx.fill();
-      ctx.stroke();
-      // Plunging blue chart line
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(-nw / 2 + 16, -nh / 2 + 20);
-      ctx.lineTo(-24, -nh / 2 + 32);
-      ctx.lineTo(8, -2);
-      ctx.lineTo(nw / 2 - 18, nh / 2 - 16);
-      ctx.stroke();
-      ctx.fillStyle = '#60a5fa';
-      ctx.font = '800 13px Pretendard, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${t('note.stock')} (-74%)`, 0, -nh / 2 + 18);
-    } else if (note.itemType === 'clock') {
-      // Monday 06:30 Alarm Clock Card
-      ctx.fillStyle = '#27171c';
-      ctx.strokeStyle = '#ff6b6b';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(-nw / 2, -nh / 2, nw, nh, 14);
-      ctx.fill();
-      ctx.stroke();
-      ctx.fillStyle = '#ff8787';
-      ctx.font = '900 18px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('⏰ MON 06:30', 0, -4);
-      ctx.font = '700 11px Pretendard, sans-serif';
-      ctx.fillStyle = '#ffd8a8';
-      ctx.fillText(t('note.clock'), 0, 18);
-    } else {
-      const pg = ctx.createLinearGradient(-nw / 2, -nh / 2, nw / 2, nh / 2);
-      if (note.isGold) {
-        pg.addColorStop(0, '#fff2b2');
-        pg.addColorStop(0.5, '#f4c145');
-        pg.addColorStop(1, '#c88212');
-      } else {
-        pg.addColorStop(0, '#f7ecd8');
-        pg.addColorStop(1, '#e1cba3');
-      }
-      ctx.fillStyle = pg;
-      ctx.beginPath();
-      ctx.roundRect(-nw / 2, -nh / 2, nw, nh, 10);
-      ctx.fill();
-
-      // Red / Gold talisman stamp on top-left of note
-      ctx.strokeStyle = note.isGold ? '#7a1c08' : '#9e3b1c';
-      ctx.lineWidth = 1.2;
-      ctx.strokeRect(-nw / 2 + 12, -nh / 2 + 10, 54, 15);
-      ctx.fillStyle = note.isGold ? '#7a1c08' : '#9e3b1c';
-      ctx.font = '700 9px Pretendard, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(note.isGold ? '黃金祈願' : '燒却符籍', -nw / 2 + 39, -nh / 2 + 21);
-
-      // Handwritten worry text
-      ctx.fillStyle = '#25170d';
-      ctx.font = '700 14px Pretendard, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      const display = note.text.length > 18 ? note.text.slice(0, 18) + '…' : note.text;
-      ctx.fillText(display, 0, 8);
-    }
-
+    ctx.drawImage(noteBuf, 0, 0, w, remainH, -w / 2, -h / 2, w, remainH);
     if (burnRatio > 0.01) {
-      const edgeY = -nh / 2 + remainH;
-      const charGrad = ctx.createLinearGradient(0, edgeY - 18, 0, edgeY);
+      const edgeY = -h / 2 + remainH;
+      const charGrad = ctx.createLinearGradient(0, edgeY - 14, 0, edgeY);
       charGrad.addColorStop(0, 'rgba(30, 15, 8, 0)');
-      charGrad.addColorStop(0.5, 'rgba(18, 8, 4, 0.96)');
-      charGrad.addColorStop(1, '#ff7b24');
+      charGrad.addColorStop(1, 'rgba(255, 123, 36, 0.9)');
       ctx.fillStyle = charGrad;
-      ctx.fillRect(-nw / 2, edgeY - 18, nw, 19);
+      ctx.fillRect(-w / 2, edgeY - 14, w, 15);
     }
   }
   ctx.restore();
@@ -2159,7 +2153,9 @@ function updateStatsUI() {
 }
 
 function renderSpaceUI() {
+  if (state.space === 'cosmos' && !state.cosmosOpen) state.space = 'camp';
   document.querySelectorAll('.space-chip').forEach(btn => {
+    btn.hidden = btn.dataset.space === 'cosmos' && !state.cosmosOpen;
     btn.classList.toggle('active', btn.dataset.space === state.space);
   });
 }
