@@ -4,22 +4,21 @@
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d');
 
-// ── Themed Campfire Rooms & Live Burned Word Rankings ────────────────────────
+// ── Themed Campfire Rooms & Live Burned Word Rankings (100% Real Server Counts) ──
 const ROOMS = {
   work: {
     id: 'work',
-    title: '🏢 직장인 소각장',
+    title: '직장 번뇌 소각장',
     caption: '직장인 야근·퇴사 번뇌 소각장',
     stamp: '퇴사기원 · 燒却',
-    users: 1428,
     rankings: [
-      { word: '월요일 아침 출근', count: 4892 },
-      { word: '팀장님 메신저 호출', count: 3641 },
-      { word: '끝나지 않는 보고서 수정', count: 3108 },
-      { word: '쥐꼬리만한 월급날 통장', count: 2415 },
-      { word: '사직서 가슴에 품은 하루', count: 1984 }
+      { word: '미제출 사직서 봉투', count: 0 },
+      { word: '월요일 아침 6시 30분 알람', count: 0 },
+      { word: '팀장님 메신저 호출', count: 0 },
+      { word: '끝나지 않는 보고서 수정', count: 0 },
+      { word: '스쳐 지나가는 월급날 통장', count: 0 }
     ],
-    chips: ['🏢 월요일 아침 출근', '🤬 팀장님 메신저 호출', '📄 보고서 무한 수정', '💸 스쳐가는 월급', '✉️ 사직서 참기'],
+    chips: ['월요일 아침 출근', '팀장님 메신저 호출', '보고서 무한 수정', '스쳐가는 월급', '사직서 참기'],
     oracles: [
       '회사의 불은 끄고 나왔으니, 이제 당신 마음의 불만 따뜻하게 피우세요.',
       '오늘 삼킨 한숨은 모두 이 장작이 대신 태워버렸습니다.',
@@ -29,18 +28,17 @@ const ROOMS = {
   },
   stock: {
     id: 'stock',
-    title: '📉 주식·코인 곡소리',
+    title: '주식·코인 소각장',
     caption: '전국 개미·코인러 포지션 소각장',
     stamp: '원금회복 · 燒却',
-    users: 2190,
     rankings: [
-      { word: '내가 사면 떨어지는 차트', count: 6320 },
-      { word: '고점 추격매수한 내 손가락', count: 5140 },
-      { word: '파란불 가득한 계좌 잔고', count: 4219 },
-      { word: '팔자마자 급등한 그 종목', count: 3580 },
-      { word: '잠 못 드는 나스닥 새벽장', count: 2890 }
+      { word: '파란불 -74% 마이너스 계좌', count: 0 },
+      { word: '내가 사면 떨어지는 차트', count: 0 },
+      { word: '고점 추격매수한 내 손가락', count: 0 },
+      { word: '팔자마자 급등한 그 종목', count: 0 },
+      { word: '잠 못 드는 나스닥 새벽장', count: 0 }
     ],
-    chips: ['📉 파란불 계좌 잔고', '👆 고점 추격매수한 손가락', '🚀 팔자마자 급등한 종목', '🌙 잠 못 드는 미장', '🙏 내일은 양전 기원'],
+    chips: ['파란불 계좌 잔고', '고점 추격매수한 손가락', '팔자마자 급등한 종목', '잠 못 드는 미장', '내일은 양전 기원'],
     oracles: [
       '이미 지나간 차트의 고점은 재가 되었습니다. 계좌보다 당신의 잠이 먼저입니다.',
       '파란불에 얼어붙은 손끝을 먼저 이 모닥불에 녹이고 가세요.',
@@ -50,18 +48,17 @@ const ROOMS = {
   },
   relation: {
     id: 'relation',
-    title: '💔 인간관계·흑역사',
+    title: '인연·흑역사 소각장',
     caption: '지친 인간관계·새벽 흑역사 소각장',
     stamp: '인연정리 · 燒却',
-    users: 985,
     rankings: [
-      { word: '괜히 보낸 새벽 카톡 후회', count: 3812 },
-      { word: '나만 손해 보는 인간관계', count: 3290 },
-      { word: '남 눈치 보느라 못한 말', count: 2740 },
-      { word: '잊고 싶은 과거 흑역사', count: 2150 },
-      { word: '읽씹당한 메시지 생각', count: 1840 }
+      { word: '괜히 보낸 새벽 카톡 후회', count: 0 },
+      { word: '나만 손해 보는 인간관계', count: 0 },
+      { word: '남 눈치 보느라 못한 말', count: 0 },
+      { word: '잊고 싶은 과거 흑역사', count: 0 },
+      { word: '읽씹당한 메시지 생각', count: 0 }
     ],
-    chips: ['💬 괜히 보낸 카톡 후회', '🎭 나만 지치는 인간관계', '🙊 눈치 보느라 삼킨 말', '🫣 이불킥 흑역사', '✂️ 미련 없이 손절하기'],
+    chips: ['괜히 보낸 카톡 후회', '나만 지치는 인간관계', '눈치 보느라 삼킨 말', '이불킥 흑역사', '미련 없이 손절하기'],
     oracles: [
       '모든 사람에게 좋은 사람일 필요는 없습니다. 오늘 밤은 당신에게만 좋은 사람이면 됩니다.',
       '스쳐 간 인연에 쏟았던 마음도 이 불길 속에서 깨끗이 정화되었습니다.',
@@ -71,18 +68,17 @@ const ROOMS = {
   },
   zen: {
     id: 'zen',
-    title: '🌙 새벽 무념무상',
+    title: '새벽 무념무상',
     caption: '아무 생각 없이 빗소리와 불만 보는 방',
     stamp: '무념무상 · 燒却',
-    users: 1640,
     rankings: [
-      { word: '잠들지 못하는 새벽의 불안', count: 4120 },
-      { word: '남들과 비교하는 조급함', count: 3490 },
-      { word: '앞으로 뭐 먹고 살지 막막함', count: 2980 },
-      { word: '이유 없이 밀려오는 우울감', count: 2310 },
-      { word: '내일도 똑같을 것 같은 피로', count: 1920 }
+      { word: '잠들지 못하는 새벽의 불안', count: 0 },
+      { word: '남들과 비교하는 조급함', count: 0 },
+      { word: '앞으로 뭐 먹고 살지 막막함', count: 0 },
+      { word: '이유 없이 밀려오는 우울감', count: 0 },
+      { word: '내일도 똑같을 것 같은 피로', count: 0 }
     ],
-    chips: ['🌙 잠 못 드는 새벽 불안', '⏳ 남들과 비교하는 조급함', '🌫️ 막막한 미래 걱정', '😮‍💨 이유 없는 번아웃', '🍃 아무 생각 안 하기'],
+    chips: ['잠 못 드는 새벽 불안', '남들과 비교하는 조급함', '막막한 미래 걱정', '이유 없는 번아웃', '아무 생각 안 하기'],
     oracles: [
       '불꽃은 모양을 붙잡지 않기에 매 순간 새로 타오릅니다.',
       '지금 이 모닥불 앞에서는 아무것도 증명하지 않아도 괜찮습니다.',
@@ -92,10 +88,28 @@ const ROOMS = {
   }
 };
 
-// ── State & Persistence ──────────────────────────────────────────────────────
-const STORAGE_KEY = 'bulmeong:lounge:v2';
+// ── State & Persistence (100% Real Server Metrics, Migrating Only Unlocks) ──
+const STORAGE_KEY = 'bulmeong:lounge:v8_real';
 let saved = {};
-try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch {}
+try {
+  const rawNew = localStorage.getItem(STORAGE_KEY);
+  if (rawNew) {
+    saved = JSON.parse(rawNew);
+  } else {
+    const legacy = JSON.parse(localStorage.getItem('bulmeong:lounge:v2') || '{}');
+    saved = {
+      space: legacy.space,
+      discovererName: legacy.discovererName,
+      myfireOwner: legacy.myfireOwner,
+      myfireSign: legacy.myfireSign,
+      goldUnlocked: legacy.goldUnlocked,
+      eggAlbum: legacy.eggAlbum,
+      guestbook: legacy.guestbook,
+      burnedCount: 0,
+      globalBurnTotal: 0
+    };
+  }
+} catch {}
 
 const urlParams = new URLSearchParams(window.location.search);
 const queryOwner = urlParams.get('fire');
@@ -377,7 +391,7 @@ spaceBgImgs.cosmos.src = './bg-cosmos.jpg';
 let prevSpaceKey = state.space;
 let spaceFadeAlpha = 1;
 
-state.globalBurnTotal = Number(saved.globalBurnTotal) || 1482914;
+state.globalBurnTotal = Math.max(0, Number(saved.globalBurnTotal) || 0);
 state.tempC = Number(saved.tempC) || 440;
 state.fatiguePct = Number(saved.fatiguePct) || 46;
 state.idleSeconds = 0;
@@ -507,9 +521,15 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
   updateStatsUI();
 }
 
+function updateGlobalBurnUI() {
+  const el = document.getElementById('global-burn-total');
+  if (!el) return;
+  el.textContent = state.globalBurnTotal.toLocaleString('ko-KR');
+}
+
 function bumpGlobalBurnCounter(amount = 1, fatigueDelta = 2.5) {
-  state.globalBurnTotal += amount;
-  // Do not auto-heat if user explicitly clicked "🕯️ 잿더미 전환" to test Lv.0 Phoenix Easter Egg
+  state.globalBurnTotal = Math.max(0, state.globalBurnTotal + amount);
+  saveState();
   if (Date.now() > state.forcedLv0Until && fatigueDelta > 0) {
     addTemperature(fatigueDelta * 9, fireX, fireY - 50, false);
   } else {
@@ -522,51 +542,7 @@ function bumpGlobalBurnCounter(amount = 1, fatigueDelta = 2.5) {
   el.classList.add('bump');
   setTimeout(() => el.classList.remove('bump'), 220);
 }
-
-const GLOBAL_WORRIES = [
-  { origin: '🇰🇷 서울', text: '월요일 출근하기 싫다' },
-  { origin: '🇺🇸 NYC', text: 'Overthinking at 3AM again' },
-  { origin: '🇯🇵 東京', text: '明日会社に行きたくない' },
-  { origin: '🇪🇸 Madrid', text: 'Extraño a quien no debo' },
-  { origin: '🇹🇼 台北', text: '股票什麼時候才能回本' },
-  { origin: '🇰🇷 판교', text: '내가 사면 떨어지는 내 주식' },
-  { origin: '🇬🇧 London', text: 'Tired of pretending I am okay' },
-  { origin: '🇯🇵 大阪', text: '上司のLINE通知が怖い' },
-  { origin: '🇲🇽 CDMX', text: 'Ansiedad por el futuro' },
-  { origin: '🇨🇳 上海', text: '不想加班想立刻辞职' }
-];
-
-function spawnGlobalGhostNote() {
-  if (ghostNotes.length >= 2) return;
-  const f = fireflies[Math.floor(Math.random() * fireflies.length)];
-  const item = GLOBAL_WORRIES[Math.floor(Math.random() * GLOBAL_WORRIES.length)];
-  const scaleX = Math.min(1.08, Math.max(0.68, W / 420));
-  const sx = fireX + Math.cos(f.angle) * (f.rx * scaleX);
-  const sy = fireY + 18 + Math.sin(f.angle) * f.ry;
-  ghostNotes.push({
-    origin: item.origin,
-    text: item.text,
-    sx,
-    sy,
-    x: sx,
-    y: sy,
-    rot: (Math.random() - 0.5) * 0.4,
-    p: 0
-  });
-}
-
-// Seed 1 initial rising ember text and 1 ghost note so the fire feels alive immediately
-setTimeout(() => {
-  risingEmberTexts.push({
-    label: '🇯🇵 東京 · 「明日会社に行きたくない」',
-    x: fireX - 18,
-    y: fireY - 58,
-    life: 18,
-    maxLife: 135,
-    isGold: false
-  });
-  spawnGlobalGhostNote();
-}, 250);
+updateGlobalBurnUI();
 
 for (let i = 0; i < 95; i++) {
   raindrops.push({
@@ -670,23 +646,22 @@ function renderRoomUI() {
     btn.classList.toggle('active', btn.dataset.room === r.id);
   });
   document.getElementById('zen-room-caption').textContent = r.caption;
-  document.getElementById('live-count').textContent = r.users.toLocaleString('ko-KR');
   document.getElementById('hanji-room-stamp').textContent = r.stamp;
-  document.getElementById('rank-drawer-title').textContent = `${r.title} · 오늘 밤 가장 많이 불탄 단어`;
+  document.getElementById('rank-drawer-title').textContent = `${r.title} · 실제 소각된 단어 순위`;
 
-  // Sort and render rankings
+  // Sort and render real rankings
   r.rankings.sort((a, b) => b.count - a.count);
   const top = r.rankings[0];
   const drawerOpen = document.getElementById('rank-drawer').classList.contains('open');
-  document.getElementById('top-rank-word').textContent = top.word;
-  document.getElementById('top-rank-count').textContent = `${top.count.toLocaleString('ko-KR')}회 ${drawerOpen ? '▴' : '▾'}`;
+  document.getElementById('top-rank-word').textContent = top && top.count > 0 ? top.word : '첫 소각을 기다리는 중';
+  document.getElementById('top-rank-count').textContent = `${(top ? top.count : 0).toLocaleString('ko-KR')}회 ${drawerOpen ? '▴' : '▾'}`;
 
   const listEl = document.getElementById('rank-list');
   listEl.innerHTML = r.rankings.slice(0, 5).map((item, idx) => `
     <div class="rank-item" data-rank-word="${item.word}">
       <span class="rank-no">${idx + 1}위</span>
       <span class="rank-item-word">${item.word}</span>
-      <span class="rank-item-fires">🔥 ${item.count.toLocaleString('ko-KR')}회</span>
+      <span class="rank-item-fires">${item.count.toLocaleString('ko-KR')}회</span>
       <span class="rank-item-burn-btn">같이 태우기</span>
     </div>
   `).join('');
@@ -1321,9 +1296,10 @@ function showOracle(text, tag = '소각 완료 · 재가 남긴 문장') {
   oracleTimer = setTimeout(() => box.classList.remove('show'), 5200);
 }
 
-function incrementRoomRanking(text) {
-  const r = currentRoom();
-  const clean = text.trim();
+function incrementRoomRanking(text, roomKey = state.room) {
+  const r = ROOMS[roomKey] || currentRoom();
+  const clean = (text || '').trim();
+  if (!clean) return;
   const existing = r.rankings.find(item => item.word === clean || clean.includes(item.word) || item.word.includes(clean));
   if (existing) {
     existing.count += 1;
@@ -1342,9 +1318,15 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
     ? (LANG_PACK[state.lang || 'ko']?.goldOracle || '황금 부적에 담은 간절한 소원이 불꽃을 타고 하늘로 피어올랐습니다.')
     : r.oracles[(state.burnedCount + text.length) % r.oracles.length];
   state.lastOracle = oracle;
-  incrementRoomRanking(text);
+  incrementRoomRanking(text, state.room);
+
+  const burnId = 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  if (!fromRemote) {
+    bumpGlobalBurnCounter(1, 5.5);
+  }
 
   activeNote = {
+    burnId,
     text,
     oracle,
     isGold,
@@ -1360,6 +1342,8 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
   audio.playWhooshAndBowl();
   if (!fromRemote && typeof window.__broadcastBurnEvent === 'function') {
     window.__broadcastBurnEvent({
+      burnId,
+      totalAfter: state.globalBurnTotal,
       nick: state.discovererName || state.myfireOwner || '익명 연금술사',
       text: text.slice(0, 24),
       itemType,
@@ -1370,9 +1354,9 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
   if (isGold) {
     state.paletteIndex = 3; // Golden temple lantern flame
     stokeFire(95);
-    document.getElementById('live-ticker').textContent = `✨ [황금부적] 당신이 「${text.slice(0, 18)}」 소원을 화로에 피워 올렸습니다`;
+    document.getElementById('live-ticker').textContent = `[황금부적] 당신이 「${text.slice(0, 18)}」 소원을 화로에 피워 올렸습니다`;
   } else {
-    document.getElementById('live-ticker').textContent = `🔥 당신이 방금 「${text.slice(0, 18)}」을(를) 화로에 던져 태웠습니다`;
+    document.getElementById('live-ticker').textContent = `당신이 방금 「${text.slice(0, 18)}」을(를) 화로에 던져 태웠습니다`;
   }
 }
 
@@ -1783,9 +1767,10 @@ function drawScene() {
     }
   }
 
-  // 3. Anonymous Soul Fireflies (Clean glowing spirit orbs without cluttered text labels)
+  // 3. Connected Soul Fireflies (Number of glowing spirit orbs matches REAL connected users!)
   const scaleX = Math.min(1.08, Math.max(0.68, W / 420));
-  fireflies.forEach(f => {
+  const realOnlineCount = Math.min(fireflies.length, Math.max(1, window.__liveOnlineCount || 1));
+  fireflies.slice(0, realOnlineCount).forEach(f => {
     f.phase += 0.032;
     const fx = fireX + Math.cos(f.angle) * (f.rx * scaleX) + Math.sin(f.phase) * 3;
     const fy = fireY - 12 + Math.sin(f.angle) * f.ry + Math.cos(f.phase * 0.8) * 2.5;
@@ -1968,9 +1953,8 @@ function drawScene() {
       }
     } else {
       state.burnedCount += 1;
-      bumpGlobalBurnCounter(1, 5.5);
       risingEmberTexts.push({
-        label: `🔥 나 · 「${activeNote.text.slice(0, 18)}」`,
+        label: `나 · 「${activeNote.text.slice(0, 18)}」`,
         x: fireX,
         y: fireY - 46,
         life: 0,
@@ -2131,9 +2115,7 @@ function drawScene() {
     if (mb.life >= mb.maxLife) spellEffects.activeMythicBanner = null;
   }
 
-  // 7b. Global Anonymous Notes Flying from Fireflies + Rising Ember Texts
-  if (tick % 145 === 0) spawnGlobalGhostNote();
-
+  // 7b. Real-Time Multiplayer Notes Flying from Other Connected Users + Rising Ember Texts
   for (let i = ghostNotes.length - 1; i >= 0; i--) {
     const gn = ghostNotes[i];
     gn.p += 0.016;
@@ -2164,7 +2146,6 @@ function drawScene() {
       ctx.restore();
     } else {
       for (let k = 0; k < 14; k++) spawnSpark(fireX, fireY - 14, true);
-      bumpGlobalBurnCounter(1, 0);
       risingEmberTexts.push({
         label: `${gn.origin} · 「${gn.text.slice(0, 18)}」`,
         x: fireX + (Math.random() - 0.5) * 36,
@@ -2563,14 +2544,13 @@ function applyLanguage(lang) {
   });
   const rb = document.querySelector('.rank-badge');
   if (rb) rb.textContent = pack.topBadge;
-  const tw = document.getElementById('top-rank-word');
-  if (tw) tw.textContent = pack.topWord;
   const zc = document.getElementById('zen-room-caption');
   if (zc) zc.textContent = pack.caption;
   const wc = document.querySelector('#btn-open-hanji .item-name');
   if (wc) wc.textContent = pack.writeCta;
   const pl = document.getElementById('checkout-price-label');
   if (pl) pl.textContent = pack.price;
+  renderRoomUI();
   updateGoldUI();
 }
 
@@ -2867,23 +2847,6 @@ setInterval(() => {
   state.seconds += 1;
   state.idleSeconds += 1;
   if (state.seconds % 5 === 0) saveState();
-  const r = currentRoom();
-  if (state.seconds % 4 === 0) {
-    // Simulate real-time burns happening in the room
-    const pick = r.rankings[Math.floor(Math.random() * r.rankings.length)];
-    pick.count += 1;
-    r.users = Math.max(120, r.users + Math.floor((Math.random() - 0.47) * 7));
-    renderRoomUI();
-  }
-  if (state.seconds % 7 === 0) {
-    const pick = r.rankings[Math.floor(Math.random() * r.rankings.length)];
-    const ticker = document.getElementById('live-ticker');
-    ticker.style.opacity = '0.2';
-    setTimeout(() => {
-      ticker.textContent = `🔥 익명의 불씨님이 방금 「${pick.word}」을(를) 모닥불에 태웠습니다`;
-      ticker.style.opacity = '1';
-    }, 260);
-  }
   updateStatsUI();
 }, 1000);
 
@@ -3014,12 +2977,42 @@ window.addEventListener('pointerup', e => {
   burnWorry(spec.text, lx, ly, spec.itemType);
 });
 
-// ── Real-Time Shared Multiplayer Server Sync (ntfy.sh Pub/Sub + Bytebin Cloud Polaroid Store) ──
-const MULTIPLAYER_TOPIC = 'bulmeong_lounge_global_v5';
+// ── Real-Time Shared Multiplayer Server Sync (100% Real Concurrent Presence & Real Cumulative Burns) ──
+const MULTIPLAYER_TOPIC = 'bulmeong_lounge_global_v8_real';
+const LEGACY_EGG_TOPIC = 'bulmeong_lounge_global_v5';
 const NTFY_BASE = `https://ntfy.sh/${MULTIPLAYER_TOPIC}`;
 const BYTEBIN_POST = 'https://bytebin.lucko.me/post';
 const BYTEBIN_GET = 'https://bytebin.lucko.me/';
-const clientSessionId = 'sess_' + Math.random().toString(36).slice(2, 10);
+
+let clientSessionId = '';
+try {
+  clientSessionId = sessionStorage.getItem('bulmeong:session_id') || '';
+  if (!clientSessionId) {
+    clientSessionId = 'sess_' + Math.random().toString(36).slice(2, 10);
+    sessionStorage.setItem('bulmeong:session_id', clientSessionId);
+  }
+} catch {
+  clientSessionId = 'sess_' + Math.random().toString(36).slice(2, 10);
+}
+
+const activePeers = new Map([[clientSessionId, Date.now()]]);
+const seenBurnIds = new Set();
+
+function updateLiveConcurrentUI() {
+  const now = Date.now();
+  activePeers.set(clientSessionId, now);
+  for (const [peerId, lastTs] of activePeers.entries()) {
+    if (peerId !== clientSessionId && now - lastTs > 65000) {
+      activePeers.delete(peerId);
+    }
+  }
+  const onlineCount = Math.max(1, activePeers.size);
+  window.__liveOnlineCount = onlineCount;
+  const el = document.getElementById('live-count');
+  if (el) el.textContent = onlineCount.toLocaleString('ko-KR');
+}
+updateLiveConcurrentUI();
+setInterval(updateLiveConcurrentUI, 5000);
 
 function makeFallbackPolaroid(egg, discoverer, firstTime, triggerText) {
   const c = document.createElement('canvas');
@@ -3045,22 +3038,39 @@ function makeFallbackPolaroid(egg, discoverer, firstTime, triggerText) {
 
   g.fillStyle = borderCol;
   g.font = '800 12px Pretendard, sans-serif';
-  g.fillText(`🏛️ GLOBAL SERVER RECORD · ${egg.tierLabel}`, 20, 30);
+  g.fillText(`GLOBAL SERVER RECORD · ${egg.tierLabel}`, 20, 30);
   g.fillStyle = '#fff';
   g.font = '800 20px Pretendard, sans-serif';
   g.fillText(egg.title, 20, 58);
 
   g.fillStyle = '#ffd97d';
   g.font = '800 15px Pretendard, sans-serif';
-  g.fillText(`👑 최초 발견 박제: ${discoverer}`, 20, 250);
+  g.fillText(`최초 발견 박제: ${discoverer}`, 20, 250);
   g.fillStyle = 'rgba(255, 240, 215, 0.8)';
   g.font = '600 11.5px Pretendard, sans-serif';
   g.fillText(`시각: ${firstTime} | 주문: 「${(triggerText || egg.sampleTrigger).slice(0, 18)}」`, 20, 274);
   return c.toDataURL('image/jpeg', 0.82);
 }
 
-async function applyRemoteServerEvent(evt, isHistorical = false) {
+async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0) {
   if (!evt || typeof evt !== 'object') return;
+
+  // 1. Track real-time concurrent session presence
+  const eventMs = msgTimeSec ? msgTimeSec * 1000 : (evt.ts || Date.now());
+  if (evt.sender) {
+    if (evt.type === 'leave') {
+      if (evt.sender !== clientSessionId) {
+        activePeers.delete(evt.sender);
+        updateLiveConcurrentUI();
+      }
+      return;
+    } else if (Date.now() - eventMs <= 65000) {
+      activePeers.set(evt.sender, eventMs);
+      updateLiveConcurrentUI();
+    }
+  }
+
+  if (evt.type === 'presence') return;
 
   if (evt.type === 'egg_unlock' && evt.eggId) {
     const egg = EASTER_EGG_DEX.find(x => x.id === evt.eggId);
@@ -3110,19 +3120,29 @@ async function applyRemoteServerEvent(evt, isHistorical = false) {
     if (!isHistorical && evt.sender !== clientSessionId) {
       const ticker = document.getElementById('live-ticker');
       if (ticker) {
-        ticker.textContent = `👑 [서버 방송] ${firstDiscoverer}님이 「${egg.title}」 불꽃을 박물관에 박제했습니다!`;
+        ticker.textContent = `[도감 박제] ${firstDiscoverer}님이 「${egg.title}」 불꽃을 최초로 깨웠습니다`;
       }
     }
   } else if (evt.type === 'burn' && evt.text) {
-    if (!isHistorical && evt.sender !== clientSessionId) {
+    const bId = evt.burnId || `${evt.sender || 'anon'}_${msgTimeSec}_${evt.text}`;
+    if (seenBurnIds.has(bId)) return;
+    seenBurnIds.add(bId);
+
+    if (isHistorical) {
+      incrementRoomRanking(evt.text, evt.room || 'work');
+    } else if (evt.sender !== clientSessionId) {
       bumpGlobalBurnCounter(1, 3.0);
-      incrementRoomRanking(evt.text);
+      if (typeof evt.totalAfter === 'number' && evt.totalAfter > state.globalBurnTotal) {
+        state.globalBurnTotal = evt.totalAfter;
+        updateGlobalBurnUI();
+      }
+      incrementRoomRanking(evt.text, evt.room || state.room);
       const ticker = document.getElementById('live-ticker');
       if (ticker) {
-        ticker.textContent = `🔥 [실시간 서버] ${evt.nick || '익명 불씨'}님이 방금 「${evt.text}」을(를) 화로에 태웠습니다`;
+        ticker.textContent = `[실시간 성소] ${evt.nick || '익명 불씨'}님이 방금 「${evt.text}」을(를) 화로에 태웠습니다`;
       }
       ghostNotes.push({
-        origin: `🟢 ${evt.nick || '실시간 유저'}`,
+        origin: evt.nick || '익명 불씨',
         text: evt.text,
         sx: fireX + (Math.random() - 0.5) * 240,
         sy: fireY - 120,
@@ -3178,19 +3198,24 @@ window.__broadcastEggUnlock = async (egg, rec, dataUrl) => {
         firstTime: rec.firstTime,
         triggerText: rec.triggerText,
         count: rec.count,
-        imageKey
+        imageKey,
+        ts: Date.now()
       })
     });
   } catch {}
 };
 
 window.__broadcastBurnEvent = async payload => {
+  if (payload && payload.burnId) {
+    seenBurnIds.add(payload.burnId);
+  }
   try {
     await fetch(NTFY_BASE, {
       method: 'POST',
       body: JSON.stringify({
         type: 'burn',
         sender: clientSessionId,
+        ts: Date.now(),
         ...payload
       })
     });
@@ -3205,7 +3230,8 @@ window.__broadcastWoodEvent = async text => {
         type: 'wood',
         sender: clientSessionId,
         text,
-        time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+        time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+        ts: Date.now()
       })
     });
   } catch {}
@@ -3226,24 +3252,77 @@ window.__broadcastVipUnlock = async (ipHash, method) => {
   } catch {}
 };
 
-async function initSharedServerSync() {
-  // 1. Fetch cached global history from server so First-Discoverer Album is synced across all phones/PCs
+function sendPresenceHeartbeat() {
+  activePeers.set(clientSessionId, Date.now());
+  updateLiveConcurrentUI();
+  fetch(NTFY_BASE, {
+    method: 'POST',
+    body: JSON.stringify({
+      type: 'presence',
+      sender: clientSessionId,
+      ts: Date.now()
+    })
+  }).catch(() => {});
+}
+
+window.addEventListener('pagehide', () => {
   try {
-    const res = await fetch(`${NTFY_BASE}/json?poll=1&since=all`);
-    const text = await res.text();
-    const lines = text.trim().split('\n').filter(Boolean);
-    for (const line of lines) {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(NTFY_BASE, JSON.stringify({
+        type: 'leave',
+        sender: clientSessionId,
+        ts: Date.now()
+      }));
+    }
+  } catch {}
+});
+
+async function initSharedServerSync() {
+  // 0. Restore legacy First-Discoverer Easter Egg records from v5 topic
+  try {
+    const resV5 = await fetch(`https://ntfy.sh/${LEGACY_EGG_TOPIC}/json?poll=1&since=all`);
+    const txtV5 = await resV5.text();
+    for (const line of txtV5.trim().split('\n').filter(Boolean)) {
       try {
-        const wrapper = JSON.parse(line);
-        if (wrapper && wrapper.event === 'message' && wrapper.message) {
-          const payload = JSON.parse(wrapper.message);
-          await applyRemoteServerEvent(payload, true);
+        const w = JSON.parse(line);
+        if (w && w.event === 'message' && w.message) {
+          const p = JSON.parse(w.message);
+          if (p.type === 'egg_unlock' || p.type === 'vip_unlock') {
+            await applyRemoteServerEvent(p, true, w.time || 0);
+          }
         }
       } catch {}
     }
   } catch {}
 
-  // 2. Connect real-time SSE stream for instant 0.1s multiplayer broadcasts
+  // 1. Fetch real server history from v8_real topic for accurate cumulative burns & active presence
+  try {
+    const res = await fetch(`${NTFY_BASE}/json?poll=1&since=all`);
+    const text = await res.text();
+    const lines = text.trim().split('\n').filter(Boolean);
+    let maxReportedTotal = 0;
+    for (const line of lines) {
+      try {
+        const wrapper = JSON.parse(line);
+        if (wrapper && wrapper.event === 'message' && wrapper.message) {
+          const payload = JSON.parse(wrapper.message);
+          if (payload.type === 'burn' && typeof payload.totalAfter === 'number') {
+            maxReportedTotal = Math.max(maxReportedTotal, payload.totalAfter);
+          }
+          await applyRemoteServerEvent(payload, true, wrapper.time || 0);
+        }
+      } catch {}
+    }
+    state.globalBurnTotal = Math.max(seenBurnIds.size, maxReportedTotal, state.burnedCount);
+    updateGlobalBurnUI();
+    saveState();
+  } catch {}
+
+  // 2. Announce our own presence and repeat every 25s
+  sendPresenceHeartbeat();
+  setInterval(sendPresenceHeartbeat, 25000);
+
+  // 3. Connect real-time SSE stream for instant 0.1s multiplayer broadcasts
   try {
     const es = new EventSource(`${NTFY_BASE}/sse`);
     es.onmessage = ev => {
@@ -3251,7 +3330,7 @@ async function initSharedServerSync() {
         const wrapper = JSON.parse(ev.data);
         if (wrapper && wrapper.event === 'message' && wrapper.message) {
           const payload = JSON.parse(wrapper.message);
-          applyRemoteServerEvent(payload, false);
+          applyRemoteServerEvent(payload, false, wrapper.time || 0);
         }
       } catch {}
     };
