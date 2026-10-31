@@ -41,8 +41,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
   <style>
-    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Gaegu:wght@700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@600;800&family=Song+Myung&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@600;800&family=Song+Myung&display=swap');
 
     :root {
       --bg-abyss: #050408;
@@ -56,14 +55,15 @@
       --font-title: 'Song Myung', 'Gowun Batang', serif;
       --font-serif: 'Gowun Batang', serif;
       --font-hand: 'Gaegu', 'Gowun Batang', cursive;
-      --font-num: 'JetBrains Mono', 'Pretendard Variable', monospace;
-      --font-ui: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      --font-num: 'JetBrains Mono', ui-monospace, monospace;
+      --font-ui: system-ui, -apple-system, 'Segoe UI', sans-serif;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     /* Japanese and Chinese need their own glyphs; the Korean fonts above lack most kana/hanzi. */
-    :root:lang(ja) { --font-title: 'Zen Old Mincho', serif; --font-serif: 'Zen Old Mincho', serif; --font-hand: 'Klee One', 'Zen Old Mincho', cursive; }
-    :root:lang(zh-Hans) { --font-title: 'Noto Serif SC', serif; --font-serif: 'Noto Serif SC', serif; --font-hand: 'Noto Serif SC', serif; }
+    /* ja/zh use the device's own Mincho/Song fonts: web CJK fonts cost 0.8-1.2 MB here; only the ja note hand is loaded */
+    :root:lang(ja) { --font-title: 'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, 'Noto Serif JP', 'Noto Serif CJK JP', serif; --font-serif: var(--font-title); --font-hand: 'Klee One', var(--font-title); }
+    :root:lang(zh-Hans) { --font-title: 'Songti SC', STSong, 'Noto Serif SC', 'Noto Serif CJK SC', SimSun, serif; --font-serif: var(--font-title); --font-hand: var(--font-title); }
     button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2px; }
     .lang-select-wrap {
       position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;

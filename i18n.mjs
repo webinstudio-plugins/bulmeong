@@ -46,8 +46,8 @@ export function applyDom(root = document) {
 }
 
 document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
-// The page's Korean fonts lack most kana and hanzi, so ja/zh load their own (Google Fonts splits CJK into small slices).
-const CJK_FONTS = { ja: 'Zen+Old+Mincho:wght@400;700&family=Klee+One:wght@600', zh: 'Noto+Serif+SC:wght@400;700' };
+// ja/zh text uses the device's Mincho/Song fonts (see index.html); only the Japanese note hand is a web font
+const CJK_FONTS = { ja: 'Klee+One:wght@600' };
 if (CJK_FONTS[lang]) {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
