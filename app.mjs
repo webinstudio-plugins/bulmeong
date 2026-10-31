@@ -635,6 +635,10 @@ function spawnSmoke(x = fireX, y = fireY - 75) {
   });
 }
 
+// Remote ntfy events are attacker-controlled: escape before any innerHTML.
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const safeImg = s => (typeof s === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(s) ? s : '');
+
 // ── Room & Ranking Management ────────────────────────────────────────────────
 function currentRoom() {
   return ROOMS[state.room] || ROOMS.work;
@@ -658,10 +662,10 @@ function renderRoomUI() {
 
   const listEl = document.getElementById('rank-list');
   listEl.innerHTML = r.rankings.slice(0, 5).map((item, idx) => `
-    <div class="rank-item" data-rank-word="${item.word}">
+    <div class="rank-item" data-rank-word="${esc(item.word)}">
       <span class="rank-no">${idx + 1}위</span>
-      <span class="rank-item-word">${item.word}</span>
-      <span class="rank-item-fires">${item.count.toLocaleString('ko-KR')}회</span>
+      <span class="rank-item-word">${esc(item.word)}</span>
+      <span class="rank-item-fires">${(Number(item.count) || 0).toLocaleString('ko-KR')}회</span>
       <span class="rank-item-burn-btn">같이 태우기</span>
     </div>
   `).join('');
@@ -2406,8 +2410,8 @@ function renderMyFireUI() {
   if (list) {
     list.innerHTML = state.guestbook.map(item => `
       <div class="guestbook-item">
-        <span>🪵 ${item.text}</span>
-        <small>${item.time}</small>
+        <span>🪵 ${esc(item.text)}</span>
+        <small>${esc(item.time)}</small>
       </div>
     `).join('');
   }
@@ -2700,10 +2704,10 @@ function renderAlbumModal() {
       return `
         <div class="egg-slot unlocked tier-${egg.tier}">
           <div>
-            <img class="egg-thumb" src="${rec.lastImage}" alt="${egg.title}">
+            <img class="egg-thumb" src="${safeImg(rec.lastImage)}" alt="${esc(egg.title)}">
             <span class="egg-tier-badge">${egg.tierLabel}</span>
             <div class="egg-title">${egg.title}</div>
-            <div class="egg-discoverer">👑 최초 박제: ${rec.firstDiscoverer}<br><span style="font-weight:500;opacity:0.8;">${rec.firstTime} (${rec.count}회)</span></div>
+            <div class="egg-discoverer">👑 최초 박제: ${esc(rec.firstDiscoverer)}<br><span style="font-weight:500;opacity:0.8;">${esc(rec.firstTime)} (${Number(rec.count) || 0}회)</span></div>
           </div>
           <div class="egg-actions">
             <button type="button" class="egg-act-btn" data-reignite="${egg.id}">🔥 재점화</button>
@@ -2739,10 +2743,10 @@ function renderAlbumModal() {
     btn.addEventListener('click', () => {
       const eggId = btn.getAttribute('data-dl-egg');
       const rec = state.eggAlbum[eggId];
-      if (!rec || !rec.lastImage) return;
+      if (!rec || !safeImg(rec.lastImage)) return;
       const a = document.createElement('a');
       a.download = `bulmeong-${eggId}-${Date.now()}.jpg`;
-      a.href = rec.lastImage;
+      a.href = safeImg(rec.lastImage);
       a.click();
     });
   });
