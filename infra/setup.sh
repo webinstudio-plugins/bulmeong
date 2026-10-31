@@ -29,12 +29,17 @@ if none "$OAC_ID"; then
 fi
 save OAC_ID "$OAC_ID"
 
-# 3. Response headers policy (security headers only)
-HP_JSON="{\"Name\":\"$N-site-headers\",\"SecurityHeadersConfig\":{\"ReferrerPolicy\":{\"ReferrerPolicy\":\"strict-origin-when-cross-origin\",\"Override\":true},\"ContentTypeOptions\":{\"Override\":true}}}"
+# 3. Response headers policy: security headers, plus CORS because the pages live on bulmeong.web.app (Firebase)
+#    and load modules, JSON, audio and canvas images from here. Created when missing, otherwise rewritten.
+CORS='"CorsConfig":{"AccessControlAllowOrigins":{"Quantity":1,"Items":["*"]},"AccessControlAllowHeaders":{"Quantity":1,"Items":["*"]},"AccessControlAllowMethods":{"Quantity":2,"Items":["GET","HEAD"]},"AccessControlAllowCredentials":false,"OriginOverride":true}'
+HP_JSON="{\"Name\":\"$N-site-headers\",\"SecurityHeadersConfig\":{\"ReferrerPolicy\":{\"ReferrerPolicy\":\"strict-origin-when-cross-origin\",\"Override\":true},\"ContentTypeOptions\":{\"Override\":true}},$CORS}"
 SITE_HP=$(aws cloudfront list-response-headers-policies --type custom \
   --query "ResponseHeadersPolicyList.Items[?ResponseHeadersPolicy.ResponseHeadersPolicyConfig.Name=='$N-site-headers'].ResponseHeadersPolicy.Id | [0]" --output text)
 if none "$SITE_HP"; then
   SITE_HP=$(aws cloudfront create-response-headers-policy --response-headers-policy-config "$HP_JSON" --query ResponseHeadersPolicy.Id --output text)
+else
+  aws cloudfront update-response-headers-policy --id "$SITE_HP" --response-headers-policy-config "$HP_JSON" \
+    --if-match "$(aws cloudfront get-response-headers-policy --id "$SITE_HP" --query ETag --output text)" >/dev/null
 fi
 save SITE_HP "$SITE_HP"
 
