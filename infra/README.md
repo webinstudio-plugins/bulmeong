@@ -10,6 +10,7 @@ The deploy runs `node scripts/i18n-pages.mjs` first (language folders are build 
 | Headers policy | `bulmeong-site-headers` (`7c8a4327-e69d-4239-89be-15ffc7a9344b`) |
 | Deploy role | `arn:aws:iam::236353235575:role/bulmeong-deploy`, trusted for `repo:webinstudio-plugins@339512356/bulmeong@1440085309:ref:refs/heads/master` |
 | Actions variables | `BUCKET`, `DIST_ID`, `ROLE_ARN` |
+| Shared-state API | Lambda `bulmeong-api` (Node 22, reserved concurrency 10), function URL https://3dglku7p2zq6zstsxc5bb4iqu40fyuay.lambda-url.us-east-1.on.aws/ (CORS: web.app, CloudFront, localhost:5178); DynamoDB `bulmeong` (pk/sk, TTL `ttl`, provisioned 10/10); role `bulmeong-api-role`. Installed and updated by `setup-api.sh` (needs `api/index.mjs` next to it) |
 | Router | CloudFront Function `bulmeong-router` (`router.js`, installed by `setup-router.sh`): `/ja/` → `/ja/index.html`, `/ja` → 301 `/ja/` |
 
 ## Public address: https://bulmeong.web.app (Firebase Hosting, free)
