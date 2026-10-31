@@ -266,7 +266,7 @@ ntfy.sh 공개 토픽을 걷어내고 Netlify Functions와 Netlify Blobs로 옮�
 - 검수: 개발 → 기획·QA
 
 ### 5단계: 점검과 출시
-- [ ] 언어별 주소 빌드, sitemap, hreflang, OG
+- [x] 언어별 주소 /ko/ /en/ /ja/ /zh/ /es/ (배포 때 scripts/i18n-pages.mjs가 생성, 화면 문구 미리 채움), 언어별 title·description·OG·hreflang·JSON-LD, sitemap 6개 주소, CloudFront 라우터 (2026-10-31)
 - [ ] 10개 조합 QA, 성능 예산 확인
 - [ ] 배포, 소개 글
 - 검수: QA·출시 → 전체
