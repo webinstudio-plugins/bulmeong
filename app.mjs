@@ -1,92 +1,23 @@
 // 〈불멍(火멍) v2 : 테마별 실시간 번뇌 소각장 & 스와이프 한지 투척 UI/UX〉
 // 100% Procedural Canvas Physics, Volumetric Flame & Ember System, Hanji Flick-to-Burn & Web Audio ASMR.
 
+import { t, tl, lang, LOCALE, setLang, applyDom } from './i18n.mjs';
+
+applyDom();
+
 const canvas = document.getElementById('stage');
 const ctx = canvas.getContext('2d');
 
 // ── Themed Campfire Rooms & Live Burned Word Rankings (100% Real Server Counts) ──
-const ROOMS = {
-  work: {
-    id: 'work',
-    title: '직장 번뇌 소각장',
-    caption: '직장인 야근·퇴사 번뇌 소각장',
-    stamp: '퇴사기원 · 燒却',
-    rankings: [
-      { word: '미제출 사직서 봉투', count: 0 },
-      { word: '월요일 아침 6시 30분 알람', count: 0 },
-      { word: '팀장님 메신저 호출', count: 0 },
-      { word: '끝나지 않는 보고서 수정', count: 0 },
-      { word: '스쳐 지나가는 월급날 통장', count: 0 }
-    ],
-    chips: ['월요일 아침 출근', '팀장님 메신저 호출', '보고서 무한 수정', '스쳐가는 월급', '사직서 참기'],
-    oracles: [
-      '회사의 불은 끄고 나왔으니, 이제 당신 마음의 불만 따뜻하게 피우세요.',
-      '오늘 삼킨 한숨은 모두 이 장작이 대신 태워버렸습니다.',
-      '월급은 스쳐 가도 오늘 밤 당신이 지킨 평온은 남습니다.',
-      '내일의 업무는 내일의 나에게 맡기고 지금 이 순간은 놓아두세요.'
-    ]
-  },
-  stock: {
-    id: 'stock',
-    title: '주식·코인 소각장',
-    caption: '전국 개미·코인러 포지션 소각장',
-    stamp: '원금회복 · 燒却',
-    rankings: [
-      { word: '파란불 -74% 마이너스 계좌', count: 0 },
-      { word: '내가 사면 떨어지는 차트', count: 0 },
-      { word: '고점 추격매수한 내 손가락', count: 0 },
-      { word: '팔자마자 급등한 그 종목', count: 0 },
-      { word: '잠 못 드는 나스닥 새벽장', count: 0 }
-    ],
-    chips: ['파란불 계좌 잔고', '고점 추격매수한 손가락', '팔자마자 급등한 종목', '잠 못 드는 미장', '내일은 양전 기원'],
-    oracles: [
-      '이미 지나간 차트의 고점은 재가 되었습니다. 계좌보다 당신의 잠이 먼저입니다.',
-      '파란불에 얼어붙은 손끝을 먼저 이 모닥불에 녹이고 가세요.',
-      '시장은 흔들려도 당신의 중심까지 흔들릴 필요는 없습니다.',
-      '오늘 태운 욕심 자리에 내일의 냉정한 눈이 자라날 것입니다.'
-    ]
-  },
-  relation: {
-    id: 'relation',
-    title: '인연·흑역사 소각장',
-    caption: '지친 인간관계·새벽 흑역사 소각장',
-    stamp: '인연정리 · 燒却',
-    rankings: [
-      { word: '괜히 보낸 새벽 카톡 후회', count: 0 },
-      { word: '나만 손해 보는 인간관계', count: 0 },
-      { word: '남 눈치 보느라 못한 말', count: 0 },
-      { word: '잊고 싶은 과거 흑역사', count: 0 },
-      { word: '읽씹당한 메시지 생각', count: 0 }
-    ],
-    chips: ['괜히 보낸 카톡 후회', '나만 지치는 인간관계', '눈치 보느라 삼킨 말', '이불킥 흑역사', '미련 없이 손절하기'],
-    oracles: [
-      '모든 사람에게 좋은 사람일 필요는 없습니다. 오늘 밤은 당신에게만 좋은 사람이면 됩니다.',
-      '스쳐 간 인연에 쏟았던 마음도 이 불길 속에서 깨끗이 정화되었습니다.',
-      '그때 그렇게 말할걸 그랬다는 후회, 이제 연기가 되어 밤하늘로 흩어집니다.',
-      '당신을 깎아내리던 말들은 모두 숯이 되어 사라졌습니다.'
-    ]
-  },
-  zen: {
-    id: 'zen',
-    title: '새벽 무념무상',
-    caption: '아무 생각 없이 빗소리와 불만 보는 방',
-    stamp: '무념무상 · 燒却',
-    rankings: [
-      { word: '잠들지 못하는 새벽의 불안', count: 0 },
-      { word: '남들과 비교하는 조급함', count: 0 },
-      { word: '앞으로 뭐 먹고 살지 막막함', count: 0 },
-      { word: '이유 없이 밀려오는 우울감', count: 0 },
-      { word: '내일도 똑같을 것 같은 피로', count: 0 }
-    ],
-    chips: ['잠 못 드는 새벽 불안', '남들과 비교하는 조급함', '막막한 미래 걱정', '이유 없는 번아웃', '아무 생각 안 하기'],
-    oracles: [
-      '불꽃은 모양을 붙잡지 않기에 매 순간 새로 타오릅니다.',
-      '지금 이 모닥불 앞에서는 아무것도 증명하지 않아도 괜찮습니다.',
-      '잠시 멈춰 서서 빗소리와 불빛만 바라보는 시간도 훌륭한 전진입니다.',
-      '이미 재가 된 어제의 일로 오늘의 밤을 태우지 마세요.'
-    ]
-  }
-};
+const ROOMS = Object.fromEntries(['work', 'stock', 'relation', 'zen'].map(id => [id, {
+  id,
+  title: t(`room.${id}.name`),
+  caption: t(`room.${id}.caption`),
+  stamp: t(`room.${id}.stamp`),
+  rankings: tl(`room.${id}.rankings`).map((word, i) => ({ rk: `${id}.${i}`, word, count: 0 })),
+  chips: tl(`room.${id}.chips`),
+  oracles: tl(`room.${id}.oracles`)
+}]));
 
 // ── State & Persistence (100% Real Server Metrics, Migrating Only Unlocks) ──
 const STORAGE_KEY = 'bulmeong:lounge:v8_real';
@@ -100,11 +31,8 @@ try {
     saved = {
       space: legacy.space,
       discovererName: legacy.discovererName,
-      myfireOwner: legacy.myfireOwner,
-      myfireSign: legacy.myfireSign,
       goldUnlocked: legacy.goldUnlocked,
       eggAlbum: legacy.eggAlbum,
-      guestbook: legacy.guestbook,
       burnedCount: 0,
       globalBurnTotal: 0
     };
@@ -112,17 +40,8 @@ try {
 } catch {}
 
 const urlParams = new URLSearchParams(window.location.search);
-const queryOwner = urlParams.get('fire');
-const querySign = urlParams.get('sign');
 const queryRoom = urlParams.get('room');
-const queryLang = urlParams.get('lang');
 const querySpace = urlParams.get('space');
-
-const DEFAULT_GUESTBOOK = [
-  { text: '오늘도 야근 고생했다 주말에 치킨 먹자 🪵', time: '방금 전' },
-  { text: '내일은 계좌 꼭 빨간불 켜지길 기원함 🔥', time: '3분 전' },
-  { text: '아무 생각 말고 푹 쉬어라 장작 하나 놓고 감', time: '11분 전' }
-];
 
 const state = {
   room: (queryRoom && ROOMS[queryRoom]) ? queryRoom : 'work',
@@ -130,17 +49,15 @@ const state = {
   seconds: Number(saved.seconds) || 0,
   burnedCount: Number(saved.burnedCount) || 0,
   warmthCount: Number(saved.warmthCount) || 0,
-  lastBurnedText: saved.lastBurnedText || '월요일 아침 출근',
-  lastOracle: saved.lastOracle || '오늘 삼킨 한숨은 모두 이 장작이 대신 태워버렸습니다.',
-  myfireOwner: queryOwner || saved.myfireOwner || '익명 불씨',
-  myfireSign: querySign || saved.myfireSign || '지나가다 장작 하나씩 던져주고 가세요 🔥',
-  discovererName: saved.discovererName || queryOwner || saved.myfireOwner || '시루아빠',
+  lastBurnedText: saved.lastBurnedText || '',
+  lastOracle: saved.lastOracle || tl('room.work.oracles')[1] || '',
+  // v8 pre-filled the owner's nickname for every visitor; treat that saved default as no name.
+  discovererName: saved.discovererName && saved.discovererName !== '시루아빠' ? saved.discovererName : '',
   tossLink: saved.tossLink || '',
-  goldUnlocked: Boolean(saved.goldUnlocked || urlParams.get('paypal_paid') === '1'),
-  goldMode: Boolean(saved.goldUnlocked || urlParams.get('paypal_paid') === '1'),
+  goldUnlocked: Boolean(saved.goldUnlocked),
+  goldMode: Boolean(saved.goldUnlocked),
   eggAlbum: (saved.eggAlbum && typeof saved.eggAlbum === 'object') ? saved.eggAlbum : {},
   albumFilter: 'all',
-  guestbook: Array.isArray(saved.guestbook) && saved.guestbook.length ? saved.guestbook : DEFAULT_GUESTBOOK,
   heat: 36.5,
   stoking: 0.25,
   paletteIndex: 0,
@@ -162,33 +79,30 @@ function saveState() {
       globalBurnTotal: state.globalBurnTotal,
       lastBurnedText: state.lastBurnedText,
       lastOracle: state.lastOracle,
-      myfireOwner: state.myfireOwner,
-      myfireSign: state.myfireSign,
       discovererName: state.discovererName,
       tossLink: state.tossLink,
       goldUnlocked: state.goldUnlocked,
-      eggAlbum: state.eggAlbum,
-      guestbook: state.guestbook.slice(0, 20)
+      eggAlbum: state.eggAlbum
     }));
   } catch {}
 }
 
 const SPACES = {
-  camp: { id: 'camp', name: '밤공터', desc: '깊은 밤 소나무 숲 공터 · 빗소리와 강돌 화로' },
-  temple: { id: 'temple', name: '산사 처마', desc: '산사 처마 밑 · 낙숫물과 물고기 풍경 소리' },
-  snow: { id: 'snow', name: '설산 오두막', desc: '설산 오두막 처마 · 눈보라와 무쇠 화로' },
-  cosmos: { id: 'cosmos', name: '성운의 끝', desc: '우주 성운의 끝 · 흑요석 제단과 별먼지 화로' }
+  camp: { id: 'camp', name: t('space.camp'), desc: t('space.camp.desc') },
+  temple: { id: 'temple', name: t('space.temple'), desc: t('space.temple.desc') },
+  snow: { id: 'snow', name: t('space.snow'), desc: t('space.snow.desc') },
+  cosmos: { id: 'cosmos', name: t('space.cosmos'), desc: t('space.cosmos.desc') }
 };
 
 const PALETTES = [
-  { name: '참나무 기본 불꽃', core: [255, 248, 215], mid: [255, 148, 48], outer: [218, 48, 18], smoke: [55, 48, 58], glow: '255, 128, 42' },
-  { name: '오로라 청록 불꽃', core: [225, 255, 248], mid: [46, 224, 186], outer: [18, 112, 168], smoke: [38, 62, 70], glow: '46, 218, 186' },
-  { name: '밤하늘 자수정 불꽃', core: [252, 232, 255], mid: [192, 94, 255], outer: [112, 28, 188], smoke: [58, 42, 72], glow: '186, 88, 255' },
-  { name: '사찰 황금 연등불', core: [255, 252, 230], mid: [255, 200, 68], outer: [214, 118, 18], smoke: [68, 58, 44], glow: '255, 196, 68' },
-  { name: '사건의 지평선 심연화', core: [255, 210, 245], mid: [235, 38, 115], outer: [52, 12, 98], smoke: [22, 10, 35], glow: '235, 38, 115' },
-  { name: '프로메테우스 태양 성화', core: [255, 255, 255], mid: [255, 232, 130], outer: [255, 122, 24], smoke: [90, 75, 45], glow: '255, 228, 120' },
-  { name: '양자 중첩 네온 균열', core: [230, 255, 255], mid: [0, 245, 255], outer: [255, 0, 168], smoke: [30, 50, 65], glow: '0, 240, 255' },
-  { name: '창조주 초신성 절대성화', core: [255, 255, 255], mid: [168, 255, 120], outer: [118, 68, 255], smoke: [55, 45, 80], glow: '175, 135, 255' }
+  { name: t('palette.0'), core: [255, 248, 215], mid: [255, 148, 48], outer: [218, 48, 18], smoke: [55, 48, 58], glow: '255, 128, 42' },
+  { name: t('palette.1'), core: [225, 255, 248], mid: [46, 224, 186], outer: [18, 112, 168], smoke: [38, 62, 70], glow: '46, 218, 186' },
+  { name: t('palette.2'), core: [252, 232, 255], mid: [192, 94, 255], outer: [112, 28, 188], smoke: [58, 42, 72], glow: '186, 88, 255' },
+  { name: t('palette.3'), core: [255, 252, 230], mid: [255, 200, 68], outer: [214, 118, 18], smoke: [68, 58, 44], glow: '255, 196, 68' },
+  { name: t('palette.4'), core: [255, 210, 245], mid: [235, 38, 115], outer: [52, 12, 98], smoke: [22, 10, 35], glow: '235, 38, 115' },
+  { name: t('palette.5'), core: [255, 255, 255], mid: [255, 232, 130], outer: [255, 122, 24], smoke: [90, 75, 45], glow: '255, 228, 120' },
+  { name: t('palette.6'), core: [230, 255, 255], mid: [0, 245, 255], outer: [255, 0, 168], smoke: [30, 50, 65], glow: '0, 240, 255' },
+  { name: t('palette.7'), core: [255, 255, 255], mid: [168, 255, 120], outer: [118, 68, 255], smoke: [55, 45, 80], glow: '175, 135, 255' }
 ];
 
 // ── Procedural Web Audio ASMR Engine ─────────────────────────────────────────
@@ -392,7 +306,7 @@ let prevSpaceKey = state.space;
 let spaceFadeAlpha = 1;
 
 state.globalBurnTotal = Math.max(0, Number(saved.globalBurnTotal) || 0);
-state.tempC = Number(saved.tempC) || 440;
+state.tempC = Math.max(440, Number(saved.tempC) || 0); // a visit starts at a campfire, never at dying embers
 state.fatiguePct = Number(saved.fatiguePct) || 46;
 state.idleSeconds = 0;
 state.lastInteractMs = Date.now();
@@ -401,12 +315,12 @@ state.lastClickMs = 0;
 state.forcedLv0Until = 0;
 
 const FIRE_STAGES = [
-  { lv: 0, minTemp: 0,    minPct: 0,  scale: 0.24, logs: 2, name: 'Lv.0 꺼져가는 잿더미', desc: '사람들의 손길이 끊겨 불씨가 꺼져갑니다! 화로를 연타하거나 장작을 던져 살려주세요!' },
-  { lv: 1, minTemp: 180,  minPct: 16, scale: 0.65, logs: 2, name: 'Lv.1 작은 불씨', desc: '아직은 잔잔하게 숨 쉬는 새벽 공터의 작은 불씨입니다.' },
-  { lv: 2, minTemp: 350,  minPct: 32, scale: 1.00, logs: 3, name: 'Lv.2 골목 모닥불', desc: '전 세계 사람들의 하루 한숨이 모이며 따뜻한 모닥불이 되었습니다.' },
-  { lv: 3, minTemp: 680,  minPct: 54, scale: 1.40, logs: 5, name: 'Lv.3 대형 화톳불', desc: '오늘 전 세계 직장인과 개미들이 꽤나 힘들었나 봅니다! 불길이 거세집니다!' },
-  { lv: 4, minTemp: 1200, minPct: 76, scale: 1.82, logs: 6, name: 'Lv.4 치솟는 업화', desc: '전 세계의 번뇌가 거대한 캠프파이어 불기둥으로 치솟습니다!' },
-  { lv: 5, minTemp: 2000, minPct: 92, scale: 2.30, logs: 8, name: 'Lv.5 대소각 태양화', desc: '오늘 지구촌 스트레스 한계 돌파! 하늘까지 닿는 초거대 대소각제입니다!' }
+  { lv: 0, minTemp: 0,    minPct: 0,  scale: 0.24, logs: 2, name: `Lv.0 ${t('stage.0')}`, desc: t('stage.0.desc') },
+  { lv: 1, minTemp: 180,  minPct: 16, scale: 0.65, logs: 2, name: `Lv.1 ${t('stage.1')}`, desc: t('stage.1.desc') },
+  { lv: 2, minTemp: 350,  minPct: 32, scale: 1.00, logs: 3, name: `Lv.2 ${t('stage.2')}`, desc: t('stage.2.desc') },
+  { lv: 3, minTemp: 680,  minPct: 54, scale: 1.40, logs: 5, name: `Lv.3 ${t('stage.3')}`, desc: t('stage.3.desc') },
+  { lv: 4, minTemp: 1200, minPct: 76, scale: 1.82, logs: 6, name: `Lv.4 ${t('stage.4')}`, desc: t('stage.4.desc') },
+  { lv: 5, minTemp: 2000, minPct: 92, scale: 2.30, logs: 8, name: `Lv.5 ${t('stage.5')}`, desc: t('stage.5.desc') }
 ];
 
 function syncFatigueFromTemp() {
@@ -452,7 +366,7 @@ function updateFireStageUI() {
   if (badge) {
     badge.textContent = stage.lv === 0
       ? `${stage.name} (${Math.round(state.tempC)}°C)`
-      : `${stage.name} · 화력 ${Math.min(999, Math.round((state.tempC / 2000) * 100))}%`;
+      : t('stage.badge', { name: stage.name, pct: Math.min(999, Math.round((state.tempC / 2000) * 100)) });
   }
   const barPct = Math.min(100, Math.max(4, ((state.tempC - 80) / 2120) * 100));
   if (bar) bar.style.width = `${barPct.toFixed(1)}%`;
@@ -484,14 +398,14 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
 
   const nextStage = getFireStage();
   if (nextStage.lv > prevLv && prevLv > 0) {
-    showOracle(nextStage.desc, `화력 단계 상승 · ${nextStage.name}`);
+    showOracle(nextStage.desc, t('stage.upTag', { name: nextStage.name }));
   } else if (prevLv === 0 && nextStage.lv >= 1) {
-    showOracle('당신이 불어넣은 온기 덕분에 꺼져가던 잿더미에서 다시 불꽃이 살아났습니다.', '불씨 소생 완료');
+    showOracle(t('stage.revive'), t('stage.reviveTag'));
   }
 
   if (showPopup) {
     risingClickPopups.push({
-      text: state.clickCombo >= 3 ? `+${actualDelta}°C · ${state.clickCombo}連` : `+${actualDelta}°C`,
+      text: state.clickCombo >= 3 ? `+${actualDelta}°C ×${state.clickCombo}` : `+${actualDelta}°C`,
       x: popupX + (Math.random() - 0.5) * 34,
       y: popupY + (Math.random() - 0.5) * 14,
       vy: -1.55 - Math.min(1.0, state.clickCombo * 0.04),
@@ -503,7 +417,7 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
     const comboEl = document.getElementById('combo-pill');
     if (comboEl) {
       if (state.clickCombo >= 2) {
-        comboEl.textContent = `${state.clickCombo}連 點火`;
+        comboEl.textContent = `×${state.clickCombo}`;
         comboEl.classList.add('show');
       } else {
         comboEl.classList.remove('show');
@@ -524,7 +438,7 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
 function updateGlobalBurnUI() {
   const el = document.getElementById('global-burn-total');
   if (!el) return;
-  el.textContent = state.globalBurnTotal.toLocaleString('ko-KR');
+  el.textContent = state.globalBurnTotal.toLocaleString(LOCALE);
 }
 
 function bumpGlobalBurnCounter(amount = 1, fatigueDelta = 2.5) {
@@ -538,7 +452,7 @@ function bumpGlobalBurnCounter(amount = 1, fatigueDelta = 2.5) {
 
   const el = document.getElementById('global-burn-total');
   if (!el) return;
-  el.textContent = state.globalBurnTotal.toLocaleString('ko-KR');
+  el.textContent = state.globalBurnTotal.toLocaleString(LOCALE);
   el.classList.add('bump');
   setTimeout(() => el.classList.remove('bump'), 220);
 }
@@ -573,12 +487,6 @@ for (let i = 0; i < 120; i++) {
   });
 }
 
-const SOUL_NAMES = [
-  '🇰🇷 서울의 불씨 · 42m', '🇺🇸 NYC Ember · 19m', '🇯🇵 東京の火種 · 58m',
-  '🇪🇸 Alma Madrid · 11m', '🇹🇼 台北微光 · 33m', '🇬🇧 London Soul · 27m',
-  '🇰🇷 새벽 반딧불 · 64m', '🇯🇵 京都の旅人 · 15m', '🇲🇽 CDMX Fuego · 22m',
-  '🇨🇦 Toronto Zen · 49m'
-];
 for (let i = 0; i < 10; i++) {
   const angle = (Math.PI * 0.08) + (i / 9) * (Math.PI * 0.84);
   const rx = 148 + (i % 3) * 26;
@@ -588,8 +496,7 @@ for (let i = 0; i < 10; i++) {
     rx,
     ry,
     phase: Math.random() * Math.PI * 2,
-    size: 2.8 + Math.random() * 2.2,
-    label: SOUL_NAMES[i]
+    size: 2.8 + Math.random() * 2.2
   });
 }
 
@@ -651,22 +558,22 @@ function renderRoomUI() {
   });
   document.getElementById('zen-room-caption').textContent = r.caption;
   document.getElementById('hanji-room-stamp').textContent = r.stamp;
-  document.getElementById('rank-drawer-title').textContent = `${r.title} · 실제 소각된 단어 순위`;
+  document.getElementById('rank-drawer-title').textContent = t('rank.title', { room: r.title });
 
   // Sort and render real rankings
   r.rankings.sort((a, b) => b.count - a.count);
   const top = r.rankings[0];
   const drawerOpen = document.getElementById('rank-drawer').classList.contains('open');
-  document.getElementById('top-rank-word').textContent = top && top.count > 0 ? top.word : '첫 소각을 기다리는 중';
-  document.getElementById('top-rank-count').textContent = `${(top ? top.count : 0).toLocaleString('ko-KR')}회 ${drawerOpen ? '▴' : '▾'}`;
+  document.getElementById('top-rank-word').textContent = top && top.count > 0 ? top.word : t('rank.empty');
+  document.getElementById('top-rank-count').textContent = `${t('rank.count', { n: (top ? top.count : 0).toLocaleString(LOCALE) })} ${drawerOpen ? '▴' : '▾'}`;
 
   const listEl = document.getElementById('rank-list');
   listEl.innerHTML = r.rankings.slice(0, 5).map((item, idx) => `
     <div class="rank-item" data-rank-word="${esc(item.word)}">
-      <span class="rank-no">${idx + 1}위</span>
+      <span class="rank-no">${t('rank.no', { n: idx + 1 })}</span>
       <span class="rank-item-word">${esc(item.word)}</span>
-      <span class="rank-item-fires">${(Number(item.count) || 0).toLocaleString('ko-KR')}회</span>
-      <span class="rank-item-burn-btn">같이 태우기</span>
+      <span class="rank-item-fires">${t('rank.count', { n: (Number(item.count) || 0).toLocaleString(LOCALE) })}</span>
+      <span class="rank-item-burn-btn">${t('rank.burn')}</span>
     </div>
   `).join('');
 
@@ -679,17 +586,13 @@ function renderRoomUI() {
   });
 
   // Render quick chips + Secret Code / Spell Easter Egg chips on the Hanji sheet
-  const SECRET_CHIPS = [
-    { label: '💻 rm -rf /*', val: 'rm -rf /* 레거시 버그 완전 삭제' },
-    { label: '📈 상한가 떡상', val: '내 계좌 +30% 상한가 떡상 기원' },
-    { label: '🎆 사직서 축포', val: '가슴속 사직서 던지고 완전 해방' },
-    { label: '⚡ 천벌 벼락', val: '나를 괴롭힌 악연에 정의의 벼락' },
-    { label: '🌸 벚꽃 엔딩', val: '타오른 자리에 벚꽃 봄바람 피어나길' }
-  ];
+  const SECRET_CHIPS = ['egg_matrix', 'egg_bull', 'egg_fireworks', 'egg_lightning', 'egg_sakura']
+    .map(id => EASTER_EGG_DEX.find(e => e.id === id))
+    .map(e => ({ label: e.title, val: e.sampleTrigger }));
   const chipsEl = document.getElementById('hanji-chips');
   chipsEl.innerHTML =
-    r.chips.map(c => `<button type="button" class="hanji-chip" data-chip="${c.replace(/^[^\s]+\s/, '')}">${c}</button>`).join('') +
-    SECRET_CHIPS.map(sc => `<button type="button" class="hanji-chip" style="border-color:#b84318;background:rgba(184,67,24,0.12);color:#7c240c;" data-chip="${sc.val}">${sc.label}</button>`).join('');
+    r.chips.map(c => `<button type="button" class="hanji-chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('') +
+    SECRET_CHIPS.map(sc => `<button type="button" class="hanji-chip" style="border-color:#b84318;background:rgba(184,67,24,0.12);color:#7c240c;" data-chip="${esc(sc.val)}">${esc(sc.label)}</button>`).join('');
   chipsEl.querySelectorAll('.hanji-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const input = document.getElementById('burn-input');
@@ -720,50 +623,30 @@ const EASTER_EGG_DEX = [
   {
     id: 'egg_matrix',
     tier: 'common',
-    tierLabel: 'COMMON · 일반',
-    title: '💻 매트릭스 커널 퍼지',
-    codeHint: '버그·야근·rm -rf·sudo·404 관련 단어를 태울 때 발동',
-    sampleTrigger: 'rm -rf /* 레거시 버그 완전 삭제',
     palette: 1,
     match: t => /rm\s*-rf|버그|배포|404|git|null|sudo|코드|야근|컴파일|세그폴트/.test(t)
   },
   {
     id: 'egg_bull',
     tier: 'common',
-    tierLabel: 'COMMON · 일반',
-    title: '📈 상한가 양봉 불기둥',
-    codeHint: '상한가·떡상·양전·투더문 등 급등 기원 단어를 태울 때 발동',
-    sampleTrigger: '내 계좌 +30% 상한가 떡상',
     palette: 0,
     match: t => /상한가|떡상|비트코인|양전|투더문|moon|대박|급등|10배/.test(t)
   },
   {
     id: 'egg_fireworks',
     tier: 'common',
-    tierLabel: 'COMMON · 일반',
-    title: '🎆 사직서 해방 축포',
-    codeHint: '퇴사·사직서·로또·해방·독립 관련 단어를 태울 때 발동',
-    sampleTrigger: '가슴속 사직서 던지고 완전 해방',
     palette: 3,
     match: t => /퇴사|사직서|로또|자유|해방|합격|축포|독립/.test(t)
   },
   {
     id: 'egg_lightning',
     tier: 'common',
-    tierLabel: 'COMMON · 일반',
-    title: '⚡ 천벌의 카르마 벼락',
-    codeHint: '번개·벼락·천벌·악연·복수·단죄를 태울 때 발동',
-    sampleTrigger: '나를 괴롭힌 악연에 정의의 벼락',
     palette: 2,
     match: t => /번개|벼락|천벌|단죄|악연|손절|복수|karma/.test(t)
   },
   {
     id: 'egg_sakura',
     tier: 'common',
-    tierLabel: 'COMMON · 일반',
-    title: '🌸 천년 벚꽃 봄바람',
-    codeHint: '벚꽃·사랑·봄·힐링·행복을 태울 때 발동',
-    sampleTrigger: '타오른 자리에 벚꽃 봄바람 피어나길',
     palette: 2,
     match: t => /벚꽃|사랑|행복|봄|꽃|힐링|sakura/.test(t)
   },
@@ -772,50 +655,30 @@ const EASTER_EGG_DEX = [
   {
     id: 'egg_konami',
     tier: 'rare',
-    tierLabel: 'RARE · 희귀',
-    title: '🕹️ 코나미 30목숨 레트로 파이어',
-    codeHint: '고전 게임에서 목숨 30개를 주던 전설의 상하좌우 커맨드 (키보드 방향키 ↑↑↓↓←→←→BA 직접 입력도 가능!)',
-    sampleTrigger: '상상하하좌우좌우BA',
     palette: 6,
     match: t => /상상하하좌우좌우|uuddlrlrba|konami|코나미|⬆️⬆️⬇️⬇️/.test(t.replace(/\s+/g, ''))
   },
   {
     id: 'egg_blackhole',
     tier: 'rare',
-    tierLabel: 'RARE · 희귀',
-    title: '🕳️ 사건의 지평선 블랙홀',
-    codeHint: '빛조차 빠져나올 수 없는 시공간의 끝, 인터스텔라의 거대 중력체 이름',
-    sampleTrigger: '사건의지평선 블랙홀',
     palette: 4,
     match: t => /블랙홀|사건의\s*지평선|인터스텔라|특이점|black\s*hole|singularity/.test(t)
   },
   {
     id: 'egg_satoshi',
     tier: 'rare',
-    tierLabel: 'RARE · 희귀',
-    title: '₿ 사토시 제네시스 블록 황금해시',
-    codeHint: '2009년 1월 3일 비트코인을 창시하고 사라진 익명의 개발자 이름',
-    sampleTrigger: '사토시 나카모토 제네시스 블록',
     palette: 3,
     match: t => /사토시|나카모토|satoshi|제네시스\s*블록|0x00/.test(t)
   },
   {
     id: 'egg_sword',
     tier: 'rare',
-    tierLabel: 'RARE · 희귀',
-    title: '⚔️ +99 집행검 신화 강화 아우라',
-    codeHint: '집 한 채 값을 날려도 띄우기 힘들다는 전설의 무기 이름 혹은 강화 수치(+99)',
-    sampleTrigger: '+99 집행검 강화성공',
     palette: 5,
     match: t => /\+99|집행검|강화\s*성공|신화\s*강화/.test(t)
   },
   {
     id: 'egg_dragon',
     tier: 'rare',
-    tierLabel: 'RARE · 희귀',
-    title: '🐉 여의주 청룡의 북극광 승천',
-    codeHint: '여의주를 물고 오로라 밤하늘을 가르며 승천하는 동양의 푸른 신수',
-    sampleTrigger: '여의주 물고 청룡 승천',
     palette: 1,
     match: t => /청룡|여의주|승천|드래곤|흑염룡|dragon/.test(t)
   },
@@ -824,50 +687,30 @@ const EASTER_EGG_DEX = [
   {
     id: 'egg_pi',
     tier: 'epic',
-    tierLabel: 'EPIC · 극악 암호',
-    title: '🌀 무한 원주율 코즈믹 스파이럴',
-    codeHint: '수수께끼: 원의 둘레와 지름의 비율(π)을 소수점 아래 정확히 10자리까지 숫자로 적어 던져라 (3.xxxxxxxxxx)',
-    sampleTrigger: '3.1415926535',
     palette: 6,
     match: t => t.includes('3.1415926535')
   },
   {
     id: 'egg_42',
     tier: 'epic',
-    tierLabel: 'EPIC · 극악 암호',
-    title: '🌌 은하수 히치하이커의 궁극 해답: 42',
-    codeHint: '수수께끼: 슈퍼컴퓨터가 750만 년 동안 계산해 낸 삶, 우주, 그리고 모든 것에 대한 해답 (딱 두 자리 숫자만 정확히 단독 입력!)',
-    sampleTrigger: '42',
     palette: 7,
     match: t => t.trim() === '42' || /삶우주그리고모든것|히치하이커/.test(t.replace(/\s+/g, ''))
   },
   {
     id: 'egg_helloworld',
     tier: 'epic',
-    tierLabel: 'EPIC · 극악 암호',
-    title: '🖥️ 태초의 커널 창세기 (hello, world!)',
-    codeHint: '수수께끼: 1978년 브라이언 커니핸이 C언어 교재에 남긴 인류 역사상 가장 유명한 첫 출력 문장 (영문 소문자, 쉼표, 띄어쓰기, 느낌표까지 정확히 13글자!)',
-    sampleTrigger: 'hello, world!',
     palette: 1,
     match: t => t.trim() === 'hello, world!'
   },
   {
     id: 'egg_binary',
     tier: 'epic',
-    tierLabel: 'EPIC · 극악 암호',
-    title: '🤖 기계어 싱귤래리티 (01100110)',
-    codeHint: '수수께끼: 영단어 "fire"의 첫 글자 알파벳 소문자 "f"(ASCII 102)를 8비트 2진수(0과 1, 8자리)로 변환해 불에 던져라',
-    sampleTrigger: '01100110',
     palette: 1,
     match: t => /01100110/.test(t)
   },
   {
     id: 'egg_morse',
     tier: 'epic',
-    tierLabel: 'EPIC · 극악 암호',
-    title: '🚢 타이타닉 SOS 모스 구조 성화',
-    codeHint: '수수께끼: 절체절명의 바다 위에서 타전하는 국제 모스 부호 조난 신호 (점 3개, 띄어쓰기, 하이픈 3개, 띄어쓰기, 점 3개: ... --- ...)',
-    sampleTrigger: '... --- ...',
     palette: 5,
     match: t => /\.\.\.\s*---\s*\.\.\.|···\s*−−−\s*···/.test(t.trim())
   },
@@ -876,62 +719,52 @@ const EASTER_EGG_DEX = [
   {
     id: 'egg_prometheus',
     tier: 'mythic',
-    tierLabel: 'MYTHIC · 신화 0.01%',
-    title: '☀️ [신화] 프로메테우스의 태초의 성화',
-    codeHint: '신화 조건: 제우스의 금기를 깨고 인류에게 최초로 불을 훔쳐다 준 티탄의 이름. 단, [지구촌 화력이 Lv.4 이상]으로 거세게 타오를 때만 봉인이 풀린다!',
-    sampleTrigger: '프로메테우스',
     palette: 5,
     checkCondition: () => getFireStage().lv >= 4,
-    failMsg: '⚡ 신화의 불꽃 「프로메테우스」를 깨우기엔 화력이 부족합니다! 먼저 모닥불 화력을 Lv.4 이상으로 키운 뒤 다시 시도하세요!',
+    failMsg: true,
     match: t => /프로메테우스|prometheus/.test(t)
   },
   {
     id: 'egg_schrodinger',
     tier: 'mythic',
-    tierLabel: 'MYTHIC · 신화 0.01%',
-    title: '⚛️ [신화] 양자 중첩 차원 균열 불꽃',
-    codeHint: '신화 조건: 아인슈타인의 질량-에너지 등가 공식(대소문자 정확히 E=mc^2) 혹은 상자 속 살아있고도 죽어있는 고양이. 단, [🌌 성운의 끝] 우주 공간에서만 관측된다!',
-    sampleTrigger: 'E=mc^2',
     palette: 6,
     checkCondition: () => state.space === 'cosmos',
-    failMsg: '🌌 차원 균열 불꽃은 지구 대기권에서는 열리지 않습니다! 공간 테마를 [🌌 성운의 끝]으로 전환한 뒤 다시 시도하세요!',
+    failMsg: true,
     match: (t, raw) => raw.trim() === 'E=mc^2' || /슈뢰딩거의\s*고양이|schrodinger/.test(t)
   },
   {
     id: 'egg_nirvana',
     tier: 'mythic',
-    tierLabel: 'MYTHIC · 신화 0.01%',
-    title: '🪷 [신화] 산사 만다라 금강 삼매화',
-    codeHint: '신화 조건: 반야심경의 핵심 8글자 "형태가 곧 공함이요 공함이 곧 형태라"(한글 8글자 붙여쓰기). 단, [🎐 산사 처마] 공간에서만 사리 불꽃이 피어난다!',
-    sampleTrigger: '색즉시공공즉시색',
     palette: 3,
     checkCondition: () => state.space === 'temple',
-    failMsg: '🎐 금강 삼매화는 산사의 처마 밑 풍경 소리가 들리는 곳에서만 피어납니다! 공간을 [🎐 산사 처마]로 바꾼 뒤 다시 시도하세요!',
+    failMsg: true,
     match: t => /색즉시공\s*공즉시색|옴마니반메훔/.test(t)
   },
   {
     id: 'egg_phoenix',
     tier: 'mythic',
-    tierLabel: 'MYTHIC · 신화 0.01%',
-    title: '🦅 [신화] 잿더미 불사조 피닉스의 부활',
-    codeHint: '신화 조건: 죽음의 잿더미 속에서만 다시 태어나는 전설의 불새 이름. 모닥불이 [🕯️ Lv.0 꺼져가는 잿더미] 위기 상태일 때만 부활한다!',
-    sampleTrigger: '불사조 피닉스',
     palette: 5,
     checkCondition: () => getFireStage().lv === 0,
-    failMsg: '🕯️ 불사조는 오직 불길이 완전히 죽어가는 [Lv.0 꺼져가는 잿더미] 상태에서만 부활합니다! (상단 화력 배지를 탭해 Lv.0으로 만들거나 기다려보세요)',
+    failMsg: true,
     match: t => /불사조|피닉스|phoenix/.test(t)
   },
   {
     id: 'egg_creator',
     tier: 'mythic',
-    tierLabel: 'MYTHIC · 창조주 0.001%',
-    title: '👑 [창조주 신화] 시루아빠의 초신성 절대성화',
-    codeHint: '궁극의 이스터에그: 이 불멍 우주를 창조한 개발자의 진명(한글 4글자 혹은 영문 8글자). 힌트는 클라우드 계정과 발견자 입력란에 숨겨져 있다.',
-    sampleTrigger: '시루아빠',
     palette: 7,
-    match: t => /시루아빠|siruabba|thenthenthen/.test(t)
+    match: t => /시루아빠|siruabba/.test(t)
   }
 ];
+
+// Display text and extra trigger words per language; the regexes above stay as the Korean/English base.
+for (const egg of EASTER_EGG_DEX) {
+  egg.tierLabel = t(egg.id === 'egg_creator' ? 'tier.creator' : `tier.${egg.tier}`);
+  egg.title = t(`egg.${egg.id}.title`);
+  egg.codeHint = t(`egg.${egg.id}.codeHint`);
+  egg.sampleTrigger = t(`egg.${egg.id}.sampleTrigger`);
+  if (egg.failMsg) egg.failMsg = t(`egg.${egg.id}.failMsg`);
+  egg.aliases = tl(`egg.${egg.id}.alias`).map(a => a.toLowerCase());
+}
 
 const spellEffects = {
   matrixTimer: 0,
@@ -957,7 +790,7 @@ function detectSecretSpell(rawText) {
     ...EASTER_EGG_DEX.filter(e => e.tier === 'common')
   ];
   for (const egg of ordered) {
-    if (egg.match(lower, clean)) {
+    if (egg.match(lower, clean) || egg.aliases.some(a => lower.includes(a))) {
       return egg;
     }
   }
@@ -970,7 +803,7 @@ function triggerSecretSpell(egg, rawText) {
   // Check if a Mythic egg has a special environmental condition!
   if (egg.checkCondition && !egg.checkCondition()) {
     spellEffects.lightningFlash = 0.45;
-    showOracle(egg.failMsg, `🔒 신화 봉인 미해제 · ${egg.title}`);
+    showOracle(egg.failMsg, t('egg.lockedTag', { title: egg.title }));
     return;
   }
 
@@ -1012,7 +845,7 @@ function triggerSecretSpell(egg, rawText) {
   if (egg.id === 'egg_bull' || egg.id === 'egg_satoshi') {
     const labels = egg.id === 'egg_satoshi'
       ? ['₿ GENESIS 2009', '0x00000000', 'SATOSHI', '+10,000%']
-      : ['+30% 상한가', '🚀 떡상', '₿ +100%'];
+      : ['+30%', '🚀 TO THE MOON', '₿ +100%'];
     for (let i = 0; i < 14; i++) {
       spellEffects.bullCandles.push({
         x: fireX + (Math.random() - 0.5) * (W * 0.72),
@@ -1099,18 +932,18 @@ function triggerSecretSpell(egg, rawText) {
     egg_konami: ['⬆️', '⬇️', '⬅️', '➡️', '🅱️', '🅰️', '30 LIVES', '1UP'],
     egg_blackhole: ['🕳️', 'EVENT HORIZON', 'SINGULARITY', 'G-FORCE', '∞'],
     egg_satoshi: ['₿', 'SHA-256', 'GENESIS', '21,000,000', 'BLOCK #0'],
-    egg_sword: ['⚔️ +99', 'MYTHIC', '집행검', 'CRITICAL!', '✨'],
-    egg_dragon: ['🐉', '여의주', 'AZURE DRAGON', '승천', '🌊'],
+    egg_sword: ['⚔️ +99', 'MYTHIC', 'LEGEND', 'CRITICAL!', '✨'],
+    egg_dragon: ['🐉', '🔮', 'AZURE DRAGON', 'ASCEND', '🌊'],
     egg_pi: ['π', '3.1415926535', '∞', '2πr', 'COSMIC PI'],
     egg_42: ['42', 'DEEP THOUGHT', 'DON\'T PANIC', 'GALAXY', '🌌'],
     egg_helloworld: ['hello, world!', 'C89', '0x00', 'root@bulmeong', '💻'],
     egg_binary: ['01100110', '01101001', '01110010', '01100101', 'AI AWAKE'],
     egg_morse: ['··· −−− ···', 'SOS', 'MAYDAY', 'RESCUE', '🚢'],
-    egg_prometheus: ['☀️ PROMETHEUS', 'OLYMPIA FIRE', 'TITAN FLAME', '태초의 성화'],
+    egg_prometheus: ['☀️ PROMETHEUS', 'OLYMPIA FIRE', 'TITAN FLAME', 'FIRST FIRE'],
     egg_schrodinger: ['|ψ⟩ = α|0⟩ + β|1⟩', 'E=mc²', '🐈‍⬛ QUANTUM', 'SUPERPOSITION'],
-    egg_nirvana: ['🪷 색즉시공', '공즉시색', '涅槃', '만다라 삼매화', '🙏'],
-    egg_phoenix: ['🦅 PHOENIX', 'IMMORTAL REBIRTH', '불사조 부활', '🔥 Lv.MAX'],
-    egg_creator: ['👑 SIRUABBA', '시루아빠', 'CREATOR SUPERNOVA', 'ABSOLUTE FLAME', '✨']
+    egg_nirvana: ['🪷 色即是空', '空即是色', '涅槃', 'MANDALA', '🙏'],
+    egg_phoenix: ['🦅 PHOENIX', 'IMMORTAL REBIRTH', 'REBIRTH', '🔥 Lv.MAX'],
+    egg_creator: ['👑 SIRUABBA', '👨‍👧', 'CREATOR SUPERNOVA', 'ABSOLUTE FLAME', '✨']
   }[egg.id] || ['✨', egg.title];
 
   for (let i = 0; i < 16; i++) {
@@ -1131,15 +964,12 @@ function triggerSecretSpell(egg, rawText) {
   spellEffects.activeMythicBanner = {
     title: egg.title,
     tierLabel: egg.tierLabel,
-    discoverer: state.discovererName || state.myfireOwner || '익명 불멍러',
+    discoverer: state.discovererName || t('common.anon'),
     life: 0,
     maxLife: 210
   };
 
-  showOracle(
-    `[${egg.tierLabel}] 「${egg.title}」 불꽃이 피어올랐습니다! 0.6초 후 자동으로 불꽃이 캡처되어 박물관 앨범에 최초 발견자로 박제됩니다!`,
-    `📸 이스터에그 발동 · ${egg.title}`
-  );
+  showOracle(t('egg.found', { title: egg.title }), t('egg.foundTag', { title: egg.title }));
 
   // Auto-capture snapshot at peak visual glory (600ms after trigger)!
   setTimeout(() => {
@@ -1212,15 +1042,15 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
 
   // Existing record preserves the VERY FIRST discoverer!
   const existing = state.eggAlbum[egg.id];
-  const nowStr = new Date().toLocaleString('ko-KR', { hour12: false });
-  const firstDiscoverer = existing?.firstDiscoverer || state.discovererName || state.myfireOwner || '익명 불멍러';
+  const nowStr = new Date().toISOString();
+  const firstDiscoverer = existing?.firstDiscoverer || state.discovererName || t('common.anon');
   const firstTime = existing?.firstTime || nowStr;
   const count = (existing?.count || 0) + 1;
 
   // Top Header on Polaroid
   sg.fillStyle = borderCol;
   sg.font = '800 15px Pretendard, sans-serif';
-  sg.fillText(`🏛️ BULMEONG HALL OF FAME · ${egg.tierLabel}`, 24, 36);
+  sg.fillText(t('polaroid.head', { tier: egg.tierLabel }), 24, 36);
 
   sg.fillStyle = '#ffffff';
   sg.font = '800 26px Pretendard, sans-serif';
@@ -1229,11 +1059,11 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
   // Bottom First-Discoverer Plaque on Polaroid
   sg.fillStyle = '#ffd97d';
   sg.font = '800 18px Pretendard, sans-serif';
-  sg.fillText(`👑 최초 발견 박제: ${firstDiscoverer}`, 24, Sh - 48);
+  sg.fillText(`👑 ${t('polaroid.first', { name: firstDiscoverer })}`, 24, Sh - 48);
 
   sg.fillStyle = 'rgba(255, 240, 215, 0.78)';
   sg.font = '600 13.5px Pretendard, sans-serif';
-  sg.fillText(`최초 박제 시각: ${firstTime}  |  발동 주문: 「${(triggerText || egg.sampleTrigger).slice(0, 20)}」`, 24, Sh - 22);
+  sg.fillText(t('polaroid.meta', { time: showTime(firstTime), text: (triggerText || egg.sampleTrigger).slice(0, 20) }), 24, Sh - 22);
 
       // Non-blocking async JPEG encoding (prevents 80ms synchronous CPU frame hitch on toDataURL!)
       snapCanvas.toBlob(blob => {
@@ -1242,7 +1072,7 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
         reader.onloadend = () => {
           const dataUrl = reader.result;
           const existing = state.eggAlbum[egg.id];
-          const firstDiscoverer = existing?.firstDiscoverer || state.discovererName || state.myfireOwner || '익명 불멍러';
+          const firstDiscoverer = existing?.firstDiscoverer || state.discovererName || t('common.anon');
           const firstTime = existing?.firstTime || nowStr;
           const count = (existing?.count || 0) + 1;
 
@@ -1262,7 +1092,7 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
           }
 
           if (typeof window.__broadcastEggUnlock === 'function') {
-            window.__broadcastEggUnlock(egg, state.eggAlbum[egg.id], dataUrl);
+            window.__broadcastEggUnlock(egg, state.eggAlbum[egg.id]);
           }
 
           const toast = document.getElementById('capture-toast');
@@ -1272,9 +1102,9 @@ function captureAndImmortalizeEgg(egg, triggerText = '') {
           const toastSub = document.getElementById('capture-toast-sub');
           if (toast && toastImg) {
             toastImg.src = dataUrl;
-            toastTag.textContent = count === 1 ? '📸 전 세계 최초 발견! 서버 영구 박제 완료!' : `📸 불꽃 재점화 캡처 완료 (${count}회차)`;
+            toastTag.textContent = count === 1 ? `📸 ${t('toast.first')}` : `📸 ${t('toast.again', { n: count })}`;
             toastTitle.textContent = egg.title;
-            toastSub.textContent = `👑 최초 박제: ${firstDiscoverer} · 탭하여 박물관 열기`;
+            toastSub.textContent = t('toast.sub', { name: firstDiscoverer });
             toast.classList.add('show');
             clearTimeout(toastHideTimer);
             toastHideTimer = setTimeout(() => toast.classList.remove('show'), 6500);
@@ -1291,7 +1121,7 @@ function updateAlbumBadgeUI() {
   if (badge) badge.textContent = `${unlockedCount}/${total}`;
 }
 let oracleTimer = null;
-function showOracle(text, tag = '소각 완료 · 재가 남긴 문장') {
+function showOracle(text, tag = t('oracle.tag')) {
   const box = document.getElementById('ash-oracle');
   document.getElementById('oracle-tag').textContent = tag;
   document.getElementById('oracle-text').textContent = `“${text}”`;
@@ -1300,29 +1130,33 @@ function showOracle(text, tag = '소각 완료 · 재가 남긴 문장') {
   oracleTimer = setTimeout(() => box.classList.remove('show'), 5200);
 }
 
-function incrementRoomRanking(text, roomKey = state.room) {
+// Only preset words are ranked and shared; whatever people type stays on their device.
+function findRanking(text, roomKey) {
   const r = ROOMS[roomKey] || currentRoom();
   const clean = (text || '').trim();
-  if (!clean) return;
-  const existing = r.rankings.find(item => item.word === clean || clean.includes(item.word) || item.word.includes(clean));
-  if (existing) {
-    existing.count += 1;
-  } else {
-    r.rankings.push({ word: clean.slice(0, 18), count: 1 });
-  }
+  return clean ? r.rankings.find(item => clean === item.word || clean.includes(item.word)) || null : null;
+}
+
+function incrementRanking(item) {
+  if (!item) return;
+  item.count += 1;
   renderRoomUI();
 }
+
+const showTime = v => {
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? String(v || '') : d.toLocaleString(LOCALE, { dateStyle: 'medium', timeStyle: 'short' });
+};
 
 function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scroll', fromRemote = false) {
   const r = currentRoom();
   const text = (rawText || '').trim() || r.rankings[0].word;
   state.lastBurnedText = text;
   const isGold = !!state.goldMode;
-  const oracle = isGold
-    ? (LANG_PACK[state.lang || 'ko']?.goldOracle || '황금 부적에 담은 간절한 소원이 불꽃을 타고 하늘로 피어올랐습니다.')
-    : r.oracles[(state.burnedCount + text.length) % r.oracles.length];
+  const oracle = isGold ? t('gold.oracle') : r.oracles[(state.burnedCount + text.length) % r.oracles.length];
   state.lastOracle = oracle;
-  incrementRoomRanking(text, state.room);
+  const ranked = findRanking(text, state.room);
+  incrementRanking(ranked);
 
   const burnId = 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   if (!fromRemote) {
@@ -1335,7 +1169,7 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
     oracle,
     isGold,
     itemType,
-    stamp: isGold ? '黃金祈願 · WISH' : r.stamp,
+    stamp: isGold ? t('sheet.goldStamp') : r.stamp,
     startX,
     startY,
     x: startX,
@@ -1348,19 +1182,18 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
     window.__broadcastBurnEvent({
       burnId,
       totalAfter: state.globalBurnTotal,
-      nick: state.discovererName || state.myfireOwner || '익명 연금술사',
-      text: text.slice(0, 24),
+      nick: state.discovererName || '',
+      rk: ranked ? ranked.rk : '',
       itemType,
-      isGold,
       room: state.room
     });
   }
   if (isGold) {
     state.paletteIndex = 3; // Golden temple lantern flame
     stokeFire(95);
-    document.getElementById('live-ticker').textContent = `[황금부적] 당신이 「${text.slice(0, 18)}」 소원을 화로에 피워 올렸습니다`;
+    document.getElementById('live-ticker').textContent = t('ticker.burnedGold');
   } else {
-    document.getElementById('live-ticker').textContent = `당신이 방금 「${text.slice(0, 18)}」을(를) 화로에 던져 태웠습니다`;
+    document.getElementById('live-ticker').textContent = t('ticker.burned', { text: text.slice(0, 18) });
   }
 }
 
@@ -1372,17 +1205,6 @@ function stokeFire(burstCount = 24) {
   for (let i = 0; i < 4 && flames.length < 110; i++) spawnFlameParticle(1.25);
   audio.triggerCrackle();
   updateStatsUI();
-}
-
-function sendWarmth() {
-  state.warmthCount += 1;
-  saveState();
-  const target = fireflies[Math.floor(Math.random() * fireflies.length)];
-  const tx = fireX + Math.cos(target.angle) * (target.rx * Math.min(1, W / 420));
-  const ty = fireY + 18 + Math.sin(target.angle) * target.ry;
-  warmthArcs.push({ sx: W * 0.5, sy: H * 0.78, tx, ty, t: 0 });
-  stokeFire(18);
-  showOracle('이름 모를 누군가의 불씨에게 따뜻한 온기를 건넸습니다.', '온기 전달 완료');
 }
 
 // ── Tactile Hanji Sheet & Swipe-to-Burn Gesture ──────────────────────────────
@@ -1534,40 +1356,6 @@ function drawTempleEave(pal) {
   ctx.closePath();
   ctx.fill();
   ctx.restore();
-
-  ctx.restore();
-}
-
-function drawCampfireSignpost(pal) {
-  const sx = fireX - Math.min(132, W * 0.31);
-  const sy = fireY + 8;
-  ctx.save();
-  ctx.translate(sx, sy);
-  ctx.rotate(-0.06);
-
-  // Post pole
-  ctx.fillStyle = '#241710';
-  ctx.fillRect(-3, -24, 6, 36);
-
-  // Wooden board
-  ctx.fillStyle = '#332015';
-  ctx.strokeStyle = `rgba(${pal.glow}, 0.5)`;
-  ctx.lineWidth = 1.2;
-  ctx.beginPath();
-  ctx.roundRect(-52, -46, 104, 28, 6);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#ffdfa6';
-  ctx.font = '700 10px Pretendard, sans-serif';
-  ctx.textAlign = 'center';
-  const ownerLabel = `${state.myfireOwner.slice(0, 8)}의 모닥불`;
-  ctx.fillText(ownerLabel, 0, -34);
-
-  ctx.fillStyle = 'rgba(255, 244, 225, 0.78)';
-  ctx.font = '500 8.5px Pretendard, sans-serif';
-  const signShort = state.myfireSign.length > 13 ? state.myfireSign.slice(0, 13) + '…' : state.myfireSign;
-  ctx.fillText(signShort, 0, -23);
 
   ctx.restore();
 }
@@ -1958,7 +1746,7 @@ function drawScene() {
     } else {
       state.burnedCount += 1;
       risingEmberTexts.push({
-        label: `나 · 「${activeNote.text.slice(0, 18)}」`,
+        label: `${t('note.me')} · 「${activeNote.text.slice(0, 18)}」`,
         x: fireX,
         y: fireY - 46,
         life: 0,
@@ -1968,7 +1756,7 @@ function drawScene() {
       saveState();
       stokeFire(55);
       if (!activeNote.hasSpell) {
-        showOracle(activeNote.oracle, `소각 완료 · 「${activeNote.text.slice(0, 16)}${activeNote.text.length > 16 ? '…' : ''}」`);
+        showOracle(activeNote.oracle, t('oracle.burnTag', { text: activeNote.text.slice(0, 16) + (activeNote.text.length > 16 ? '…' : '') }));
       }
       activeNote = null;
     }
@@ -2109,7 +1897,7 @@ function drawScene() {
     ctx.textAlign = 'center';
     ctx.font = '800 12px Pretendard, sans-serif';
     ctx.fillStyle = `rgba(255, 218, 105, ${a * 0.95})`;
-    ctx.fillText(`✨ ${mb.tierLabel} · 👑 발견자: ${mb.discoverer}`, fireX, fireY - 142);
+    ctx.fillText(`✨ ${t('banner.found', { tier: mb.tierLabel, name: mb.discoverer })}`, fireX, fireY - 142);
     ctx.font = '800 19px Pretendard, sans-serif';
     ctx.fillStyle = `rgba(255, 250, 235, ${a})`;
     ctx.shadowColor = 'rgba(255, 165, 50, 0.95)';
@@ -2218,7 +2006,7 @@ function drawScene() {
       addTemperature(55, fireX, fireY - 50, true);
       stokeFire(65);
       updateStatsUI();
-      showOracle(`「${activeGiftLog.text}」 — 응원 장작이 모닥불 온도를 크게 높였습니다!`, '🪵 친구 응원 장작 도착');
+      showOracle(t('wood.thrown'), t('wood.tag'));
       activeGiftLog = null;
     }
   }
@@ -2264,7 +2052,7 @@ function drawHanjiNote(note, burnRatio) {
       ctx.fillStyle = '#241811';
       ctx.font = '900 15px "Noto Serif KR", serif';
       ctx.textAlign = 'center';
-      ctx.fillText('辭 職 書 (사직서)', 0, -18);
+      ctx.fillText(t('note.resign'), 0, -18);
     } else if (note.itemType === 'stock') {
       // Plunging Blue Stock Account Card ("-74.8% 마이너스 계좌")
       ctx.fillStyle = '#0f172a';
@@ -2286,7 +2074,7 @@ function drawHanjiNote(note, burnRatio) {
       ctx.fillStyle = '#60a5fa';
       ctx.font = '800 13px Pretendard, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('📉 내 파란불 손실 계좌 (-74%)', 0, -nh / 2 + 18);
+      ctx.fillText(`${t('note.stock')} (-74%)`, 0, -nh / 2 + 18);
     } else if (note.itemType === 'clock') {
       // Monday 06:30 Alarm Clock Card
       ctx.fillStyle = '#27171c';
@@ -2302,7 +2090,7 @@ function drawHanjiNote(note, burnRatio) {
       ctx.fillText('⏰ MON 06:30', 0, -4);
       ctx.font = '700 11px Pretendard, sans-serif';
       ctx.fillStyle = '#ffd8a8';
-      ctx.fillText('월요병 출근 알람 폭파', 0, 18);
+      ctx.fillText(t('note.clock'), 0, 18);
     } else {
       const pg = ctx.createLinearGradient(-nw / 2, -nh / 2, nw / 2, nh / 2);
       if (note.isGold) {
@@ -2363,11 +2151,11 @@ function updateStatsUI() {
   const heatEl = document.getElementById('stat-heat');
   const essenceEl = document.getElementById('essence-count');
   if (timerEl) timerEl.textContent = formatTime(state.seconds);
-  if (burnedEl) burnedEl.textContent = state.burnedCount.toLocaleString('ko-KR');
-  if (warmthEl) warmthEl.textContent = state.warmthCount.toLocaleString('ko-KR');
+  if (burnedEl) burnedEl.textContent = state.burnedCount.toLocaleString(LOCALE);
+  if (warmthEl) warmthEl.textContent = state.warmthCount.toLocaleString(LOCALE);
   const displayTemp = Math.round(state.tempC);
-  if (heatEl) heatEl.textContent = `${displayTemp.toLocaleString('ko-KR')}°C`;
-  if (essenceEl) essenceEl.textContent = (state.burnedCount * 25 + state.warmthCount * 10).toLocaleString('ko-KR');
+  if (heatEl) heatEl.textContent = `${displayTemp.toLocaleString(LOCALE)}°C`;
+  if (essenceEl) essenceEl.textContent = (state.burnedCount * 25 + state.warmthCount * 10).toLocaleString(LOCALE);
 }
 
 function renderSpaceUI() {
@@ -2391,276 +2179,33 @@ document.querySelectorAll('.space-chip').forEach(btn => {
     if (state.space === 'temple') audio.playWindChime();
     else audio.playWhooshAndBowl();
     stokeFire(24);
-    showOracle(sp.desc, `공간 전환 · ${sp.name}`);
+    showOracle(sp.desc, t('space.tag', { name: sp.name }));
   });
 });
-
-function renderMyFireUI() {
-  const bannerLabel = document.getElementById('myfire-banner-label');
-  const countBadge = document.getElementById('myfire-guest-count');
-  if (bannerLabel) bannerLabel.textContent = `🏕️ ${state.myfireOwner.slice(0, 6)} 화로`;
-  if (countBadge) countBadge.textContent = String(state.guestbook.length);
-
-  const ownerIn = document.getElementById('myfire-owner-input');
-  const signIn = document.getElementById('myfire-sign-input');
-  if (ownerIn) ownerIn.value = state.myfireOwner;
-  if (signIn) signIn.value = state.myfireSign;
-
-  const list = document.getElementById('guestbook-list');
-  if (list) {
-    list.innerHTML = state.guestbook.map(item => `
-      <div class="guestbook-item">
-        <span>🪵 ${esc(item.text)}</span>
-        <small>${esc(item.time)}</small>
-      </div>
-    `).join('');
-  }
-}
-
-function getShareableFireUrl() {
-  const u = new URL(window.location.href);
-  u.searchParams.set('fire', state.myfireOwner);
-  u.searchParams.set('sign', state.myfireSign);
-  return u.toString();
-}
-
-function applyAndCopyMyFire() {
-  const ownerVal = document.getElementById('myfire-owner-input').value.trim() || '익명 불씨';
-  const signVal = document.getElementById('myfire-sign-input').value.trim() || '지나가다 장작 하나씩 던져주고 가세요 🔥';
-  state.myfireOwner = ownerVal;
-  state.discovererName = ownerVal;
-  state.myfireSign = signVal;
-  saveState();
-  renderMyFireUI();
-
-  const shareUrl = getShareableFireUrl();
-  window.history.replaceState({}, '', shareUrl);
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(shareUrl).catch(() => {});
-  }
-  document.getElementById('modal-myfire').classList.remove('open');
-  stokeFire(32);
-  showOracle(`「${state.myfireOwner}의 화로」 전용 링크가 복사되었습니다. 친구들에게 공유해 장작을 받아보세요!`, '🔗 내 화로 분양 완료');
-}
-
-function throwGuestWood() {
-  const input = document.getElementById('guest-wood-input');
-  const text = input.value.trim() || '오늘도 수고 많았다 장작 하나 놓고 감!';
-  input.value = '';
-  state.guestbook.unshift({ text, time: '방금 전' });
-  saveState();
-  renderMyFireUI();
-  document.getElementById('modal-myfire').classList.remove('open');
-
-  if (typeof window.__broadcastWoodEvent === 'function') {
-    window.__broadcastWoodEvent(text);
-  }
-
-  activeGiftLog = {
-    text,
-    startX: W * 0.82,
-    startY: H * 0.18,
-    x: W * 0.82,
-    y: H * 0.18,
-    rot: -0.4,
-    progress: 0
-  };
-  audio.playWhooshAndBowl();
-}
-
-// ── Global 5-Language Localization (KO / EN / JA / ZH / ES) & Automated Checkout ──
-const LANG_PACK = {
-  ko: {
-    rooms: { work: '직장 번뇌', stock: '주식·코인', relation: '인연·흑역사', zen: '새벽 무념' },
-    spaces: { camp: '밤공터', temple: '산사 처마', snow: '설산 오두막', cosmos: '성운의 끝' },
-    writeCta: '소원·비밀부적',
-    topBadge: '실시간 1위',
-    topWord: '월요일 아침 출근',
-    caption: '재의 성소 · 실시간 화로',
-    goldBtn: '황금 소원부적 전환',
-    goldActiveBtn: '황금 소원부적 점화중',
-    price: '$0.99 (PayPal 자동결제)',
-    goldOracle: '황금 부적에 담은 간절한 소원이 불꽃을 타고 하늘로 피어올랐습니다. 반드시 이루어질 것입니다.'
-  },
-  en: {
-    rooms: { work: 'Work', stock: 'Markets', relation: 'Regrets', zen: 'Pure Zen' },
-    spaces: { camp: 'Night Clearing', temple: 'Temple Eave', snow: 'Alpine Cabin', cosmos: 'Nebula Edge' },
-    writeCta: 'Inscribe Talisman',
-    topBadge: 'Top Burned',
-    topWord: 'Monday 9AM meeting dread',
-    caption: 'Sanctuary of Ash · Live Hearth',
-    goldBtn: 'Golden Talisman',
-    goldActiveBtn: 'Golden Active',
-    price: '$0.99 (Auto Verify)',
-    goldOracle: 'Your Golden Wish has ascended with the embers into the night sky. May it come to pass.'
-  },
-  ja: {
-    rooms: { work: '職場', stock: '株・コイン', relation: '黒歴史', zen: '無念無想' },
-    spaces: { camp: '夜の森', temple: '山寺の軒', snow: '雪山小屋', cosmos: '星雲の果て' },
-    writeCta: '護符を書く',
-    topBadge: '1位',
-    topWord: '月曜日の満員電車と出社',
-    caption: '灰の聖所・リアルタイム炉',
-    goldBtn: '黄金の祈願札',
-    goldActiveBtn: '黄金の祈願札 ON',
-    price: '$0.99 (PayPal)',
-    goldOracle: '黄金の護符に込めた願いが炎となって夜空へ昇りました。きっと叶います。'
-  },
-  zh: {
-    rooms: { work: '职场', stock: '股市币圈', relation: '黑历史', zen: '放空冥想' },
-    spaces: { camp: '夜雨林地', temple: '古寺屋檐', snow: '雪山木屋', cosmos: '星云尽头' },
-    writeCta: '书写符箓',
-    topBadge: '榜首',
-    topWord: '周一早上的无尽会议',
-    caption: '灰之圣所 · 实时火炉',
-    goldBtn: '黄金祈愿符',
-    goldActiveBtn: '黄金祈愿符 ON',
-    price: '$0.99 (PayPal)',
-    goldOracle: '写在黄金祈愿符上的心愿已随金焰升入夜空，万事顺遂，所愿皆成。'
-  },
-  es: {
-    rooms: { work: 'Trabajo', stock: 'Mercados', relation: 'Pasado', zen: 'Paz Zen' },
-    spaces: { camp: 'Bosque', temple: 'Templo', snow: 'Cabaña', cosmos: 'Nebulosa' },
-    writeCta: 'Escribir Talismán',
-    topBadge: 'N.º 1',
-    topWord: 'Madrugar el lunes para trabajar',
-    caption: 'Santuario de Ceniza',
-    goldBtn: 'Talismán Dorado',
-    goldActiveBtn: 'Talismán Activo',
-    price: '$0.99 (PayPal)',
-    goldOracle: 'Tu deseo en el Talismán Dorado se ha elevado con las chispas hacia el cielo nocturno.'
-  }
-};
-
-function applyLanguage(lang) {
-  state.lang = LANG_PACK[lang] ? lang : 'ko';
-  const pack = LANG_PACK[state.lang];
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.lang === state.lang);
-  });
-  document.querySelectorAll('.room-tab').forEach(btn => {
-    const rId = btn.dataset.room;
-    if (pack.rooms[rId]) btn.textContent = pack.rooms[rId];
-  });
-  document.querySelectorAll('.space-chip').forEach(btn => {
-    const sId = btn.dataset.space;
-    if (pack.spaces[sId]) btn.textContent = pack.spaces[sId];
-  });
-  const rb = document.querySelector('.rank-badge');
-  if (rb) rb.textContent = pack.topBadge;
-  const zc = document.getElementById('zen-room-caption');
-  if (zc) zc.textContent = pack.caption;
-  const wc = document.querySelector('#btn-open-hanji .item-name');
-  if (wc) wc.textContent = pack.writeCta;
-  const pl = document.getElementById('checkout-price-label');
-  if (pl) pl.textContent = pack.price;
-  renderRoomUI();
-  updateGoldUI();
-}
 
 function updateGoldUI() {
-  const pack = LANG_PACK[state.lang || 'ko'];
   const goldBtn = document.getElementById('btn-gold-talisman');
-  if (!goldBtn) return;
+  // Paid unlocks are closed until payments are verified server-side (plan stage 4); earlier unlocks keep the sheet.
+  goldBtn.hidden = !state.goldUnlocked;
   hanjiSheet.classList.toggle('golden', !!state.goldMode);
-  goldBtn.textContent = state.goldMode ? pack.goldActiveBtn : pack.goldBtn;
-  if (state.goldMode) {
-    document.getElementById('hanji-room-stamp').textContent = '黃金祈願 · 소원성취';
-    burnInput.placeholder = '간절히 이루고 싶은 소원이나 20종 비밀 주문을 황금 양피지에 적어 화로에 올리세요…';
-  } else {
-    document.getElementById('hanji-room-stamp').textContent = currentRoom().stamp;
-  }
+  goldBtn.textContent = t(state.goldMode ? 'sheet.goldOn' : 'sheet.gold');
+  document.getElementById('hanji-room-stamp').textContent = state.goldMode ? t('sheet.goldStamp') : currentRoom().stamp;
+  burnInput.placeholder = t(state.goldMode ? 'sheet.phGold' : 'sheet.ph');
 }
-
-document.querySelectorAll('.lang-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    applyLanguage(btn.dataset.lang);
-    stokeFire(18);
-  });
-});
 
 document.getElementById('btn-gold-talisman').addEventListener('click', () => {
-  if (state.goldUnlocked) {
-    state.goldMode = !state.goldMode;
-    updateGoldUI();
-  } else {
-    document.getElementById('modal-checkout').classList.add('open');
-  }
+  if (!state.goldUnlocked) return;
+  state.goldMode = !state.goldMode;
+  updateGoldUI();
 });
 
-// ── Automated PG Payment Verification (PayPal Global Auto Return + Server IP Binding) ──
-const PAYPAL_MERCHANT_EMAIL = 'thenthenthen@naver.com';
-
-let userIpHash = saved.userIpHash || ('dev_' + Math.random().toString(36).slice(2, 10));
-let userIpMasked = '연결됨';
-
-async function detectUserIpAndSyncVip() {
-  try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const data = await res.json();
-    if (data && data.ip) {
-      const parts = data.ip.split('.');
-      userIpMasked = parts.length === 4 ? `${parts[0]}.${parts[1]}.***.${parts[3]}` : data.ip;
-      // Compute deterministic hash from IP so raw IP isn't exposed publicly
-      let h = 2166136261;
-      for (let i = 0; i < data.ip.length; i++) {
-        h ^= data.ip.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      userIpHash = 'ip_' + (h >>> 0).toString(16);
-      const badge = document.getElementById('user-ip-badge');
-      if (badge) badge.textContent = `${userIpMasked} (${userIpHash})`;
-    }
-  } catch {
-    const badge = document.getElementById('user-ip-badge');
-    if (badge) badge.textContent = `기기토큰 (${userIpHash})`;
-  }
-}
-detectUserIpAndSyncVip();
-
-function openPayPalCheckout() {
-  const returnUrl = new URL(window.location.href);
-  returnUrl.searchParams.set('paypal_paid', '1');
-  returnUrl.searchParams.set('orderId', 'pp_' + Date.now());
-  const cancelUrl = new URL(window.location.href);
-  const ppUrl = new URL('https://www.paypal.com/cgi-bin/webscr');
-  ppUrl.searchParams.set('cmd', '_xclick');
-  ppUrl.searchParams.set('business', PAYPAL_MERCHANT_EMAIL);
-  ppUrl.searchParams.set('item_name', 'Bulmeong Hearth of Ashes Golden Wish & Grimoire');
-  ppUrl.searchParams.set('amount', '0.99');
-  ppUrl.searchParams.set('currency_code', 'USD');
-  ppUrl.searchParams.set('no_shipping', '1');
-  ppUrl.searchParams.set('return', returnUrl.toString());
-  ppUrl.searchParams.set('cancel_return', cancelUrl.toString());
-  window.location.href = ppUrl.toString();
-}
-
-function completeWebCheckout(methodName = 'PayPal 글로벌 자동결제 승인') {
-  state.goldUnlocked = true;
-  state.goldMode = true;
-  state.paletteIndex = 3; // Golden temple flame
-  saveState();
-  document.getElementById('modal-checkout')?.classList.remove('open');
-  updateGoldUI();
-  stokeFire(75);
-  if (typeof window.__broadcastVipUnlock === 'function') {
-    window.__broadcastVipUnlock(userIpHash, methodName);
-  }
-  showOracle(`${methodName} 완료! 현재 접속 IP(${userIpMasked}) 및 기기에 「👑 황금 소원부적」이 영구 귀속되었습니다!`, '👑 자동 결제 검증 & 서버 등록 완료');
-}
-
-document.getElementById('btn-pay-paypal')?.addEventListener('click', openPayPalCheckout);
-
-// Check URL callback from PayPal (?paypal_paid=1)
-if (urlParams.get('paypal_paid') === '1') {
-  setTimeout(() => {
-    document.getElementById('title-screen')?.classList.add('hidden');
-    completeWebCheckout('PayPal 글로벌 자동결제 승인');
-    const cleanUrl = new URL(window.location.href);
-    ['orderId', 'paypal_paid'].forEach(k => cleanUrl.searchParams.delete(k));
-    window.history.replaceState({}, '', cleanUrl.toString());
-  }, 450);
-}
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.classList.toggle('active', btn.dataset.lang === lang);
+  btn.addEventListener('click', () => setLang(btn.dataset.lang));
+});
+const titleLangSelect = document.getElementById('title-lang-select');
+titleLangSelect.value = lang;
+titleLangSelect.addEventListener('change', () => setLang(titleLangSelect.value));
 
 // ── Flame Museum & First-Discoverer Hall of Fame Album Modal (#modal-album) ──
 function renderAlbumModal() {
@@ -2672,10 +2217,11 @@ function renderAlbumModal() {
   const progText = document.getElementById('album-progress-text');
   const progFill = document.getElementById('album-bar-fill');
   const discInput = document.getElementById('discoverer-name-input');
-  if (progText) progText.textContent = `🔥 시크릿 불꽃 해금 및 박제 현황: ${unlockedIds.length} / ${total}종 (${pct}%)`;
+  if (progText) progText.textContent = t('album.progress', { n: unlockedIds.length, total, pct });
+  document.querySelector('.album-filter-btn[data-filter="all"]').textContent = t('album.all', { n: total });
   if (progFill) progFill.style.width = `${pct}%`;
   if (discInput && document.activeElement !== discInput) {
-    discInput.value = state.discovererName || state.myfireOwner || '시루아빠';
+    discInput.value = state.discovererName || '';
   }
 
   document.querySelectorAll('.album-filter-btn').forEach(btn => {
@@ -2694,7 +2240,7 @@ function renderAlbumModal() {
   if (!grid) return;
 
   if (!filtered.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px 12px;color:var(--text-sub);font-size:12.5px;">아직 해당 카테고리에 박제된 이스터에그 불꽃이 없습니다.<br>힌트를 보고 한지에 비밀 주문을 적어 불에 던져보세요! 🔥</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:28px 12px;color:var(--text-sub);font-size:12.5px;">${t('album.empty')}</div>`;
     return;
   }
 
@@ -2707,11 +2253,11 @@ function renderAlbumModal() {
             <img class="egg-thumb" src="${safeImg(rec.lastImage)}" alt="${esc(egg.title)}">
             <span class="egg-tier-badge">${egg.tierLabel}</span>
             <div class="egg-title">${egg.title}</div>
-            <div class="egg-discoverer">👑 최초 박제: ${esc(rec.firstDiscoverer)}<br><span style="font-weight:500;opacity:0.8;">${esc(rec.firstTime)} (${Number(rec.count) || 0}회)</span></div>
+            <div class="egg-discoverer">👑 ${esc(t('album.first', { name: rec.firstDiscoverer }))}<br><span style="font-weight:500;opacity:0.8;">${esc(t('album.times', { time: showTime(rec.firstTime), n: Number(rec.count) || 0 }))}</span></div>
           </div>
           <div class="egg-actions">
-            <button type="button" class="egg-act-btn" data-reignite="${egg.id}">🔥 재점화</button>
-            <button type="button" class="egg-act-btn" data-dl-egg="${egg.id}">📥 박제저장</button>
+            <button type="button" class="egg-act-btn" data-reignite="${egg.id}">🔥 ${t('album.reignite')}</button>
+            <button type="button" class="egg-act-btn" data-dl-egg="${egg.id}">📥 ${t('album.save')}</button>
           </div>
         </div>
       `;
@@ -2719,12 +2265,12 @@ function renderAlbumModal() {
     return `
       <div class="egg-slot tier-${egg.tier}">
         <div>
-          <div class="egg-locked-box">🔒<span style="font-size:10px;margin-top:4px;">미발견 불꽃</span></div>
+          <div class="egg-locked-box">🔒<span style="font-size:11px;margin-top:4px;">${t('album.lockedBox')}</span></div>
           <span class="egg-tier-badge">${egg.tierLabel}</span>
           <div class="egg-title">??? (${egg.title.replace(/^[^\s]+\s/, '')})</div>
-          <div class="egg-hint">💡 <b>발견 힌트</b>: ${egg.codeHint}</div>
+          <div class="egg-hint">💡 <b>${t('album.hint')}</b>: ${egg.codeHint}</div>
         </div>
-        <div class="egg-discoverer" style="background:rgba(255,255,255,0.04);color:rgba(255,230,195,0.5);">👑 최초 발견자 공석 (도전하세요!)</div>
+        <div class="egg-discoverer" style="background:rgba(255,255,255,0.04);color:rgba(255,230,195,0.5);">👑 ${t('album.noFirst')}</div>
       </div>
     `;
   }).join('');
@@ -2771,50 +2317,18 @@ document.querySelectorAll('.album-filter-btn').forEach(btn => {
 });
 
 document.getElementById('btn-save-discoverer')?.addEventListener('click', () => {
-  const val = document.getElementById('discoverer-name-input')?.value.trim() || '시루아빠';
+  const val = document.getElementById('discoverer-name-input')?.value.trim() || '';
   state.discovererName = val;
   saveState();
   renderAlbumModal();
-  showOracle(`앞으로 발견하는 이스터에그 불꽃에 「👑 최초 발견자: ${val}」 이름으로 영구 박제됩니다!`, '👑 발견자 서명 등록 완료');
+  showOracle(t('album.nickSaved', { name: val || t('common.anon') }), t('album.nickTag'));
 });
 
 updateAlbumBadgeUI();
 
-document.getElementById('btn-myfire').addEventListener('click', () => {
-  renderMyFireUI();
-  document.getElementById('modal-myfire').classList.add('open');
-});
-document.getElementById('btn-copy-myfire').addEventListener('click', applyAndCopyMyFire);
-document.getElementById('btn-apply-myfire').addEventListener('click', applyAndCopyMyFire);
-document.getElementById('btn-throw-guest-wood').addEventListener('click', throwGuestWood);
-
 document.getElementById('btn-fire-stage').addEventListener('click', () => {
-  state.idleSeconds = 0;
-  const curLv = getFireStage().lv;
-  const nextIdx = (curLv + 1) % FIRE_STAGES.length; // cycles Lv.0 -> Lv.1 -> Lv.2 -> Lv.3 -> Lv.4 -> Lv.5 -> Lv.0
-  const nextStage = FIRE_STAGES[nextIdx];
-  const stageTemps = [95, 240, 480, 880, 1480, 2450];
-  state.tempC = stageTemps[nextIdx] || 480;
-  if (nextStage.lv === 0) {
-    state.forcedLv0Until = Date.now() + 25000;
-  } else {
-    state.forcedLv0Until = 0;
-  }
-  updateFireStageUI();
-  updateStatsUI();
-  if (nextStage.lv > 0) stokeFire(16 * nextStage.lv);
-  showOracle(nextStage.desc, `${nextStage.lv === 0 ? '🕯️ 불씨 소멸 위기' : '🔥 지구촌 고단함 화력'} · ${nextStage.name}`);
-});
-
-document.getElementById('btn-cool-lv0')?.addEventListener('click', e => {
-  e.stopPropagation();
-  state.tempC = 92;
-  state.forcedLv0Until = Date.now() + 30000;
-  state.clickCombo = 0;
-  document.getElementById('combo-pill')?.classList.remove('show');
-  updateFireStageUI();
-  updateStatsUI();
-  showOracle('모닥불이 꺼져가는 [🕯️ Lv.0 잿더미(92°C)] 상태가 되었습니다! 지금 한지에 「불사조 피닉스」를 적어 던지거나 화면을 연타해 심폐소생하세요!', '🕯️ Lv.0 꺼져가는 잿더미 전환 완료');
+  const stage = getFireStage();
+  showOracle(stage.desc, t('stage.tag', { name: stage.name }));
 });
 
 function reviveFire(boostPct = 14, clickX = fireX, clickY = fireY - 38) {
@@ -2824,9 +2338,8 @@ function reviveFire(boostPct = 14, clickX = fireX, clickY = fireY - 38) {
 
 renderRoomUI();
 renderSpaceUI();
-renderMyFireUI();
+updateGoldUI();
 updateFireStageUI();
-applyLanguage(queryLang && LANG_PACK[queryLang] ? queryLang : 'ko');
 updateStatsUI();
 
 // Smooth 10Hz (every 100ms) Global Natural Cooling Curve (Newton's Law of Cooling)
@@ -2837,11 +2350,12 @@ setInterval(() => {
     state.clickCombo = 0;
     document.getElementById('combo-pill')?.classList.remove('show');
   }
-  if (idleMs > 1400 && state.tempC > 84) {
+  // While someone tends it the fire rests at a campfire; left alone 3 minutes it sinks to Lv.0 embers (the phoenix needs that).
+  const floor = idleMs > 180000 ? 84 : 360;
+  if (idleMs > 1400 && state.tempC > floor) {
     const excess = Math.max(0, state.tempC - 84);
-    // Higher temperatures cool faster; low embers cool gently toward Lv.0 (84°C)
     const coolPerSec = 3.5 + excess * 0.022;
-    state.tempC = Math.max(84, +(state.tempC - coolPerSec * 0.1).toFixed(1));
+    state.tempC = Math.max(floor, +(state.tempC - coolPerSec * 0.1).toFixed(1));
     updateFireStageUI();
     updateStatsUI();
   }
@@ -2884,21 +2398,19 @@ window.addEventListener('pointerup', () => {
 // ── Cinematic Title Screen Ignition & World Drawer ───────────────────────────
 const introNickInput = document.getElementById('intro-nick-input');
 if (introNickInput) {
-  introNickInput.value = state.discovererName || state.myfireOwner || '시루아빠';
+  introNickInput.value = state.discovererName || '';
 }
 
 document.getElementById('btn-ignite-start')?.addEventListener('click', () => {
-  const nickVal = document.getElementById('intro-nick-input')?.value.trim() || '시루아빠';
+  const nickVal = document.getElementById('intro-nick-input')?.value.trim() || '';
   state.discovererName = nickVal;
-  state.myfireOwner = nickVal;
   saveState();
-  renderMyFireUI();
   if (!state.audioEnabled) toggleAudio(true);
   audio.playWhooshAndBowl();
   reviveFire(35, fireX, fireY - 45);
   stokeFire(95);
   document.getElementById('title-screen')?.classList.add('hidden');
-  showOracle(`${nickVal} 연금술사님, 성소의 화로가 깨어났습니다. 화로를 연타해 온도를 높이거나 하단 부적·사직서를 드래그해 던져보세요!`, '🔥 화로 점화 완료 · 실시간 서버 연결됨');
+  showOracle(t('start.msg'), t('start.tag'));
 });
 
 document.getElementById('btn-world-toggle')?.addEventListener('click', () => {
@@ -2907,10 +2419,10 @@ document.getElementById('btn-world-toggle')?.addEventListener('click', () => {
 
 // ── Tactile Physical Item Inventory Cards (Tap or Drag-and-Throw into Fire!) ──
 const PHYSICAL_ITEMS = {
-  resignation: { icon: '辭', label: '미제출 사직서 투척', text: '가슴속에 품고 있던 봉투 한 장 조용히 태우기', itemType: 'resignation' },
-  stock: { icon: '損', label: '물린 파란계좌 소각', text: '파란불 -74% 마이너스 계좌 잔고 소각 (내일은 빨간불 기원)', itemType: 'stock' },
-  clock: { icon: '時', label: '월요일 출근알람 파쇄', text: '월요일 아침 6시 30분 출근 알람시계 폭파', itemType: 'clock' },
-  wood: { icon: '柴', label: '마른 참나무 장작 투입', text: '마른 참나무 장작 투입', itemType: 'wood' }
+  resignation: { icon: '✉️', label: t('card.resign'), text: t('item.resign'), itemType: 'resignation' },
+  stock: { icon: '📉', label: t('card.stock'), text: t('item.stock'), itemType: 'stock' },
+  clock: { icon: '⏰', label: t('card.clock'), text: t('item.clock'), itemType: 'clock' },
+  wood: { icon: '🪵', label: t('card.wood'), text: t('item.wood'), itemType: 'wood' }
 };
 
 const dragGhost = document.getElementById('drag-ghost');
@@ -2936,7 +2448,7 @@ document.querySelectorAll('[data-throw-item]').forEach(card => {
     dragMoved = false;
     if (dragGhost && dragGhostIcon && dragGhostLabel) {
       dragGhostIcon.textContent = spec.icon;
-      dragGhostLabel.textContent = `${spec.label} (화로에 놓기 🔥)`;
+      dragGhostLabel.textContent = t('drag.label', { item: spec.label });
       dragGhost.style.left = `${e.clientX}px`;
       dragGhost.style.top = `${e.clientY}px`;
     }
@@ -2969,7 +2481,7 @@ window.addEventListener('pointerup', e => {
     if (dragMoved) {
       reviveFire(36, e.clientX, e.clientY - 20);
       stokeFire(55);
-      showOracle('마른 참나무 장작을 화로에 던져 넣었습니다! 온도와 불길이 크게 치솟습니다!', '🪵 참나무 장작 투척');
+      showOracle(t('wood.thrown'), t('wood.tag'));
     }
     return;
   }
@@ -2985,8 +2497,6 @@ window.addEventListener('pointerup', e => {
 const MULTIPLAYER_TOPIC = 'bulmeong_lounge_global_v8_real';
 const LEGACY_EGG_TOPIC = 'bulmeong_lounge_global_v5';
 const NTFY_BASE = `https://ntfy.sh/${MULTIPLAYER_TOPIC}`;
-const BYTEBIN_POST = 'https://bytebin.lucko.me/post';
-const BYTEBIN_GET = 'https://bytebin.lucko.me/';
 
 let clientSessionId = '';
 try {
@@ -3001,19 +2511,20 @@ try {
 
 const activePeers = new Map([[clientSessionId, Date.now()]]);
 const seenBurnIds = new Set();
+const REMOTE_ITEM_KEYS = { resignation: 'item.resign', stock: 'item.stock', clock: 'item.clock', wood: 'item.wood' };
 
 function updateLiveConcurrentUI() {
   const now = Date.now();
   activePeers.set(clientSessionId, now);
   for (const [peerId, lastTs] of activePeers.entries()) {
-    if (peerId !== clientSessionId && now - lastTs > 65000) {
+    if (peerId !== clientSessionId && now - lastTs > 300000) {
       activePeers.delete(peerId);
     }
   }
   const onlineCount = Math.max(1, activePeers.size);
   window.__liveOnlineCount = onlineCount;
   const el = document.getElementById('live-count');
-  if (el) el.textContent = onlineCount.toLocaleString('ko-KR');
+  if (el) el.textContent = onlineCount.toLocaleString(LOCALE);
 }
 updateLiveConcurrentUI();
 setInterval(updateLiveConcurrentUI, 5000);
@@ -3042,17 +2553,17 @@ function makeFallbackPolaroid(egg, discoverer, firstTime, triggerText) {
 
   g.fillStyle = borderCol;
   g.font = '800 12px Pretendard, sans-serif';
-  g.fillText(`GLOBAL SERVER RECORD · ${egg.tierLabel}`, 20, 30);
+  g.fillText(t('polaroid.head', { tier: egg.tierLabel }), 20, 30);
   g.fillStyle = '#fff';
   g.font = '800 20px Pretendard, sans-serif';
   g.fillText(egg.title, 20, 58);
 
   g.fillStyle = '#ffd97d';
   g.font = '800 15px Pretendard, sans-serif';
-  g.fillText(`최초 발견 박제: ${discoverer}`, 20, 250);
+  g.fillText(`👑 ${t('polaroid.first', { name: discoverer })}`, 20, 250);
   g.fillStyle = 'rgba(255, 240, 215, 0.8)';
   g.font = '600 11.5px Pretendard, sans-serif';
-  g.fillText(`시각: ${firstTime} | 주문: 「${(triggerText || egg.sampleTrigger).slice(0, 18)}」`, 20, 274);
+  g.fillText(t('polaroid.meta', { time: showTime(firstTime), text: egg.sampleTrigger.slice(0, 18) }), 20, 274);
   return c.toDataURL('image/jpeg', 0.82);
 }
 
@@ -3068,7 +2579,7 @@ async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0)
         updateLiveConcurrentUI();
       }
       return;
-    } else if (Date.now() - eventMs <= 65000) {
+    } else if (Date.now() - eventMs <= 300000) {
       activePeers.set(evt.sender, eventMs);
       updateLiveConcurrentUI();
     }
@@ -3080,14 +2591,13 @@ async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0)
     const egg = EASTER_EGG_DEX.find(x => x.id === evt.eggId);
     if (!egg) return;
     const existing = state.eggAlbum[evt.eggId];
-    const firstDiscoverer = existing?.firstDiscoverer || evt.firstDiscoverer || '시루아빠';
-    const firstTime = existing?.firstTime || evt.firstTime || '방금 전';
-    const count = Math.max((existing?.count || 0) + (isHistorical ? 0 : 1), evt.count || 1);
-    const imageKey = evt.imageKey || existing?.imageKey || '';
+    const firstDiscoverer = existing?.firstDiscoverer || String(evt.firstDiscoverer || '').slice(0, 14) || t('common.anon');
+    const firstTime = existing?.firstTime || evt.firstTime || new Date(eventMs).toISOString();
+    const count = Math.max((existing?.count || 0) + (isHistorical ? 0 : 1), Number(evt.count) || 1);
 
     let lastImage = existing?.lastImage || '';
     if (!lastImage) {
-      lastImage = makeFallbackPolaroid(egg, firstDiscoverer, firstTime, evt.triggerText);
+      lastImage = makeFallbackPolaroid(egg, firstDiscoverer, firstTime);
     }
 
     state.eggAlbum[evt.eggId] = {
@@ -3095,26 +2605,9 @@ async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0)
       firstDiscoverer,
       firstTime,
       lastImage,
-      imageKey,
-      triggerText: evt.triggerText || egg.sampleTrigger,
+      triggerText: egg.sampleTrigger,
       count
     };
-
-    if (imageKey && (!existing || !existing.cloudLoaded)) {
-      fetch(BYTEBIN_GET + imageKey)
-        .then(r => r.json())
-        .then(d => {
-          if (d && d.dataUrl && state.eggAlbum[evt.eggId]) {
-            state.eggAlbum[evt.eggId].lastImage = d.dataUrl;
-            state.eggAlbum[evt.eggId].cloudLoaded = true;
-            saveState();
-            if (document.getElementById('modal-album')?.classList.contains('open')) {
-              renderAlbumModal();
-            }
-          }
-        })
-        .catch(() => {});
-    }
 
     saveState();
     updateAlbumBadgeUI();
@@ -3124,30 +2617,33 @@ async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0)
     if (!isHistorical && evt.sender !== clientSessionId) {
       const ticker = document.getElementById('live-ticker');
       if (ticker) {
-        ticker.textContent = `[도감 박제] ${firstDiscoverer}님이 「${egg.title}」 불꽃을 최초로 깨웠습니다`;
+        ticker.textContent = t('ticker.remoteEgg', { nick: firstDiscoverer, title: egg.title });
       }
     }
-  } else if (evt.type === 'burn' && evt.text) {
-    const bId = evt.burnId || `${evt.sender || 'anon'}_${msgTimeSec}_${evt.text}`;
+  } else if (evt.type === 'burn') {
+    const bId = evt.burnId || `${evt.sender || 'anon'}_${msgTimeSec}`;
     if (seenBurnIds.has(bId)) return;
     seenBurnIds.add(bId);
+    const ranked = typeof evt.rk === 'string' ? (ROOMS[evt.rk.split('.')[0]]?.rankings.find(x => x.rk === evt.rk) || null) : null;
+    const nick = String(evt.nick || '').slice(0, 14) || t('common.anon');
+    const what = ranked ? ranked.word : t(REMOTE_ITEM_KEYS[evt.itemType] || 'item.note');
 
     if (isHistorical) {
-      incrementRoomRanking(evt.text, evt.room || 'work');
+      incrementRanking(ranked);
     } else if (evt.sender !== clientSessionId) {
       bumpGlobalBurnCounter(1, 3.0);
       if (typeof evt.totalAfter === 'number' && evt.totalAfter > state.globalBurnTotal) {
         state.globalBurnTotal = evt.totalAfter;
         updateGlobalBurnUI();
       }
-      incrementRoomRanking(evt.text, evt.room || state.room);
+      incrementRanking(ranked);
       const ticker = document.getElementById('live-ticker');
       if (ticker) {
-        ticker.textContent = `[실시간 성소] ${evt.nick || '익명 불씨'}님이 방금 「${evt.text}」을(를) 화로에 태웠습니다`;
+        ticker.textContent = t('ticker.remote', { nick, what });
       }
       ghostNotes.push({
-        origin: evt.nick || '익명 불씨',
-        text: evt.text,
+        origin: nick,
+        text: what,
         sx: fireX + (Math.random() - 0.5) * 240,
         sy: fireY - 120,
         x: fireX,
@@ -3156,41 +2652,10 @@ async function applyRemoteServerEvent(evt, isHistorical = false, msgTimeSec = 0)
         p: 0
       });
     }
-  } else if (evt.type === 'wood' && evt.text) {
-    const exists = state.guestbook.some(g => g.text === evt.text);
-    if (!exists) {
-      state.guestbook.unshift({ text: evt.text, time: evt.time || '실시간 서버' });
-      saveState();
-      renderMyFireUI();
-    }
-  } else if (evt.type === 'vip_unlock' && evt.ipHash) {
-    if (evt.ipHash === userIpHash && !state.goldUnlocked) {
-      state.goldUnlocked = true;
-      state.goldMode = true;
-      saveState();
-      updateGoldUI();
-    }
   }
 }
 
-window.__broadcastEggUnlock = async (egg, rec, dataUrl) => {
-  let imageKey = rec.imageKey || '';
-  try {
-    if (dataUrl && !imageKey) {
-      const r = await fetch(BYTEBIN_POST, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dataUrl })
-      });
-      const j = await r.json();
-      if (j && j.key) {
-        imageKey = j.key;
-        rec.imageKey = imageKey;
-        saveState();
-      }
-    }
-  } catch {}
-
+window.__broadcastEggUnlock = async (egg, rec) => {
   try {
     await fetch(NTFY_BASE, {
       method: 'POST',
@@ -3200,9 +2665,7 @@ window.__broadcastEggUnlock = async (egg, rec, dataUrl) => {
         eggId: egg.id,
         firstDiscoverer: rec.firstDiscoverer,
         firstTime: rec.firstTime,
-        triggerText: rec.triggerText,
         count: rec.count,
-        imageKey,
         ts: Date.now()
       })
     });
@@ -3221,36 +2684,6 @@ window.__broadcastBurnEvent = async payload => {
         sender: clientSessionId,
         ts: Date.now(),
         ...payload
-      })
-    });
-  } catch {}
-};
-
-window.__broadcastWoodEvent = async text => {
-  try {
-    await fetch(NTFY_BASE, {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'wood',
-        sender: clientSessionId,
-        text,
-        time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-        ts: Date.now()
-      })
-    });
-  } catch {}
-};
-
-window.__broadcastVipUnlock = async (ipHash, method) => {
-  try {
-    await fetch(NTFY_BASE, {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'vip_unlock',
-        sender: clientSessionId,
-        ipHash,
-        method,
-        ts: Date.now()
       })
     });
   } catch {}
@@ -3324,7 +2757,7 @@ async function initSharedServerSync() {
 
   // 2. Announce our own presence and repeat every 25s
   sendPresenceHeartbeat();
-  setInterval(sendPresenceHeartbeat, 25000);
+  setInterval(sendPresenceHeartbeat, 120000); // ntfy.sh allows 250 messages per visitor IP a day
 
   // 3. Connect real-time SSE stream for instant 0.1s multiplayer broadcasts
   try {
@@ -3346,7 +2779,7 @@ document.getElementById('btn-wood').addEventListener('click', () => {
   if (!state.audioEnabled) toggleAudio(true);
   reviveFire(36, fireX, fireY - 40);
   stokeFire(52);
-  showOracle('마른 참나무 장작을 더 넣었습니다. 화로 온도와 불길 크기가 크게 치솟습니다!', '🪵 참나무 장작 투입');
+  showOracle(t('wood.thrown'), t('wood.tag'));
 });
 
 document.getElementById('btn-powder').addEventListener('click', () => {
@@ -3354,12 +2787,7 @@ document.getElementById('btn-powder').addEventListener('click', () => {
   state.paletteIndex = (state.paletteIndex + 1) % PALETTES.length;
   const pal = PALETTES[state.paletteIndex];
   stokeFire(36);
-  showOracle(`${pal.name} 연금술 물약을 뿌렸습니다. 화로에 신비로운 빛이 번집니다.`, '✨ 불꽃 물약 변경');
-});
-
-document.getElementById('btn-warmth').addEventListener('click', () => {
-  if (!state.audioEnabled) toggleAudio(true);
-  sendWarmth();
+  showOracle(t('palette.changed', { name: pal.name }), t('palette.tag'));
 });
 
 function toggleAudio(forceState) {
@@ -3368,13 +2796,11 @@ function toggleAudio(forceState) {
   const audioIcon = document.getElementById('audio-icon');
   if (audioIcon) audioIcon.style.opacity = state.audioEnabled ? '1' : '0.45';
   const audioLabel = document.getElementById('audio-label');
-  if (audioLabel) audioLabel.textContent = state.audioEnabled ? '소리' : '묵음';
+  if (audioLabel) audioLabel.textContent = t(state.audioEnabled ? 'hud.sound' : 'hud.mute');
   document.getElementById('btn-audio')?.classList.toggle('active', state.audioEnabled);
   const muteBtn = document.getElementById('btn-toggle-mute');
   if (muteBtn) {
-    muteBtn.textContent = state.audioEnabled
-      ? '장작·빗소리 켜짐 (탭하여 묵음 전환)'
-      : '묵음 상태 (탭하여 소리 켜기)';
+    muteBtn.textContent = t(state.audioEnabled ? 'audio.on' : 'audio.off');
   }
 }
 
@@ -3427,11 +2853,11 @@ function renderCertificate() {
   g.textAlign = 'center';
   g.fillStyle = '#ffd27d';
   g.font = '600 18px Pretendard, sans-serif';
-  g.fillText(`${r.title} · 연금술 소각 라운지`, Wc / 2, 105);
+  g.fillText(r.title, Wc / 2, 105);
 
   g.fillStyle = '#fff8ee';
   g.font = '800 38px Pretendard, sans-serif';
-  g.fillText('번뇌 소각 · 해방 증명서', Wc / 2, 162);
+  g.fillText(t('cert.sub'), Wc / 2, 162);
 
   const ex = Wc / 2, ey = 290;
   for (let rad = 74; rad > 12; rad -= 14) {
@@ -3454,9 +2880,9 @@ function renderCertificate() {
 
   const displayTemp = Math.round(state.tempC);
   const stats = [
-    ['속세 해방 시간', formatTime(state.seconds)],
-    ['소각한 번뇌', `${state.burnedCount}건`],
-    ['화로 온도', `${displayTemp.toLocaleString('ko-KR')}°C`]
+    [t('cert.time'), formatTime(state.seconds)],
+    [t('cert.burned'), t('cert.count', { n: state.burnedCount })],
+    [t('cert.temp'), `${displayTemp.toLocaleString(LOCALE)}°C`]
   ];
   stats.forEach(([label, val], idx) => {
     const sx = 172 + idx * 188;
@@ -3470,7 +2896,7 @@ function renderCertificate() {
 
   g.fillStyle = 'rgba(255, 225, 190, 0.6)';
   g.font = '500 16px Pretendard, sans-serif';
-  g.fillText('오늘 밤 재가 되어 사라진 생각', Wc / 2, 595);
+  g.fillText(t('cert.caption'), Wc / 2, 595);
 
   g.fillStyle = '#fff5e6';
   g.font = '700 23px Pretendard, sans-serif';
@@ -3483,7 +2909,7 @@ function renderCertificate() {
   const today = new Date().toISOString().slice(0, 10).replaceAll('-', '.');
   g.fillStyle = 'rgba(255, 235, 210, 0.45)';
   g.font = '500 15px Pretendard, sans-serif';
-  g.fillText(`${today} · 불멍 : 재의 연금술 공식 인증`, Wc / 2, 825);
+  g.fillText(t('cert.footer', { date: today }), Wc / 2, 825);
 }
 
 document.getElementById('btn-cert').addEventListener('click', () => {

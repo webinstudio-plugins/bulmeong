@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#050408">
   <title>불멍(火멍) : 재의 연금술 · 글로벌 실시간 화로 클리커 & 번뇌 소각 웹게임 (Hearth of Ashes)</title>
 
@@ -125,6 +125,21 @@
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    /* Japanese and Chinese need their own glyphs; the Korean fonts above lack most kana/hanzi. */
+    :root:lang(ja) { --font-title: 'Zen Old Mincho', serif; --font-serif: 'Zen Old Mincho', serif; --font-hand: 'Klee One', 'Zen Old Mincho', cursive; }
+    :root:lang(zh-Hans) { --font-title: 'Noto Serif SC', serif; --font-serif: 'Noto Serif SC', serif; --font-hand: 'Noto Serif SC', serif; }
+    button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+    .lang-select-wrap {
+      position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--brass-bright); font-size: 14px;
+    }
+    .lang-select {
+      height: 36px; padding: 0 10px;
+      background: rgba(12, 9, 8, 0.78); color: var(--text-parchment);
+      border: 1px solid var(--brass-line); border-radius: 4px;
+      font-family: var(--font-ui); font-size: 14px;
+    }
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%;
       overflow: hidden; background: var(--bg-abyss);
@@ -193,8 +208,8 @@
       text-shadow: 0 4px 28px rgba(0,0,0,0.96), 0 0 36px rgba(240, 110, 30, 0.45);
     }
     .title-en {
-      font-family: 'Cinzel', serif;
-      font-size: 11px; font-weight: 600; letter-spacing: 6px;
+      font-family: var(--font-serif);
+      font-size: 13px; font-weight: 700; letter-spacing: 2px;
       color: rgba(230, 198, 135, 0.72);
       margin-bottom: 24px;
     }
@@ -288,6 +303,7 @@
 
     .hearth-plaque {
       flex: 1; min-width: 0;
+      border: 0; color: inherit; font: inherit; text-align: left;
       padding: 4px 2px;
       background: linear-gradient(90deg, rgba(8, 6, 6, 0.68) 0%, rgba(8, 6, 6, 0.25) 85%, transparent 100%);
       border-left: 2px solid var(--brass-bright);
@@ -978,82 +994,82 @@
   </style>
 </head>
 <body>
-  <canvas id="stage"></canvas>
+  <canvas id="stage" role="img" data-i18n-attr="aria-label:meta.title"></canvas>
   <div class="camera-flash" id="camera-flash"></div>
   <div class="drag-ghost" id="drag-ghost">
-    <span class="drag-ghost-seal" id="drag-ghost-icon">燒却</span>
-    <span id="drag-ghost-label">화로에 던지기</span>
+    <span class="drag-ghost-seal" id="drag-ghost-icon">🔥</span>
+    <span id="drag-ghost-label"></span>
   </div>
 
-  <!-- 1. Handcrafted Indie Game Title & Ignition Entry Screen -->
-  <section class="title-screen" id="title-screen" aria-label="불멍 재의 연금술 시작 화면">
+  <!-- 1. Title screen: language first, then one button -->
+  <section class="title-screen" id="title-screen" data-i18n-attr="aria-label:meta.title">
+    <label class="lang-select-wrap">
+      <span aria-hidden="true">🌐</span>
+      <select class="lang-select" id="title-lang-select" data-i18n-attr="aria-label:common.lang">
+        <option value="ko">한국어</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+        <option value="zh">中文</option>
+        <option value="es">Español</option>
+      </select>
+    </label>
     <div class="title-seal-mark" aria-hidden="true">火</div>
-    <h1 class="title-main">불 멍 : 재 의 연 금 술</h1>
-    <div class="title-en">HEARTH OF ASHES</div>
+    <h1 class="title-main" data-i18n="title.name">불멍</h1>
+    <div class="title-en" data-i18n="title.tagline"></div>
     <div class="title-divider"></div>
-    <p class="title-desc">
-      네 곳의 고요한 성소에서 화로를 깨우고,<br>
-      차마 건네지 못한 사직서와 깊은 밤의 번뇌, 그리고 <b>스무 가지 비전 주문</b>을 불길 속에 던지세요.<br>
-      최초로 피워낸 불꽃은 만인의 도감에 당신의 아호로 영구히 기록됩니다.
-    </p>
+    <p class="title-desc" data-i18n="title.desc"></p>
     <div class="title-nick-box">
-      <label for="intro-nick-input">도감에 각인할 연금술사 아호 (雅號)</label>
-      <input type="text" id="intro-nick-input" class="title-nick-input" maxlength="14" placeholder="아호 입력 (예: 시루아빠)" value="시루아빠">
+      <label for="intro-nick-input" data-i18n="title.nickLabel"></label>
+      <input type="text" id="intro-nick-input" class="title-nick-input" maxlength="14" data-i18n-attr="placeholder:title.nickPh">
     </div>
     <button type="button" class="ignite-ember-btn" id="btn-ignite-start">
-      <span>點火 · 화로 깨우기</span>
+      <span data-i18n="title.start"></span>
     </button>
     <div class="title-server-pill">
       <span class="server-dot"></span>
-      <span id="intro-server-status">실시간 성소 연결됨 · 전 세계의 불씨와 온기를 나누는 중</span>
+      <span id="intro-server-status" data-i18n="title.live"></span>
     </div>
   </section>
 
-  <!-- Auto-Capture Floating Polaroid Toast -->
-  <div class="capture-toast" id="capture-toast" role="status" aria-live="polite" title="탭하여 불꽃 도감 열기">
-    <img id="capture-toast-img" src="" alt="기록된 연금술 불꽃">
+  <!-- Capture toast -->
+  <div class="capture-toast" id="capture-toast" role="status" aria-live="polite" data-i18n-attr="title:album.title">
+    <img id="capture-toast-img" src="" alt="">
     <div class="capture-toast-info">
-      <span class="capture-toast-tag" id="capture-toast-tag">실시간 도감 각인 완료</span>
-      <div class="capture-toast-title" id="capture-toast-title">비전 불꽃 발견</div>
-      <div class="capture-toast-sub" id="capture-toast-sub">최초 발견자로 모든 접속자에게 공유됨</div>
+      <span class="capture-toast-tag" id="capture-toast-tag"></span>
+      <div class="capture-toast-title" id="capture-toast-title"></div>
+      <div class="capture-toast-sub" id="capture-toast-sub"></div>
     </div>
   </div>
 
-  <!-- Poetic Oracle Floating Banner -->
+  <!-- Oracle banner -->
   <div class="ash-oracle" id="ash-oracle" role="status" aria-live="polite">
-    <span class="ash-oracle-tag" id="oracle-tag">燒却 · 재가 남긴 문장</span>
-    <div class="ash-oracle-text" id="oracle-text">“타버린 것은 이미 당신의 짐이 아닙니다.”</div>
+    <span class="ash-oracle-tag" id="oracle-tag"></span>
+    <div class="ash-oracle-text" id="oracle-text"></div>
   </div>
 
-  <!-- Dying Fire Crisis Alert -->
-  <div class="dying-alert" id="dying-fire-alert">
-    화로의 불씨가 차갑게 식어갑니다 (Lv.0 잿더미).<br>
-    장작을 던지거나, 잿더미에서만 깨어나는 전설의 불새 주문을 외워보세요.
-  </div>
+  <!-- Dying fire notice (Lv.0 only) -->
+  <div class="dying-alert" id="dying-fire-alert" data-i18n="dying.text"></div>
 
-  <!-- 2. Main Minimalist Diegetic Game HUD -->
+  <!-- 2. HUD -->
   <div class="ui-shell" id="ui-shell">
     <div class="top-hud-cluster">
       <header class="game-top-hud">
-        <!-- Left: Calligraphic Thermometer & Hairline Brass Mercury Gauge -->
-        <div class="hearth-plaque" id="btn-fire-stage" title="탭하여 화력 단계 안내 보기">
+        <button type="button" class="hearth-plaque" id="btn-fire-stage" data-i18n-attr="title:hud.stageTitle">
           <div class="plaque-top-row">
             <span class="plaque-temp" id="stat-heat">440°C</span>
-            <span class="fire-stage-badge" id="fire-stage-badge">Lv.2 골목 모닥불</span>
+            <span class="fire-stage-badge" id="fire-stage-badge"></span>
             <span class="combo-pill" id="combo-pill">2x</span>
           </div>
           <div class="fatigue-bar-wrap">
             <div class="fatigue-bar-fill" id="fatigue-bar-fill"></div>
           </div>
           <div class="plaque-sub-row">
-            <span>동시접속 <strong id="live-count">1</strong> · 누적 소각 <strong id="global-burn-total">0</strong></span>
-            <button type="button" class="lv0-test-btn" id="btn-cool-lv0" title="불사조 이스터에그 실험용 Lv.0 잿더미 전환">잿더미 전환</button>
+            <span><span data-i18n="hud.online"></span> <strong id="live-count">1</strong> · <span data-i18n="hud.total"></span> <strong id="global-burn-total">0</strong></span>
           </div>
-        </div>
+        </button>
 
-        <!-- Right: 3 Engraved Brass Sigil Buttons (Custom Fine-Line SVG, Zero Emoji!) -->
         <div class="hud-medallions">
-          <button type="button" class="medallion-btn gold-glow" id="btn-open-album" title="불꽃 박물관 도감 (20종 비전서)">
+          <button type="button" class="medallion-btn gold-glow" id="btn-open-album" data-i18n-attr="title:hud.albumTitle;aria-label:hud.albumTitle">
             <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -1061,71 +1077,69 @@
             </svg>
             <span class="medallion-label" id="album-count-badge">0/20</span>
           </button>
-          <button type="button" class="medallion-btn" id="btn-world-toggle" title="소각 공감 채널 · 실시간 순위 · 언어">
+          <button type="button" class="medallion-btn" id="btn-world-toggle" data-i18n-attr="title:hud.worldTitle">
             <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="9"/>
               <path d="M3.6 9h16.8M3.6 15h16.8"/>
               <path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
             </svg>
-            <span class="medallion-label">채널·순위</span>
+            <span class="medallion-label" data-i18n="hud.world"></span>
           </button>
-          <button type="button" class="medallion-btn" id="btn-audio" title="빗소리 & 장작 타는 소리 ASMR 조절">
+          <button type="button" class="medallion-btn" id="btn-audio" data-i18n-attr="title:hud.soundTitle">
             <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true" id="audio-icon">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             </svg>
-            <span class="medallion-label" id="audio-label">음향</span>
+            <span class="medallion-label" id="audio-label" data-i18n="hud.sound"></span>
           </button>
         </div>
       </header>
 
-      <!-- 4-Space Book-Tab Strip (Each loads its own dedicated hand-painted sanctuary artwork!) -->
-      <div class="quick-space-bar" role="tablist" aria-label="4대 성소 배경 전환">
-        <button type="button" class="space-chip active" data-space="camp">밤공터</button>
-        <button type="button" class="space-chip" data-space="temple">산사 처마</button>
-        <button type="button" class="space-chip" data-space="snow">설산 오두막</button>
-        <button type="button" class="space-chip" data-space="cosmos">성운의 끝</button>
+      <div class="quick-space-bar" role="group" data-i18n-attr="aria-label:hud.spaces">
+        <button type="button" class="space-chip active" data-space="camp" data-i18n="space.camp"></button>
+        <button type="button" class="space-chip" data-space="temple" data-i18n="space.temple"></button>
+        <button type="button" class="space-chip" data-space="snow" data-i18n="space.snow"></button>
+        <button type="button" class="space-chip" data-space="cosmos" data-i18n="space.cosmos"></button>
       </div>
 
-      <!-- Expandable World / Channel / Ranking Drawer -->
       <section class="world-drawer" id="world-drawer">
         <div>
           <div class="drawer-section-label">
-            <span>소각장 공감 채널</span>
-            <span id="zen-room-caption">속세 해방 라운지</span>
+            <span data-i18n="drawer.rooms"></span>
+            <span id="zen-room-caption"></span>
           </div>
           <nav class="room-bar">
-            <button type="button" class="room-tab active" data-room="work">직장인</button>
-            <button type="button" class="room-tab" data-room="stock">주식·코인</button>
-            <button type="button" class="room-tab" data-room="relation">흑역사</button>
-            <button type="button" class="room-tab" data-room="zen">무념무상</button>
+            <button type="button" class="room-tab active" data-room="work" data-i18n="room.work.name"></button>
+            <button type="button" class="room-tab" data-room="stock" data-i18n="room.stock.name"></button>
+            <button type="button" class="room-tab" data-room="relation" data-i18n="room.relation.name"></button>
+            <button type="button" class="room-tab" data-room="zen" data-i18n="room.zen.name"></button>
           </nav>
         </div>
 
         <div>
           <button type="button" class="rank-strip" id="btn-rank-toggle" aria-expanded="true">
-            <span class="rank-badge">실시간 1위</span>
-            <span class="rank-word" id="top-rank-word">아직 소각된 번뇌 없음</span>
-            <span class="rank-count" id="top-rank-count">0회</span>
+            <span class="rank-badge" data-i18n="rank.top"></span>
+            <span class="rank-word" id="top-rank-word"></span>
+            <span class="rank-count" id="top-rank-count"></span>
           </button>
           <div class="rank-drawer open" id="rank-drawer">
-            <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-muted);margin:4px 2px;">
-              <span id="rank-drawer-title">오늘 밤 가장 많이 불탄 번뇌 TOP 5</span>
-              <span>탭하여 함께 태우기 (+75°C)</span>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin:4px 2px;">
+              <span id="rank-drawer-title"></span>
+              <span data-i18n="rank.hint"></span>
             </div>
             <div class="rank-list" id="rank-list"></div>
           </div>
         </div>
 
         <div>
-          <div class="drawer-section-label"><span>언어 선택 (Language)</span></div>
+          <div class="drawer-section-label"><span data-i18n="drawer.lang"></span></div>
           <div class="lang-bar">
-            <button type="button" class="lang-btn active" data-lang="ko">한국어</button>
-            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <button type="button" class="lang-btn" data-lang="ko">한국어</button>
+            <button type="button" class="lang-btn" data-lang="en">English</button>
             <button type="button" class="lang-btn" data-lang="ja">日本語</button>
             <button type="button" class="lang-btn" data-lang="zh">中文</button>
-            <button type="button" class="lang-btn" data-lang="es">ES</button>
+            <button type="button" class="lang-btn" data-lang="es">Español</button>
           </div>
         </div>
       </section>
@@ -1139,202 +1153,133 @@
       <span id="essence-count">0</span>
     </div>
 
-    <!-- 3. Bottom Tactile Paper Talisman Hand (Physical Slips Rising from Bottom Edge) -->
+    <!-- 3. Throwable cards -->
     <footer class="bottom-game-dock">
-      <div class="live-whisper-bar" id="live-ticker">
-        화로를 터치해 불길을 키우거나, 아래의 부적과 봉투를 불 속으로 끌어 던지세요.
-      </div>
+      <div class="live-whisper-bar" id="live-ticker" data-i18n="ticker.idle"></div>
 
-      <div class="talisman-hand" role="group" aria-label="소각할 부적 및 물건 패">
+      <div class="talisman-hand" role="group" data-i18n-attr="aria-label:card.group">
         <button type="button" class="game-item-card card-resign" data-throw-item="resignation">
-          <span class="card-hanja-seal">辭職</span>
-          <span class="item-name">미제출 사직서</span>
-          <span class="item-sub">+65°C 소각</span>
+          <span class="card-hanja-seal" aria-hidden="true">✉️</span>
+          <span class="item-name" data-i18n="card.resign"></span>
+          <span class="item-sub">+65°C</span>
         </button>
-
         <button type="button" class="game-item-card card-ledger" data-throw-item="stock">
-          <span class="card-hanja-seal">損益</span>
-          <span class="item-name">물린 파란계좌</span>
-          <span class="item-sub">+65°C 소각</span>
+          <span class="card-hanja-seal" aria-hidden="true">📉</span>
+          <span class="item-name" data-i18n="card.stock"></span>
+          <span class="item-sub">+65°C</span>
         </button>
-
         <button type="button" class="game-item-card card-talisman primary-scroll" id="btn-open-hanji">
-          <span class="card-hanja-seal">符籍</span>
-          <span class="item-name">주문·번뇌 쓰기</span>
-          <span class="item-sub">+95°C 비전</span>
+          <span class="card-hanja-seal" aria-hidden="true">✍️</span>
+          <span class="item-name" data-i18n="card.write"></span>
+          <span class="item-sub">+95°C</span>
         </button>
-
         <button type="button" class="game-item-card card-clock" data-throw-item="clock">
-          <span class="card-hanja-seal">時針</span>
-          <span class="item-name">월요병 시계</span>
-          <span class="item-sub">+65°C 폭파</span>
+          <span class="card-hanja-seal" aria-hidden="true">⏰</span>
+          <span class="item-name" data-i18n="card.clock"></span>
+          <span class="item-sub">+65°C</span>
         </button>
-
         <button type="button" class="game-item-card card-wood" id="btn-wood" data-throw-item="wood">
-          <span class="card-hanja-seal">柴木</span>
-          <span class="item-name">참나무 장작</span>
-          <span class="item-sub">+45°C 투입</span>
+          <span class="card-hanja-seal" aria-hidden="true">🪵</span>
+          <span class="item-name" data-i18n="card.wood"></span>
+          <span class="item-sub">+45°C</span>
         </button>
       </div>
 
       <div class="dock-sub-actions">
-        <button type="button" class="sub-action-btn" id="btn-powder">물약 변환</button>
-        <button type="button" class="sub-action-btn" id="btn-warmth">온기 나누기</button>
-        <button type="button" class="sub-action-btn" id="btn-myfire">
-          <span id="myfire-banner-label">내 화로</span> (<span id="myfire-guest-count">3</span>)
-        </button>
-        <button type="button" class="sub-action-btn" id="btn-cert">해방 증명서</button>
+        <button type="button" class="sub-action-btn" id="btn-powder" data-i18n="dock.powder"></button>
+        <button type="button" class="sub-action-btn" id="btn-cert" data-i18n="dock.cert"></button>
       </div>
     </footer>
   </div>
 
-  <!-- Tactile Hanji Swipe-to-Burn Sheet -->
-  <div class="hanji-overlay" id="hanji-overlay" role="dialog" aria-modal="true" aria-label="한지 번뇌 및 비밀 주문 소각장">
+  <!-- Write-and-burn sheet -->
+  <div class="hanji-overlay" id="hanji-overlay" role="dialog" aria-modal="true" data-i18n-attr="aria-label:sheet.label">
     <div class="swipe-guide">
       <span class="swipe-arrow">↑</span>
-      <span>글을 적은 뒤 양피지를 위로 밀어 화로 속에 던지세요</span>
+      <span data-i18n="sheet.guide"></span>
     </div>
 
     <div class="hanji-sheet" id="hanji-sheet">
       <div class="hanji-top">
-        <span class="hanji-stamp" id="hanji-room-stamp">연금술 소각부적 · 燒却</span>
+        <span class="hanji-stamp" id="hanji-room-stamp"></span>
         <div style="display:flex; gap:6px; align-items:center;">
-          <button type="button" class="gold-toggle-btn" id="btn-gold-talisman">황금 소원부적 전환</button>
-          <button type="button" class="hanji-close" id="btn-close-hanji" aria-label="닫기">✕</button>
+          <button type="button" class="gold-toggle-btn" id="btn-gold-talisman" hidden></button>
+          <button type="button" class="hanji-close" id="btn-close-hanji" data-i18n-attr="aria-label:common.close">✕</button>
         </div>
       </div>
 
       <div class="hanji-chips" id="hanji-chips"></div>
 
-      <textarea
-        id="burn-input"
-        class="hanji-textarea"
-        maxlength="60"
-        placeholder="태워버릴 기억이나 20종 비밀 주문(예: 42, hello, world!, 프로메테우스)을 적어 불에 던지세요…"
-      ></textarea>
+      <textarea id="burn-input" class="hanji-textarea" maxlength="60" data-i18n-attr="placeholder:sheet.ph"></textarea>
 
       <div class="hanji-foot">
-        <span class="hanji-hint">위로 스와이프하여 화로에 투척 (+95°C)</span>
-        <button type="button" class="hanji-burn-cta" id="burn-btn">화로에 던지기</button>
+        <span class="hanji-hint" data-i18n="sheet.hint"></span>
+        <button type="button" class="hanji-burn-cta" id="burn-btn" data-i18n="sheet.burn"></button>
       </div>
     </div>
   </div>
 
-  <!-- ASMR Audio Mixer Modal -->
+  <!-- Sound -->
   <div class="modal-backdrop" id="modal-audio" role="dialog" aria-modal="true" aria-labelledby="audio-modal-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="audio-modal-title">성소 음향 조절 (ASMR Mixer)</h2>
-        <button type="button" class="close-btn" data-close="modal-audio">✕</button>
+        <h2 id="audio-modal-title" data-i18n="audio.title"></h2>
+        <button type="button" class="close-btn" data-close="modal-audio" data-i18n-attr="aria-label:common.close">✕</button>
       </div>
       <div class="slider-row">
-        <label><span>참나무 장작 타는 소리 (Crackle)</span><strong id="val-fire">75%</strong></label>
+        <label for="vol-fire"><span data-i18n="audio.fire"></span><strong id="val-fire">75%</strong></label>
         <input type="range" id="vol-fire" min="0" max="100" value="75">
       </div>
       <div class="slider-row">
-        <label><span>밤비 & 설산 바람 소리 (Ambience)</span><strong id="val-rain">55%</strong></label>
+        <label for="vol-rain"><span data-i18n="audio.rain"></span><strong id="val-rain">55%</strong></label>
         <input type="range" id="vol-rain" min="0" max="100" value="55">
       </div>
       <div class="slider-row">
-        <label><span>산사 풍경 & 싱잉볼 울림 (Chime)</span><strong id="val-chime">70%</strong></label>
+        <label for="vol-chime"><span data-i18n="audio.chime"></span><strong id="val-chime">70%</strong></label>
         <input type="range" id="vol-chime" min="0" max="100" value="70">
       </div>
-      <button type="button" class="modal-cta" id="btn-toggle-mute">음향 켜짐 (탭하여 음소거 전환)</button>
+      <button type="button" class="modal-cta" id="btn-toggle-mute" data-i18n="audio.off"></button>
     </div>
   </div>
 
-  <!-- Viral Certificate Modal -->
+  <!-- Record card -->
   <div class="modal-backdrop" id="modal-cert" role="dialog" aria-modal="true" aria-labelledby="cert-modal-title">
     <div class="modal-card">
       <div class="modal-head">
-        <h2 id="cert-modal-title">속세 해방 & 연금술 소각 증명서</h2>
-        <button type="button" class="close-btn" data-close="modal-cert">✕</button>
+        <h2 id="cert-modal-title" data-i18n="cert.title"></h2>
+        <button type="button" class="close-btn" data-close="modal-cert" data-i18n-attr="aria-label:common.close">✕</button>
       </div>
       <canvas id="cert-canvas" width="720" height="900"></canvas>
-      <button type="button" class="modal-cta" id="btn-download-cert">증명서 이미지 저장하기</button>
+      <button type="button" class="modal-cta" id="btn-download-cert" data-i18n="cert.save"></button>
     </div>
   </div>
 
-  <!-- My Personal Campfire Link & Friend Firewood Guestbook Modal -->
-  <div class="modal-backdrop" id="modal-myfire" role="dialog" aria-modal="true" aria-labelledby="myfire-modal-title">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h2 id="myfire-modal-title">내 화로 분양 & 응원 장작 방명록</h2>
-        <button type="button" class="close-btn" data-close="modal-myfire">✕</button>
-      </div>
-
-      <div class="myfire-section">
-        <h3>내 전용 화로 링크 만들기 (공유용)</h3>
-        <div class="myfire-input-row">
-          <input type="text" id="myfire-owner-input" class="myfire-input" maxlength="12" placeholder="내 아호 (예: 시루아빠)">
-          <button type="button" class="myfire-sub-btn" id="btn-copy-myfire">링크 복사</button>
-        </div>
-        <input type="text" id="myfire-sign-input" class="myfire-input" style="width:100%;" maxlength="28" placeholder="화로 소개글 (예: 지나가다 장작 하나씩 던져주고 가세요)">
-      </div>
-
-      <div class="myfire-section">
-        <h3>실시간 응원 장작 던지기 (모든 접속자에게 즉시 표시)</h3>
-        <div class="myfire-input-row" style="margin-bottom:4px;">
-          <input type="text" id="guest-wood-input" class="myfire-input" maxlength="32" placeholder="따뜻한 응원 한마디 적어 장작 던지기…">
-          <button type="button" class="myfire-sub-btn" id="btn-throw-guest-wood">장작 투척</button>
-        </div>
-        <div class="guestbook-list" id="guestbook-list"></div>
-      </div>
-
-      <button type="button" class="modal-cta" id="btn-apply-myfire">내 화로 설정 적용 & 공유 링크 복사</button>
-    </div>
-  </div>
-
-  <!-- Automated Web Payment Modal (PayPal Global Auto Return + IP Binding) -->
-  <div class="modal-backdrop" id="modal-checkout" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h2 id="checkout-modal-title">황금 소원성취 부적 & 도감 비전서 해금</h2>
-        <button type="button" class="close-btn" data-close="modal-checkout">✕</button>
-      </div>
-      <div class="checkout-perk-list" id="checkout-perk-list">
-        • <b>PayPal 100% 자동 콜백 해금</b>: 결제 완료 후 복귀 시 수동 확인 없이 즉시 자동 해금됩니다.<br>
-        • <b>서버 IP & 기기 자동 귀속</b>: 현재 접속 IP(<code id="user-ip-badge">확인 중…</code>)와 브라우저에 영구 귀속됩니다.<br>
-        • <b>해금 혜택 (<span id="checkout-price-label">$0.99 · PayPal 자동결제</span>)</b>: <b>황금 소원부적 무제한 + 도감 미발견 비전 불꽃 즉시 발동</b>
-      </div>
-      <div class="pay-grid">
-        <button type="button" class="pay-method-btn" id="btn-pay-paypal">
-          PayPal 글로벌 자동 결제 ($0.99 · 즉시 해금)
-        </button>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.45;">
-        수동 입금 확인 없이 PayPal 승인 콜백으로 즉시 자동 해금됩니다.
-      </div>
-    </div>
-  </div>
-
-  <!-- Easter Egg Hall of Fame & Real-Time Shared Museum Modal (#modal-album) -->
+  <!-- Secret flame album -->
   <div class="modal-backdrop" id="modal-album" role="dialog" aria-modal="true" aria-labelledby="album-modal-title">
     <div class="modal-card album-card">
       <div class="modal-head" style="margin-bottom:10px;flex:none;">
-        <h2 id="album-modal-title">불꽃 박물관 · 전 세계 최초 발견자 도감</h2>
-        <button type="button" class="close-btn" data-close="modal-album">✕</button>
+        <h2 id="album-modal-title" data-i18n="album.title"></h2>
+        <button type="button" class="close-btn" data-close="modal-album" data-i18n-attr="aria-label:common.close">✕</button>
       </div>
 
       <div class="album-progress-wrap">
         <div class="album-progress-top">
-          <span id="album-progress-text">전 세계 서버 해금 현황: 0 / 20종 (0%)</span>
-          <span style="color:var(--brass-bright);font-size:11px;">실시간 동기화 중</span>
+          <span id="album-progress-text"></span>
         </div>
         <div class="album-bar-bg">
           <div class="album-bar-fill" id="album-bar-fill"></div>
         </div>
         <div class="myfire-input-row" style="margin-top:8px;margin-bottom:0;">
-          <input type="text" id="discoverer-name-input" class="myfire-input" style="height:32px;font-size:12px;" maxlength="14" placeholder="최초 발견자 각인 아호 (예: 시루아빠)">
-          <button type="button" class="myfire-sub-btn" id="btn-save-discoverer" style="height:32px;">아호 저장</button>
+          <input type="text" id="discoverer-name-input" class="myfire-input" style="height:32px;font-size:12px;" maxlength="14" data-i18n-attr="placeholder:album.nickPh;aria-label:album.nickPh">
+          <button type="button" class="myfire-sub-btn" id="btn-save-discoverer" style="height:32px;" data-i18n="album.nickSave"></button>
         </div>
       </div>
 
-      <div class="album-filter-bar" role="tablist">
-        <button type="button" class="album-filter-btn active" data-filter="all">전체 (20)</button>
-        <button type="button" class="album-filter-btn" data-filter="unlocked">기록완료</button>
-        <button type="button" class="album-filter-btn" data-filter="locked">미발견</button>
-        <button type="button" class="album-filter-btn" data-filter="mythic">신화·비전</button>
+      <div class="album-filter-bar" role="group">
+        <button type="button" class="album-filter-btn active" data-filter="all"></button>
+        <button type="button" class="album-filter-btn" data-filter="unlocked" data-i18n="album.unlocked"></button>
+        <button type="button" class="album-filter-btn" data-filter="locked" data-i18n="album.locked"></button>
+        <button type="button" class="album-filter-btn" data-filter="mythic" data-i18n="album.mythic"></button>
       </div>
 
       <div class="album-grid" id="album-grid"></div>
