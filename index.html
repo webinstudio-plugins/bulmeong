@@ -1025,6 +1025,45 @@
     .title-nick-input::placeholder { font-size: 13px; letter-spacing: 0; }
     #title-screen:not(.hidden) ~ #ui-shell { opacity: 0; pointer-events: none; }
     #ui-shell { transition: opacity 0.6s ease; }
+
+    /* ── v9b: menu, readable sizes, leave-it-on mode ── */
+    .plaque-temp { font-size: 15px; }
+    .fire-stage-badge { font-size: 16px; color: #fff1d8; }
+    .plaque-sub-row, .medallion-label { font-size: 12px; }
+    .medallion-btn { width: 52px; height: 50px; }
+    .world-drawer { font-size: 13px; }
+    .drawer-section-label, .rank-drawer-head { font-size: 12.5px; }
+    .rank-drawer-head { display: flex; justify-content: space-between; color: var(--text-muted); margin: 4px 2px; }
+    .room-tab, .lang-btn, .space-chip { font-size: 13px; min-height: 40px; }
+    .rank-item, .rank-strip { font-size: 13px; }
+    .rank-no, .rank-item-fires, .rank-count, .rank-badge, .rank-item-burn-btn { font-size: 12px; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .menu-btn {
+      min-height: 52px; padding: 6px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+      border: 1px solid rgba(218, 178, 114, 0.3); background: rgba(255, 255, 255, 0.04);
+      color: var(--text-parchment); font-family: var(--font-serif); font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .menu-btn:hover { border-color: var(--brass-bright); }
+    .live-whisper-bar { font-size: 12.5px; }
+    .sub-action-btn { font-size: 13px; }
+    .hanji-chip, .hanji-hint { font-size: 13px; }
+    .egg-hint, .egg-discoverer, .album-filter-btn, .egg-act-btn { font-size: 12px; }
+    .egg-tier-badge { font-size: 11px; }
+    .capture-toast-tag { font-size: 12px; }
+    .capture-toast-sub { font-size: 12px; }
+    .dying-alert { font-size: 13px; }
+    .share-save { width: 100%; height: 40px; margin-top: 8px; }
+    .idle-bar {
+      position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translate(-50%, 12px);
+      z-index: 70; display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: rgba(12, 9, 8, 0.88); border: 1px solid var(--brass-line); color: var(--text-parchment);
+      font-family: var(--font-serif); font-size: 13px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .idle-bar select { margin-left: 6px; height: 34px; background: #120e0d; color: var(--text-parchment); border: 1px solid var(--brass-line); font-size: 13px; }
+    body.idle #ui-shell, body.idle .ash-oracle, body.idle .capture-toast, body.idle .dying-alert { opacity: 0 !important; pointer-events: none !important; }
+    body.idle.idle-bar-on .idle-bar { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+    body.idle #stage { cursor: none; }
+    .ui-shell:has(.world-drawer.open) ~ .ash-oracle, body:has(.world-drawer.open) .ash-oracle { opacity: 0; }
   </style>
 </head>
 <body>
@@ -1111,44 +1150,28 @@
             </svg>
             <span class="medallion-label" id="album-count-badge">0/20</span>
           </button>
-          <button type="button" class="medallion-btn" id="btn-world-toggle" data-i18n-attr="title:hud.worldTitle">
-            <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M3.6 9h16.8M3.6 15h16.8"/>
-              <path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
-            </svg>
-            <span class="medallion-label" data-i18n="hud.world"></span>
-          </button>
-          <button type="button" class="medallion-btn" id="btn-audio" data-i18n-attr="title:hud.soundTitle">
-            <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true" id="audio-icon">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-            <span class="medallion-label" id="audio-label" data-i18n="hud.sound"></span>
+          <button type="button" class="medallion-btn" id="btn-world-toggle" aria-controls="world-drawer" aria-expanded="false" data-i18n-attr="title:hud.menu">
+            <svg class="sigil-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            <span class="medallion-label" data-i18n="hud.menu"></span>
           </button>
         </div>
       </header>
 
-      <div class="quick-space-bar" role="group" data-i18n-attr="aria-label:hud.spaces">
-        <button type="button" class="space-chip active" data-space="camp" data-i18n="space.camp"></button>
-        <button type="button" class="space-chip" data-space="temple" data-i18n="space.temple"></button>
-        <button type="button" class="space-chip" data-space="snow" data-i18n="space.snow"></button>
-        <button type="button" class="space-chip" data-space="cosmos" data-i18n="space.cosmos"></button>
-      </div>
-
       <section class="world-drawer" id="world-drawer">
         <div>
-          <div class="drawer-section-label">
-            <span data-i18n="drawer.rooms"></span>
-            <span id="zen-room-caption"></span>
+          <div class="drawer-section-label"><span data-i18n="hud.spaces"></span></div>
+          <div class="quick-space-bar" role="group" data-i18n-attr="aria-label:hud.spaces">
+            <button type="button" class="space-chip active" data-space="camp" data-i18n="space.camp"></button>
+            <button type="button" class="space-chip" data-space="temple" data-i18n="space.temple"></button>
+            <button type="button" class="space-chip" data-space="snow" data-i18n="space.snow"></button>
+            <button type="button" class="space-chip" data-space="cosmos" data-i18n="space.cosmos"></button>
           </div>
-          <nav class="room-bar">
-            <button type="button" class="room-tab active" data-room="work" data-i18n="room.work.name"></button>
-            <button type="button" class="room-tab" data-room="stock" data-i18n="room.stock.name"></button>
-            <button type="button" class="room-tab" data-room="relation" data-i18n="room.relation.name"></button>
-            <button type="button" class="room-tab" data-room="zen" data-i18n="room.zen.name"></button>
-          </nav>
+        </div>
+
+        <div class="menu-grid">
+          <button type="button" class="menu-btn" id="btn-audio"><span aria-hidden="true">🔊</span><span id="audio-label" data-i18n="hud.sound"></span></button>
+          <button type="button" class="menu-btn" id="btn-powder"><span aria-hidden="true">✨</span><span data-i18n="dock.powder"></span></button>
+          <button type="button" class="menu-btn" id="btn-idle"><span aria-hidden="true">🌙</span><span data-i18n="idle.enter"></span></button>
         </div>
 
         <div>
@@ -1158,8 +1181,8 @@
             <span class="rank-count" id="top-rank-count"></span>
           </button>
           <div class="rank-drawer open" id="rank-drawer">
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin:4px 2px;">
-              <span id="rank-drawer-title"></span>
+            <div class="rank-drawer-head">
+              <span data-i18n="rank.heading"></span>
               <span data-i18n="rank.hint"></span>
             </div>
             <div class="rank-list" id="rank-list"></div>
@@ -1220,8 +1243,7 @@
       </div>
 
       <div class="dock-sub-actions">
-        <button type="button" class="sub-action-btn" id="btn-powder" data-i18n="dock.powder"></button>
-        <button type="button" class="sub-action-btn" id="btn-cert" data-i18n="dock.cert"></button>
+        <button type="button" class="sub-action-btn" id="btn-cert"><span aria-hidden="true">📷</span> <span data-i18n="share.open"></span></button>
       </div>
     </footer>
   </div>
@@ -1283,8 +1305,9 @@
         <h2 id="cert-modal-title" data-i18n="cert.title"></h2>
         <button type="button" class="close-btn" data-close="modal-cert" data-i18n-attr="aria-label:common.close">✕</button>
       </div>
-      <canvas id="cert-canvas" width="720" height="900"></canvas>
-      <button type="button" class="modal-cta" id="btn-download-cert" data-i18n="cert.save"></button>
+      <canvas id="cert-canvas" width="1080" height="1350"></canvas>
+      <button type="button" class="modal-cta" id="btn-share-card" data-i18n="share.btn"></button>
+      <button type="button" class="myfire-sub-btn share-save" id="btn-download-cert" data-i18n="cert.save"></button>
     </div>
   </div>
 
@@ -1318,6 +1341,14 @@
 
       <div class="album-grid" id="album-grid"></div>
     </div>
+  </div>
+
+  <!-- Leave-it-on mode controls (shown for a few seconds after a tap) -->
+  <div class="idle-bar" id="idle-bar">
+    <label><span data-i18n="idle.timer"></span>
+      <select id="idle-timer"></select>
+    </label>
+    <button type="button" class="myfire-sub-btn" id="btn-idle-exit" data-i18n="idle.exit"></button>
   </div>
 
   <script type="module" src="./app.mjs"></script>

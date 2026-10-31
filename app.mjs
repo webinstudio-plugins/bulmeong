@@ -40,11 +40,9 @@ try {
 } catch {}
 
 const urlParams = new URLSearchParams(window.location.search);
-const queryRoom = urlParams.get('room');
 const querySpace = urlParams.get('space');
 
 const state = {
-  room: (queryRoom && ROOMS[queryRoom]) ? queryRoom : 'work',
   space: (querySpace && ['camp', 'temple', 'snow', 'cosmos'].includes(querySpace)) ? querySpace : (saved.space || 'camp'),
   seconds: Number(saved.seconds) || 0,
   burnedCount: Number(saved.burnedCount) || 0,
@@ -57,6 +55,9 @@ const state = {
   goldUnlocked: Boolean(saved.goldUnlocked),
   goldMode: Boolean(saved.goldUnlocked),
   cosmosOpen: Boolean(saved.cosmosOpen),
+  day: saved.day || '',
+  burnedToday: Number(saved.burnedToday) || 0,
+  maxTempToday: Number(saved.maxTempToday) || 0,
   eggAlbum: (saved.eggAlbum && typeof saved.eggAlbum === 'object') ? saved.eggAlbum : {},
   albumFilter: 'all',
   heat: 36.5,
@@ -67,6 +68,15 @@ const state = {
   volRain: 0.55,
   volChime: 0.70
 };
+
+const todayKey = () => new Date().toLocaleDateString('en-CA');
+function rollDay() {
+  if (state.day !== todayKey()) {
+    state.day = todayKey();
+    state.burnedToday = 0;
+    state.maxTempToday = 0;
+  }
+}
 
 function saveState() {
   try {
@@ -84,6 +94,9 @@ function saveState() {
       tossLink: state.tossLink,
       goldUnlocked: state.goldUnlocked,
       cosmosOpen: state.cosmosOpen,
+      day: state.day,
+      burnedToday: state.burnedToday,
+      maxTempToday: state.maxTempToday,
       eggAlbum: state.eggAlbum
     }));
   } catch {}
@@ -484,6 +497,8 @@ function addTemperature(baseDelta = 15, popupX = fireX, popupY = fireY - 40, sho
   const actualDelta = Math.max(2, Math.round(baseDelta * damp * comboMult));
 
   state.tempC = +(state.tempC + actualDelta).toFixed(1);
+  rollDay();
+  state.maxTempToday = Math.max(state.maxTempToday, Math.round(state.tempC));
   syncFatigueFromTemp();
 
   const nextStage = getFireStage();
@@ -636,29 +651,20 @@ function spawnSmoke(x = fireX, y = fireY - 75) {
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const safeImg = s => (typeof s === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(s) ? s : '');
 
-// ── Room & Ranking Management ────────────────────────────────────────────────
-function currentRoom() {
-  return ROOMS[state.room] || ROOMS.work;
-}
+// ── Rankings and suggestion chips (one pool from all four topics) ───────────
+const ALL_RANKINGS = Object.values(ROOMS).flatMap(r => r.rankings);
+const ALL_CHIPS = Object.values(ROOMS).flatMap(r => r.chips);
+const ALL_ORACLES = Object.values(ROOMS).flatMap(r => r.oracles);
 
 function renderRoomUI() {
-  const r = currentRoom();
-  document.querySelectorAll('.room-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.room === r.id);
-  });
-  document.getElementById('zen-room-caption').textContent = r.caption;
-  document.getElementById('hanji-room-stamp').textContent = r.stamp;
-  document.getElementById('rank-drawer-title').textContent = t('rank.title', { room: r.title });
-
-  // Sort and render real rankings
-  r.rankings.sort((a, b) => b.count - a.count);
-  const top = r.rankings[0];
+  const ranked = [...ALL_RANKINGS].sort((a, b) => b.count - a.count);
+  const top = ranked[0];
   const drawerOpen = document.getElementById('rank-drawer').classList.contains('open');
   document.getElementById('top-rank-word').textContent = top && top.count > 0 ? top.word : t('rank.empty');
   document.getElementById('top-rank-count').textContent = `${t('rank.count', { n: (top ? top.count : 0).toLocaleString(LOCALE) })} ${drawerOpen ? '▴' : '▾'}`;
 
   const listEl = document.getElementById('rank-list');
-  listEl.innerHTML = r.rankings.slice(0, 5).map((item, idx) => `
+  listEl.innerHTML = ranked.slice(0, 5).map((item, idx) => `
     <div class="rank-item" data-rank-word="${esc(item.word)}">
       <span class="rank-no">${t('rank.no', { n: idx + 1 })}</span>
       <span class="rank-item-word">${esc(item.word)}</span>
@@ -669,20 +675,22 @@ function renderRoomUI() {
 
   listEl.querySelectorAll('.rank-item').forEach(row => {
     row.addEventListener('click', () => {
-      const w = row.getAttribute('data-rank-word');
-      document.getElementById('rank-drawer').classList.remove('open');
-      burnWorry(w);
+      document.getElementById('world-drawer').classList.remove('open');
+      burnWorry(row.getAttribute('data-rank-word'));
     });
   });
+}
 
-  // Render quick chips + Secret Code / Spell Easter Egg chips on the Hanji sheet
-  const SECRET_CHIPS = ['egg_matrix', 'egg_bull', 'egg_fireworks', 'egg_lightning', 'egg_sakura']
-    .map(id => EASTER_EGG_DEX.find(e => e.id === id))
-    .map(e => ({ label: e.title, val: e.sampleTrigger }));
+// Six suggestions from the whole pool plus three secret-word samples, reshuffled each time the sheet opens.
+function renderChips() {
+  const pick = [...ALL_CHIPS].sort(() => Math.random() - 0.5).slice(0, 6);
+  const secrets = ['egg_matrix', 'egg_bull', 'egg_fireworks', 'egg_lightning', 'egg_sakura']
+    .sort(() => Math.random() - 0.5).slice(0, 3)
+    .map(id => EASTER_EGG_DEX.find(e => e.id === id));
   const chipsEl = document.getElementById('hanji-chips');
   chipsEl.innerHTML =
-    r.chips.map(c => `<button type="button" class="hanji-chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('') +
-    SECRET_CHIPS.map(sc => `<button type="button" class="hanji-chip" style="border-color:#b84318;background:rgba(184,67,24,0.12);color:#7c240c;" data-chip="${esc(sc.val)}">${esc(sc.label)}</button>`).join('');
+    pick.map(c => `<button type="button" class="hanji-chip" data-chip="${esc(c)}">${esc(c)}</button>`).join('') +
+    secrets.map(e => `<button type="button" class="hanji-chip" style="border-color:#b84318;background:rgba(184,67,24,0.12);color:#7c240c;" data-chip="${esc(e.sampleTrigger)}">${esc(e.title)}</button>`).join('');
   chipsEl.querySelectorAll('.hanji-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const input = document.getElementById('burn-input');
@@ -691,14 +699,6 @@ function renderRoomUI() {
     });
   });
 }
-
-document.querySelectorAll('.room-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    state.room = btn.dataset.room;
-    renderRoomUI();
-    stokeFire(18);
-  });
-});
 
 document.getElementById('btn-rank-toggle').addEventListener('click', () => {
   const drawer = document.getElementById('rank-drawer');
@@ -1226,10 +1226,9 @@ function showOracle(text, tag = t('oracle.tag')) {
 }
 
 // Only preset words are ranked and shared; whatever people type stays on their device.
-function findRanking(text, roomKey) {
-  const r = ROOMS[roomKey] || currentRoom();
+function findRanking(text) {
   const clean = (text || '').trim();
-  return clean ? r.rankings.find(item => clean === item.word || clean.includes(item.word)) || null : null;
+  return clean ? ALL_RANKINGS.find(item => clean === item.word || clean.includes(item.word)) || null : null;
 }
 
 function incrementRanking(item) {
@@ -1244,13 +1243,12 @@ const showTime = v => {
 };
 
 function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scroll', fromRemote = false) {
-  const r = currentRoom();
-  const text = (rawText || '').trim() || r.rankings[0].word;
+  const text = (rawText || '').trim() || ALL_RANKINGS[0].word;
   state.lastBurnedText = text;
   const isGold = !!state.goldMode;
-  const oracle = isGold ? t('gold.oracle') : r.oracles[(state.burnedCount + text.length) % r.oracles.length];
+  const oracle = isGold ? t('gold.oracle') : ALL_ORACLES[(state.burnedCount + text.length) % ALL_ORACLES.length];
   state.lastOracle = oracle;
-  const ranked = findRanking(text, state.room);
+  const ranked = findRanking(text);
   incrementRanking(ranked);
 
   const burnId = 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
@@ -1264,7 +1262,7 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
     oracle,
     isGold,
     itemType,
-    stamp: isGold ? t('sheet.goldStamp') : r.stamp,
+    stamp: isGold ? t('sheet.goldStamp') : t('sheet.stamp'),
     startX,
     startY,
     x: startX,
@@ -1279,8 +1277,7 @@ function burnWorry(rawText, startX = W * 0.5, startY = H * 0.78, itemType = 'scr
       totalAfter: state.globalBurnTotal,
       nick: state.discovererName || '',
       rk: ranked ? ranked.rk : '',
-      itemType,
-      room: state.room
+      itemType
     });
   }
   if (isGold) {
@@ -1308,6 +1305,7 @@ const hanjiSheet = document.getElementById('hanji-sheet');
 const burnInput = document.getElementById('burn-input');
 
 function openHanjiSheet() {
+  renderChips();
   if (!state.audioEnabled) toggleAudio(true);
   hanjiSheet.style.transform = '';
   hanjiSheet.style.opacity = '1';
@@ -1815,8 +1813,10 @@ function drawScene() {
       }
     } else {
       state.burnedCount += 1;
+      rollDay();
+      state.burnedToday += 1;
       risingEmberTexts.push({
-        label: `${t('note.me')} · 「${activeNote.text.slice(0, 18)}」`,
+        label: `${t('note.me')} 🔥`,
         x: fireX,
         y: fireY - 46,
         life: 0,
@@ -2185,7 +2185,7 @@ function updateGoldUI() {
   goldBtn.hidden = !state.goldUnlocked;
   hanjiSheet.classList.toggle('golden', !!state.goldMode);
   goldBtn.textContent = t(state.goldMode ? 'sheet.goldOn' : 'sheet.gold');
-  document.getElementById('hanji-room-stamp').textContent = state.goldMode ? t('sheet.goldStamp') : currentRoom().stamp;
+  document.getElementById('hanji-room-stamp').textContent = state.goldMode ? t('sheet.goldStamp') : t('sheet.stamp');
   burnInput.placeholder = t(state.goldMode ? 'sheet.phGold' : 'sheet.ph');
 }
 
@@ -2347,7 +2347,7 @@ setInterval(() => {
     document.getElementById('combo-pill')?.classList.remove('show');
   }
   // While someone tends it the fire rests at a campfire; left alone 3 minutes it sinks to Lv.0 embers (the phoenix needs that).
-  const floor = idleMs > 180000 ? 84 : 360;
+  const floor = isIdle() ? 480 : idleMs > 180000 ? 84 : 360;
   if (idleMs > 1400 && state.tempC > floor) {
     const excess = Math.max(0, state.tempC - 84);
     const coolPerSec = 3.5 + excess * 0.022;
@@ -2369,6 +2369,10 @@ let isCanvasDragging = false;
 let lastCanvasX = 0;
 
 canvas.addEventListener('pointerdown', e => {
+  if (isIdle()) {
+    showIdleBar();
+    return;
+  }
   if (!state.audioEnabled) toggleAudio(true);
   isCanvasDragging = true;
   lastCanvasX = e.clientX;
@@ -2410,7 +2414,58 @@ document.getElementById('btn-ignite-start')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-world-toggle')?.addEventListener('click', () => {
-  document.getElementById('world-drawer')?.classList.toggle('open');
+  const open = document.getElementById('world-drawer').classList.toggle('open');
+  document.getElementById('btn-world-toggle').setAttribute('aria-expanded', String(open));
+  if (open) document.getElementById('ash-oracle').classList.remove('show');
+});
+
+// ── Leave-it-on mode: no UI, fullscreen, screen kept awake, optional sleep timer ──
+let wakeLock = null;
+let idleOffTimer = 0;
+let idleBarTimer = 0;
+const isIdle = () => document.body.classList.contains('idle');
+async function keepAwake() {
+  try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {}
+}
+function showIdleBar() {
+  document.body.classList.add('idle-bar-on');
+  clearTimeout(idleBarTimer);
+  idleBarTimer = setTimeout(() => document.body.classList.remove('idle-bar-on'), 4000);
+}
+async function enterIdle() {
+  document.getElementById('world-drawer').classList.remove('open');
+  document.body.classList.add('idle');
+  if (!state.audioEnabled) toggleAudio(true);
+  try { await document.documentElement.requestFullscreen?.(); } catch {}
+  keepAwake();
+  showIdleBar();
+}
+function exitIdle() {
+  document.body.classList.remove('idle', 'idle-bar-on');
+  clearTimeout(idleOffTimer);
+  wakeLock?.release?.().catch(() => {});
+  wakeLock = null;
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+}
+const idleTimer = document.getElementById('idle-timer');
+idleTimer.innerHTML = [0, 30, 60, 90].map(n => `<option value="${n}">${esc(n ? t('idle.min', { n }) : t('idle.never'))}</option>`).join('');
+idleTimer.addEventListener('change', () => {
+  clearTimeout(idleOffTimer);
+  const minutes = Number(idleTimer.value);
+  if (minutes) {
+    idleOffTimer = setTimeout(() => {
+      toggleAudio(false);
+      exitIdle();
+      showOracle(t('idle.ended'), t('idle.timer'));
+    }, minutes * 60000);
+  }
+  showIdleBar();
+});
+document.getElementById('btn-idle').addEventListener('click', enterIdle);
+document.getElementById('btn-idle-exit').addEventListener('click', exitIdle);
+// the browser drops the wake lock whenever the tab is hidden
+document.addEventListener('visibilitychange', () => {
+  if (isIdle() && document.visibilityState === 'visible') keepAwake();
 });
 
 // ── Tactile Physical Item Inventory Cards (Tap or Drag-and-Throw into Fire!) ──
@@ -2820,93 +2875,71 @@ document.getElementById('btn-toggle-mute').addEventListener('click', () => toggl
 });
 
 // ── Viral Liberation Certificate Generator (#cert-canvas) ────────────────────
+const SHARE_URL = 'https://bulmeong.netlify.app/';
 function renderCertificate() {
+  // the card is a snapshot of the stage; wait until a written note has burned away
+  if (activeNote) {
+    setTimeout(renderCertificate, 250);
+    return;
+  }
+  rollDay();
   const c = document.getElementById('cert-canvas');
   const g = c.getContext('2d');
   const Wc = c.width, Hc = c.height;
-  const pal = PALETTES[state.paletteIndex];
-  const r = currentRoom();
-
-  const bg = g.createLinearGradient(0, 0, 0, Hc);
-  bg.addColorStop(0, '#090b12');
-  bg.addColorStop(0.6, '#141118');
-  bg.addColorStop(1, '#0b090d');
-  g.fillStyle = bg;
+  // the live scene around the fire, cropped to 4:5
+  const sw = Math.min(canvas.width, canvas.height * 0.8);
+  const sh = Math.min(canvas.height, sw * 1.25);
+  const sx = Math.max(0, Math.min(canvas.width - sw, fireX * DPR - sw / 2));
+  const sy = Math.max(0, Math.min(canvas.height - sh, fireY * DPR - sh * 0.6));
+  g.fillStyle = '#0b0d14';
   g.fillRect(0, 0, Wc, Hc);
+  g.drawImage(canvas, sx, sy, sw, sh, 0, 0, Wc, Hc);
 
-  const rg = g.createRadialGradient(Wc * 0.5, Hc * 0.42, 10, Wc * 0.5, Hc * 0.42, 320);
-  rg.addColorStop(0, `rgba(${pal.glow}, 0.34)`);
-  rg.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  g.fillStyle = rg;
-  g.fillRect(0, 0, Wc, Hc);
+  const shade = (y0, y1, a0, a1) => {
+    const gr = g.createLinearGradient(0, y0, 0, y1);
+    gr.addColorStop(0, `rgba(8, 7, 12, ${a0})`);
+    gr.addColorStop(1, `rgba(8, 7, 12, ${a1})`);
+    g.fillStyle = gr;
+    g.fillRect(0, y0, Wc, y1 - y0);
+  };
+  shade(0, 330, 0.85, 0);
+  shade(Hc - 380, Hc, 0, 0.9);
 
-  g.strokeStyle = 'rgba(255, 210, 145, 0.35)';
-  g.lineWidth = 2;
-  g.strokeRect(32, 32, Wc - 64, Hc - 64);
-  g.strokeStyle = 'rgba(255, 210, 145, 0.14)';
-  g.strokeRect(42, 42, Wc - 84, Hc - 84);
-
+  const css = getComputedStyle(document.documentElement);
+  const titleFont = css.getPropertyValue('--font-title').trim() || 'serif';
+  const bodyFont = css.getPropertyValue('--font-serif').trim() || 'serif';
   g.textAlign = 'center';
-  g.fillStyle = '#ffd27d';
-  g.font = '600 18px Pretendard, sans-serif';
-  g.fillText(r.title, Wc / 2, 105);
+  g.fillStyle = '#fff4e0';
+  g.font = `400 92px ${titleFont}`;
+  g.fillText(t('title.name'), Wc / 2, 150);
+  g.fillStyle = 'rgba(240, 200, 140, 0.9)';
+  g.font = `700 34px ${bodyFont}`;
+  g.fillText(t('title.tagline'), Wc / 2, 210, Wc - 120);
 
-  g.fillStyle = '#fff8ee';
-  g.font = '800 38px Pretendard, sans-serif';
-  g.fillText(t('cert.sub'), Wc / 2, 162);
-
-  const ex = Wc / 2, ey = 290;
-  for (let rad = 74; rad > 12; rad -= 14) {
-    g.fillStyle = `rgba(${pal.glow}, ${(80 - rad) / 140})`;
-    g.beginPath();
-    g.arc(ex, ey, rad, 0, Math.PI * 2);
-    g.fill();
-  }
-  g.fillStyle = '#fff7df';
-  g.beginPath();
-  g.moveTo(ex, ey - 46);
-  g.quadraticCurveTo(ex + 34, ey - 4, ex, ey + 34);
-  g.quadraticCurveTo(ex - 34, ey - 4, ex, ey - 46);
-  g.fill();
-
-  g.fillStyle = 'rgba(255, 248, 235, 0.05)';
-  g.beginPath();
-  g.roundRect(76, 380, Wc - 152, 150, 20);
-  g.fill();
-
-  const displayTemp = Math.round(state.tempC);
-  const stats = [
-    [t('cert.time'), formatTime(state.seconds)],
-    [t('cert.burned'), t('cert.count', { n: state.burnedCount })],
-    [t('cert.temp'), `${displayTemp.toLocaleString(LOCALE)}°C`]
-  ];
-  stats.forEach(([label, val], idx) => {
-    const sx = 172 + idx * 188;
-    g.fillStyle = 'rgba(255, 228, 195, 0.65)';
-    g.font = '500 17px Pretendard, sans-serif';
-    g.fillText(label, sx, 434);
-    g.fillStyle = '#ffd27d';
-    g.font = '800 30px Pretendard, sans-serif';
-    g.fillText(val, sx, 482);
-  });
-
-  g.fillStyle = 'rgba(255, 225, 190, 0.6)';
-  g.font = '500 16px Pretendard, sans-serif';
-  g.fillText(t('cert.caption'), Wc / 2, 595);
-
-  g.fillStyle = '#fff5e6';
-  g.font = '700 23px Pretendard, sans-serif';
-  g.fillText(`「 ${state.lastBurnedText.slice(0, 22)} 」`, Wc / 2, 634);
-
-  g.fillStyle = '#ffd27d';
-  g.font = '500 19px Pretendard, sans-serif';
-  g.fillText(`“${state.lastOracle}”`, Wc / 2, 725);
-
-  const today = new Date().toISOString().slice(0, 10).replaceAll('-', '.');
-  g.fillStyle = 'rgba(255, 235, 210, 0.45)';
-  g.font = '500 15px Pretendard, sans-serif';
-  g.fillText(t('cert.footer', { date: today }), Wc / 2, 825);
+  const found = Object.keys(state.eggAlbum || {}).length;
+  g.fillStyle = '#ffe3b0';
+  g.font = `700 40px ${bodyFont}`;
+  g.fillText(t('share.stats', { n: state.burnedToday, temp: state.maxTempToday.toLocaleString(LOCALE), found }), Wc / 2, Hc - 170, Wc - 100);
+  g.fillStyle = 'rgba(255, 235, 210, 0.7)';
+  g.font = `500 30px ${bodyFont}`;
+  g.fillText(`${new Date().toLocaleDateString(LOCALE)} · ${SHARE_URL.replace('https://', '').replace(/\/$/, '')}`, Wc / 2, Hc - 100);
 }
+
+document.getElementById('btn-share-card').addEventListener('click', async () => {
+  const text = `${t('share.text', { n: state.burnedToday })} ${SHARE_URL}`;
+  try {
+    const blob = await new Promise(r => document.getElementById('cert-canvas').toBlob(r, 'image/jpeg', 0.9));
+    const file = new File([blob], 'bulmeong.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare?.({ files: [file] })) return await navigator.share({ files: [file], text });
+    if (navigator.share) return await navigator.share({ text });
+  } catch (e) {
+    if (e.name === 'AbortError') return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    showOracle(t('share.copied'), t('share.btn'));
+  } catch {}
+});
 
 document.getElementById('btn-cert').addEventListener('click', () => {
   renderCertificate();
@@ -2916,8 +2949,8 @@ document.getElementById('btn-cert').addEventListener('click', () => {
 document.getElementById('btn-download-cert').addEventListener('click', () => {
   const c = document.getElementById('cert-canvas');
   const link = document.createElement('a');
-  link.download = `bulmeong-certificate-${Date.now()}.png`;
-  link.href = c.toDataURL('image/png');
+  link.download = `bulmeong-${Date.now()}.jpg`;
+  link.href = c.toDataURL('image/jpeg', 0.9);
   link.click();
 });
 
