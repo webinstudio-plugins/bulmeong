@@ -28,7 +28,7 @@ jobs:
         run: node scripts/i18n-pages.mjs
       - name: Deploy
         run: |
-          X=(--exclude '.git/*' --exclude '.github/*' --exclude '.gitignore' --exclude 'docs/*' --exclude 'infra/*' --exclude 'tools/*' --exclude 'scripts/*' --exclude 'i18n/check.mjs' --exclude '*.md')
+          X=(--exclude '.git/*' --exclude '.github/*' --exclude '.gitignore' --exclude 'docs/*' --exclude 'infra/*' --exclude 'tools/*' --exclude 'scripts/*' --exclude 'i18n/check.mjs' --exclude '*.md' --exclude 'firebase-public/*' --exclude 'firebase.json' --exclude '.firebaserc')
           IMG=(--include '*.jpg' --include '*.png' --include '*.webp' --include '*.ico' --include '*.svg')
           aws s3 sync . "s3://$BUCKET" --delete "${X[@]}" --exclude '*.mjs' --exclude '*.jpg' --exclude '*.png' --exclude '*.webp' --exclude '*.ico' --exclude '*.svg' \
             --cache-control 'public, max-age=0, must-revalidate, s-maxage=31536000'
@@ -42,3 +42,11 @@ jobs:
           aws s3 rm "s3://$BUCKET/i18n/check.mjs"
           id=$(aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths '/*' --query Invalidation.Id --output text)
           aws cloudfront wait invalidation-completed --distribution-id "$DIST_ID" --id "$id"
+      # After CloudFront has the new files: the HTML on bulmeong.web.app (service account github-deploy, Firebase Hosting Admin only)
+      - name: Deploy pages to Firebase
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$FIREBASE_SA" > "$RUNNER_TEMP/firebase-sa.json"
+          GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json" npx -y firebase-tools@15.34.2 deploy --only hosting --project bulmeong-web --non-interactive
+          rm -f "$RUNNER_TEMP/firebase-sa.json"
