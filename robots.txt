@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bulmeong.netlify.app/sitemap.xml
+Sitemap: https://d3ouqxquns99r3.cloudfront.net/sitemap.xml
