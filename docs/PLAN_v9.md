@@ -1,7 +1,7 @@
 # 불멍 v9 개편 계획서
 
 작성 2026-10-31 · Claude
-대상: https://d3ouqxquns99r3.cloudfront.net/ (bulmeong.netlify.app은 여기로 넘겨줌) · 저장소 webinstudio-plugins/bulmeong(공개) · 폴더 `C:\Users\user\Desktop\work\bulmeong-lounge`
+대상: https://bulmeong.web.app/ (페이지는 Firebase, 그림·소리·코드는 CloudFront. bulmeong.netlify.app은 여기로 넘겨줌) · 저장소 webinstudio-plugins/bulmeong(공개) · 폴더 `C:\Users\user\Desktop\work\bulmeong-lounge`
 같이 보는 문서: [CODEX_IMAGE_REQUEST_v9.md](CODEX_IMAGE_REQUEST_v9.md)
 
 ## 0. 요약
@@ -208,9 +208,9 @@ ntfy.sh 공개 토픽을 걷어내고 Netlify Functions와 Netlify Blobs로 옮�
 
 ### 배포 (2026-10-31 AWS로 옮김)
 - Netlify 무료 플랜은 월 300크레딧이라 방문이 몇천 번만 돼도 사이트가 멈춘다. 다른 사이트들과 같이 S3 + CloudFront로 옮겼다. CloudFront는 매달 1TB까지 무료다.
-- 주소는 https://d3ouqxquns99r3.cloudfront.net 이다. 쓸 만한 무료 도메인은 없다. bulmeong.app이나 bulmeong.net을 사면(1년 2만 원 안팎) 붙인다.
-- bulmeong.netlify.app은 새 주소로 넘겨주는 302 안내판만 남겼다. 넘겨주기는 요청 1건이라 크레딧을 거의 쓰지 않는다.
-- master에 푸시하면 GitHub Actions가 S3에 올리고 CloudFront 캐시를 비운다(`.github/workflows/deploy.yml`, 설정값은 `infra/README.md`). 미완성 작업은 브랜치에서 한다.
+- 대표 주소는 무료 https://bulmeong.web.app (Firebase)이다. Firebase는 HTML만 내보내고 무거운 파일은 CloudFront에서 받아서, Firebase 무료 한도(월 10GB)로 수십만 번 방문을 버틴다(2026-10-31). 도메인(bulmeong.app 첫해 8.75달러)은 필요할 때 산다.
+- bulmeong.netlify.app은 bulmeong.web.app으로 넘겨주는 302 안내판만 남겼다. 넘겨주기는 요청 1건이라 크레딧을 거의 쓰지 않는다.
+- master에 푸시하면 GitHub Actions가 언어별 페이지를 만들고, S3에 올리고, CloudFront 캐시를 비우고, Firebase에 HTML을 올린다(`.github/workflows/deploy.yml`, 설정값은 `infra/README.md`). 미완성 작업은 브랜치에서 한다.
 - GitHub Pages 자동 배포는 껐다.
 
 ## 7. 팀과 검수
